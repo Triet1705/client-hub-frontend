@@ -6,7 +6,7 @@ interface RiskWarningIconProps {
   className?: string;
   isActive?: boolean;
   primaryColor?: string;
-  accentColor?: string;
+  _accentColor?: string;
   alertColor?: string;
 }
 
@@ -14,7 +14,7 @@ export function RiskWarningIcon({
   className = "w-6 h-6",
   isActive = false,
   primaryColor = "#0052CC",
-  accentColor = "#00D9A3",
+  _accentColor = "#00D9A3",
   alertColor = "#FF6B35",
 }: RiskWarningIconProps) {
   return (

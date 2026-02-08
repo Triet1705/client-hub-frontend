@@ -7,7 +7,7 @@ import {
 import { InvoiceStatus, EscrowStatus } from "@/lib/type";
 
 export interface InvoiceStatusConfig {
-  icon: React.ComponentType<any>;
+  icon: React.ComponentType<{ className?: string; primaryColor?: string; _accentColor?: string }>;
   primaryColor: string;
   accentColor: string;
   label: string;
