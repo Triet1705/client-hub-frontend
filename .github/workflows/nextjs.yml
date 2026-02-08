@@ -8,7 +8,7 @@ on:
 
 jobs:
   build-and-test:
-    name: Build & Verify (Node 20)
+    name: Build & Verify (Node 22)
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
@@ -21,11 +21,11 @@ jobs:
       - name: Checkout Source Code
         uses: actions/checkout@v4
 
-      # 2. Setup Node.js 20
+      # 2. Setup Node.js 22
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: "22"
           cache: "npm"
 
       # 3. Install Dependencies
@@ -67,7 +67,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: "22"
 
       # npm audit check
       - name: Run npm audit
