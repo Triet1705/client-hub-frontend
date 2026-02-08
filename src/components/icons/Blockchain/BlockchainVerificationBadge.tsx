@@ -1,11 +1,11 @@
 export function BlockchainVerificationBadge({
   className,
   primaryColor = "#10b981",
-  _accentColor = "#00f0ff",
+  accentColor = "#00f0ff",
 }: {
   className?: string;
   primaryColor?: string;
-  _accentColor?: string;
+  accentColor?: string;
 }) {
   return (
     <svg
