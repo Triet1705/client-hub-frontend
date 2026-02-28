@@ -61,14 +61,11 @@
   }
 }
 
-/* Base Utility Layers */
 @layer base {
   :root {
-    /* Define hex codes here directly */
-    --background: 222.2 84% 4.9%; /* Converted to HSL for opacity support if needed, or keep hex */
+    --background: 222.2 84% 4.9%;
     --foreground: 210 40% 98%;
 
-    /* Using your Hex values directly */
     --background-hex: #0f172a;
     --foreground-hex: #f8fafc;
 
@@ -99,7 +96,6 @@
 
     --radius: 0.5rem;
 
-    /* Client Hub Custom */
     --surface-dark: #1e293b;
     --pitch-black: #020617;
   }
@@ -111,23 +107,49 @@
   }
   body {
     @apply bg-background text-foreground font-sans antialiased;
-    background-color: var(--background-hex); /* Fallback/Direct assignment */
+    background-color: var(--background-hex);
     color: var(--foreground-hex);
   }
 }
 
-/* Utilities */
 @layer utilities {
   .glass-panel {
     @apply bg-black/40 backdrop-blur-md border border-white/10;
   }
 
-  /* Hide scrollbar but allow scrolling */
   .no-scrollbar::-webkit-scrollbar {
     display: none;
   }
   .no-scrollbar {
     -ms-overflow-style: none;
     scrollbar-width: none;
+  }
+}
+
+@layer utilities {
+  .rainbow-border {
+    position: relative;
+    background: #0f172a;
+    background-clip: padding-box;
+    border: 2px solid transparent;
+  }
+  .rainbow-border::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: -1;
+    margin: -2px;
+    border-radius: inherit;
+    background: linear-gradient(
+      to right,
+      #4f46e5,
+      #818cf8,
+      #6366f1,
+      #fbbf24,
+      #10b981
+    );
   }
 }

@@ -12,6 +12,7 @@
     "prepare-hooks": "git config core.hooksPath .githooks && chmod +x .githooks/pre-commit"
   },
   "dependencies": {
+    "@hookform/resolvers": "^5.2.2",
     "@rainbow-me/rainbowkit": "^2.2.10",
     "@tanstack/react-query": "^5.90.20",
     "@types/json-bigint": "^1.0.4",
@@ -22,6 +23,7 @@
     "next": "16.0.7",
     "react": "19.2.0",
     "react-dom": "19.2.0",
+    "react-hook-form": "^7.71.2",
     "sonner": "^2.0.7",
     "tailwind-merge": "^3.4.0",
     "viem": "^2.45.1",
