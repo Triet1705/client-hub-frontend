@@ -25,3 +25,8 @@ export { AiMagicIcon } from "./AIFeature/AiMagicIcon";
 export { MilestoneIcon } from "./Status/MilestoneIcon";
 export { RiskWarningIcon } from "./Status/RiskWarningIcon";
 export { ClientHubLogo } from "./Branding/ClientHubLogo";
+export { EmailIcon } from "./Controls/EmailIcon";
+export { PasswordIcon } from "./Controls/PasswordLockIcon";
+export { VisibilityOpenIcon } from "./Controls/VisibilityOpenIcon";
+export { VisibilityClosedIcon } from "./Controls/VisibilityClosedIcon";
+export { WorkspaceDomainIcon } from "./Controls/WorkspaceDomainIcon";
