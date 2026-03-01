@@ -31,6 +31,7 @@ import {
   VisibilityOpenIcon,
   VisibilityClosedIcon,
   WorkspaceDomainIcon,
+  PersonIcon,
 } from "./index";
 export interface IconProps {
   className?: string;
@@ -74,6 +75,7 @@ export const ICON_REGISTRY = {
   "control-visibility-open": VisibilityOpenIcon,
   "control-visibility-closed": VisibilityClosedIcon,
   "control-workspace-domain": WorkspaceDomainIcon,
+  person: PersonIcon,
 } as const satisfies Record<string, ComponentType<IconProps>>;
 
 export function getIcon(name: IconName): ComponentType<IconProps> {

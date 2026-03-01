@@ -33,6 +33,7 @@ import {
   VisibilityOpenIcon,
   VisibilityClosedIcon,
   WorkspaceDomainIcon,
+  PersonIcon,
 } from "@/components/icons";
 
 interface IconComponentProps {
@@ -124,6 +125,7 @@ export default function IconGalleryPage() {
             <IconCard name="Filter" icon={ActionFilterIcon} />
             <IconCard name="Upload Cloud" icon={UploadCloudIcon} />
             <IconCard name="PDF File" icon={FilePdfIcon} />
+            <IconCard name="Person" icon={PersonIcon} />
             <NotificationCard />
           </div>
         </Section>

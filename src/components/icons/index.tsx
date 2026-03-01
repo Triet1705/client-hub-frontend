@@ -1,3 +1,5 @@
+import { PersonIcon } from "./Actions/PersonIcon";
+
 export { NavDashboardIcon } from "./Navigation/NavDashboardIcon";
 export { NavProjectsIcon } from "./Navigation/NavProjectsIcon";
 export { NavTasksIcon } from "./Navigation/NavTasksIcon";
@@ -30,3 +32,4 @@ export { PasswordIcon } from "./Controls/PasswordLockIcon";
 export { VisibilityOpenIcon } from "./Controls/VisibilityOpenIcon";
 export { VisibilityClosedIcon } from "./Controls/VisibilityClosedIcon";
 export { WorkspaceDomainIcon } from "./Controls/WorkspaceDomainIcon";
+export { PersonIcon } from "./Actions/PersonIcon";
