@@ -23,7 +23,7 @@ export default function LoginPage() {
         New to the hub?{" "}
         <Link
           href="/register"
-          className="text-white hover:text-indigo-400 transition-colors font-medium underline underline-offset-4 decoration-indigo-500/40"
+          className="text-white hover:text-emerald-400 transition-colors font-medium underline underline-offset-4 decoration-emerald-500/40"
         >
           Register new organization
         </Link>
