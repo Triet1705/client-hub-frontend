@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
-
+import { toast } from "sonner";
 import { AuthInput } from "@/components/ui/auth-input";
 import {
   WorkspaceDomainIcon,
@@ -14,9 +14,14 @@ import {
 } from "@/components/icons";
 import { login } from "../api/auth.api";
 import { loginSchema, type LoginFormValues } from "../validations/auth.schema";
+import { setAuthCookies } from "@/lib/cookies";
+import { useAuthStore } from "../store/auth.store";
+import { useRouter } from "next/navigation";
 
 export function LoginForm() {
   const [isLoading, setIsLoading] = React.useState(false);
+  const router = useRouter();
+  const setAuth = useAuthStore((state) => state.setAuth);
 
   const {
     register,
@@ -36,19 +41,29 @@ export function LoginForm() {
     setIsLoading(true);
     try {
       const response = await login(
-        {
-          email: data.email,
-          password: data.password,
-        },
+        { email: data.email, password: data.password },
         data.tenantId,
       );
 
-      // TODO: Store tokens (localStorage / cookie / zustand)
-      // TODO: Redirect to dashboard
-      console.log("Login successful:", response);
-    } catch (error) {
-      // TODO: Map backend ErrorResponse to form-level error display
-      console.error("Login Failed", error);
+      setAuthCookies(
+        response.access_token,
+        response.refresh_token,
+        data.tenantId,
+        data.persistSession,
+      );
+
+      setAuth(response);
+
+      toast.success("Authentication Successful", {
+        description: `Welcome back, ${response.email}`,
+      });
+
+      router.push("/dashboard");
+    } catch (error: unknown) {
+      const err = error as { response?: { data?: { message?: string } } };
+      const errorMsg =
+        err.response?.data?.message || "Invalid credentials or tenant ID.";
+      toast.error("Authentication Failed", { description: errorMsg });
     } finally {
       setIsLoading(false);
     }
