@@ -3,6 +3,8 @@ import type {
   LoginRequest,
   RefreshTokenRequest,
   JwtResponse,
+  RegisterRequest,
+  RegisterResponse,
 } from "../types/auth.types";
 
 const AUTH_BASE = "/auth";
@@ -51,4 +53,20 @@ export async function logout(refreshTokenStr: string): Promise<void> {
   await apiClient.post(`${AUTH_BASE}/logout`, {
     refreshToken: refreshTokenStr,
   });
+}
+
+export async function registerUser(
+  payload: RegisterRequest,
+  tenantId: string,
+): Promise<RegisterResponse> {
+  const { data } = await apiClient.post<RegisterResponse>(
+    `${AUTH_BASE}/register`,
+    payload,
+    {
+      headers: {
+        "X-Tenant-ID": tenantId,
+      },
+    },
+  );
+  return data;
 }
