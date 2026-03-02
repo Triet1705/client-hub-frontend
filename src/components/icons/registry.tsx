@@ -26,6 +26,12 @@ import {
   MilestoneIcon,
   RiskWarningIcon,
   ClientHubLogo,
+  EmailIcon,
+  PasswordIcon,
+  VisibilityOpenIcon,
+  VisibilityClosedIcon,
+  WorkspaceDomainIcon,
+  PersonIcon,
 } from "./index";
 export interface IconProps {
   className?: string;
@@ -64,6 +70,12 @@ export const ICON_REGISTRY = {
   "status-milestone": MilestoneIcon,
   "status-risk": RiskWarningIcon,
   "logo-client-hub": ClientHubLogo,
+  "control-email": EmailIcon,
+  "control-password": PasswordIcon,
+  "control-visibility-open": VisibilityOpenIcon,
+  "control-visibility-closed": VisibilityClosedIcon,
+  "control-workspace-domain": WorkspaceDomainIcon,
+  person: PersonIcon,
 } as const satisfies Record<string, ComponentType<IconProps>>;
 
 export function getIcon(name: IconName): ComponentType<IconProps> {

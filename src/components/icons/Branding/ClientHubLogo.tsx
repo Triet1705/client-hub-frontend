@@ -34,6 +34,8 @@ export function ClientHubLogo({
           xmlns="http://www.w3.org/2000/svg"
           aria-label="Client Hub Logo"
           role="img"
+          className="w-full h-full"
+          preserveAspectRatio="xMidYMid meet"
         >
           <title>Client Hub - Secure Web3 Freelancing</title>
           <defs>
