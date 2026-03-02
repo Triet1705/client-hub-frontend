@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { LoginForm } from "@/features/auth/components/login-form";
 import Link from "next/link";
 import { Metadata } from "next";
@@ -17,7 +18,18 @@ export default function LoginPage() {
         <p className="text-slate-400">Initialize your professional session</p>
       </div>
 
-      <LoginForm />
+      <Suspense
+        fallback={
+          <div className="space-y-6 animate-pulse">
+            <div className="h-12 rounded-lg bg-slate-800/60" />
+            <div className="h-12 rounded-lg bg-slate-800/60" />
+            <div className="h-12 rounded-lg bg-slate-800/60" />
+            <div className="h-14 rounded-lg bg-emerald-900/40" />
+          </div>
+        }
+      >
+        <LoginForm />
+      </Suspense>
 
       <p className="text-center text-slate-600 text-sm mt-8">
         New to the hub?{" "}

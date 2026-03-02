@@ -16,11 +16,12 @@ import { login } from "../api/auth.api";
 import { loginSchema, type LoginFormValues } from "../validations/auth.schema";
 import { setAuthCookies } from "@/lib/cookies";
 import { useAuthStore } from "../store/auth.store";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 export function LoginForm() {
   const [isLoading, setIsLoading] = React.useState(false);
   const router = useRouter();
+  const searchParams = useSearchParams();
   const setAuth = useAuthStore((state) => state.setAuth);
 
   const {
@@ -58,7 +59,8 @@ export function LoginForm() {
         description: `Welcome back, ${response.email}`,
       });
 
-      router.push("/dashboard");
+      const callbackUrl = searchParams.get("callbackUrl") ?? "/dashboard";
+      router.push(callbackUrl);
     } catch (error: unknown) {
       const err = error as { response?: { data?: { message?: string } } };
       const errorMsg =

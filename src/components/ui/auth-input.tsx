@@ -50,6 +50,7 @@ export const AuthInput = React.forwardRef<HTMLInputElement, AuthInputProps>(
             aria-describedby={error ? errorId : undefined}
             className={cn(
               "w-full bg-transparent border-t-0 border-x-0 border-b border-slate-800 focus:border-emerald-500 focus:ring-0 text-white placeholder-slate-700 py-2 px-0 transition-all text-base disabled:opacity-50",
+              "[&:-webkit-autofill]:shadow-[0_0_0_1000px_#020617_inset] [&:-webkit-autofill]:[-webkit-text-fill-color:white] [&:-webkit-autofill]:caret-white",
               error && "border-red-500/50 focus:border-red-500",
               isPassword && "pr-10",
               className,
