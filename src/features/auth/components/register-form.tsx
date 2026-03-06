@@ -27,6 +27,8 @@ export function RegisterForm() {
   const {
     register,
     handleSubmit,
+    watch,
+    setValue,
     formState: { errors },
   } = useForm<RegisterFormValues>({
     resolver: zodResolver(registerSchema),
@@ -35,8 +37,11 @@ export function RegisterForm() {
       fullName: "",
       email: "",
       password: "",
+      role: undefined,
     },
   });
+
+  const selectedRole = watch("role");
 
   const onSubmit = async (data: RegisterFormValues) => {
     setIsLoading(true);
@@ -46,6 +51,7 @@ export function RegisterForm() {
           fullName: data.fullName,
           email: data.email,
           password: data.password,
+          role: data.role,
         },
         data.tenantId,
       );
@@ -68,6 +74,38 @@ export function RegisterForm() {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+      <div className="space-y-2">
+        <p className="text-sm text-slate-400 font-medium">I am joining as a...</p>
+        <div className="grid grid-cols-2 gap-3">
+          <button
+            type="button"
+            onClick={() => setValue("role", "FREELANCER", { shouldValidate: true })}
+            className={`h-16 rounded-lg border-2 font-semibold text-sm transition-all flex flex-col items-center justify-center gap-1 ${
+              selectedRole === "FREELANCER"
+                ? "border-emerald-500 bg-emerald-500/10 text-emerald-400"
+                : "border-slate-700 bg-slate-800/50 text-slate-400 hover:border-slate-500"
+            }`}
+          >
+            <span className="text-lg">💼</span>
+            <span>Freelancer</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setValue("role", "CLIENT", { shouldValidate: true })}
+            className={`h-16 rounded-lg border-2 font-semibold text-sm transition-all flex flex-col items-center justify-center gap-1 ${
+              selectedRole === "CLIENT"
+                ? "border-emerald-500 bg-emerald-500/10 text-emerald-400"
+                : "border-slate-700 bg-slate-800/50 text-slate-400 hover:border-slate-500"
+            }`}
+          >
+            <span className="text-lg">🏢</span>
+            <span>Client</span>
+          </button>
+        </div>
+        {errors.role && (
+          <p className="text-xs text-red-400 mt-1">{errors.role.message}</p>
+        )}
+      </div>
       <AuthInput
         label="Workspace Name / Tenant ID"
         icon={WorkspaceDomainIcon}
@@ -131,9 +169,7 @@ export function RegisterForm() {
           <div className="grow border-t border-slate-900"></div>
         </div>
 
-        {/* Cấu trúc nút Web3 tương tự như Login Form */}
         <ConnectButton.Custom>
-          {/* Copy nguyên khối {({ account, chain, ... }) => { ... }} từ LoginForm xuống đây */}
           {({ account, chain, openConnectModal, mounted }) => {
             const ready = mounted;
             const connected = ready && account && chain;
