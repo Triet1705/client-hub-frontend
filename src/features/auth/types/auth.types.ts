@@ -7,6 +7,7 @@ export interface RegisterRequest {
   fullName: string;
   email: string;
   password: string;
+  role: "CLIENT" | "FREELANCER";
 }
 
 export interface RegisterResponse {

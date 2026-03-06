@@ -23,6 +23,9 @@ export const registerSchema = z.object({
       /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#])/,
       "Must include uppercase, lowercase, number, and special character (@$!%*?&#)",
     ),
+  role: z.enum(["CLIENT", "FREELANCER"], {
+    error: "Please select your account type",
+  }),
 });
 
 export type RegisterFormValues = z.infer<typeof registerSchema>;
