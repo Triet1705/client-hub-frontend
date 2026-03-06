@@ -72,9 +72,9 @@ export function Sidebar() {
     <aside className="fixed inset-y-0 left-0 z-50 w-64 border-r border-slate-800 bg-[#020617]/95 backdrop-blur-xl flex flex-col transition-all">
       <div className="flex h-16 shrink-0 items-center gap-3 px-6 border-b border-slate-800">
         <ClientHubLogo className="h-8 w-8 text-emerald-500" />
-        <span className="text-lg font-space-grotesk font-bold tracking-tight text-white">
+        {/* <span className="text-lg font-space-grotesk font-bold tracking-tight text-white">
           Client Hub
-        </span>
+        </span> */}
       </div>
 
       <div className="flex-1 overflow-y-auto py-4 px-3 space-y-1">
