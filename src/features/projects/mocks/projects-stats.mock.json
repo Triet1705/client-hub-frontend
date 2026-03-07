@@ -1,0 +1,9 @@
+{
+  "_comment": "Mock stats for fields that have no dedicated backend API yet. Replace each field with real API calls as endpoints are built.",
+  "awaitingPaymentAmount": "2500.00",
+  "_todo": {
+    "awaitingPaymentAmount": "GET /api/invoices?status=SENT — sum of invoice amounts with status SENT/OVERDUE. See CONTEXT.md §7.2",
+    "activeProjects": "Derived from GET /api/projects — count status IN_PROGRESS or PLANNING. Or use GET /api/dashboard/summary once built. See CONTEXT.md §7.3",
+    "upcomingDeadlines": "Derived from project list — count deadline within next 30 days. Or use GET /api/dashboard/summary."
+  }
+}
