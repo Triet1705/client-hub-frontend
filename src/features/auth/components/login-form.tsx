@@ -13,7 +13,7 @@ import {
   PasswordIcon,
 } from "@/components/icons";
 import { login } from "../api/auth.api";
-import { loginSchema, type LoginFormValues } from "../validations/auth.schema";
+import { loginSchema, type LoginFormValues, type LoginInputValues } from "../validations/auth.schema";
 import { setAuthCookies } from "@/lib/cookies";
 import { useAuthStore } from "../store/auth.store";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -28,7 +28,7 @@ export function LoginForm() {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<LoginFormValues>({
+  } = useForm<LoginInputValues, unknown, LoginFormValues>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
       tenantId: "",
@@ -77,7 +77,7 @@ export function LoginForm() {
         <AuthInput
           label="Workspace Domain / Tenant ID"
           icon={WorkspaceDomainIcon}
-          placeholder="org-alias-01"
+          placeholder="org-alias-01  (leave blank for Admin / default workspace)"
           error={errors.tenantId?.message}
           {...register("tenantId")}
         />

@@ -1,13 +1,19 @@
 import * as z from "zod";
 
 export const loginSchema = z.object({
-  tenantId: z.string().min(3, "Tenant ID must be at least 3 characters"),
+  // Optional at login — backend defaults to "default" tenant if blank.
+  // Regular CLIENT/FREELANCER should enter their workspace domain.
+  // ADMIN can leave blank (uses system-level "default" tenant).
+  tenantId: z.string().optional().default(""),
   email: z.string().email("Invalid email address"),
   password: z.string().min(6, "Password must be at least 6 characters"),
   persistSession: z.boolean().optional(),
 });
 
+// Output type (after Zod default is applied) — used as onSubmit data type
 export type LoginFormValues = z.infer<typeof loginSchema>;
+// Input type (what the form fields hold before default is applied) — used for useForm generic
+export type LoginInputValues = z.input<typeof loginSchema>;
 
 export const registerSchema = z.object({
   tenantId: z
