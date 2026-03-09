@@ -1,5 +1,3 @@
-import { PersonIcon } from "./Actions/PersonIcon";
-
 export { NavDashboardIcon } from "./Navigation/NavDashboardIcon";
 export { NavProjectsIcon } from "./Navigation/NavProjectsIcon";
 export { NavTasksIcon } from "./Navigation/NavTasksIcon";

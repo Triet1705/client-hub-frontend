@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import type { AxiosError } from "axios";
 import { fetchProjects, createProject, deleteProject } from "../api/project.api";
 import type { ProjectRequestPayload } from "../types/project.types";
 import { toast } from "sonner";
@@ -32,7 +33,7 @@ export function useCreateProjectMutation() {
       });
       queryClient.invalidateQueries({ queryKey: projectKeys.lists() });
     },
-    onError: (error: any) => {
+    onError: (error: AxiosError<{ message?: string }>) => {
       const status = error.response?.status;
       if (status === 403) {
         toast.error("Access Denied", {
@@ -40,7 +41,7 @@ export function useCreateProjectMutation() {
         });
         return;
       }
-      const errorMsg = error.response?.data?.message || "Failed to create project.";
+      const errorMsg = error.response?.data?.message ?? "Failed to create project.";
       toast.error("Creation Failed", { description: errorMsg });
     },
   });
@@ -55,8 +56,8 @@ export function useDeleteProjectMutation() {
       toast.success("Project Deleted");
       queryClient.invalidateQueries({ queryKey: projectKeys.lists() });
     },
-    onError: (error: any) => {
-      const errorMsg = error.response?.data?.message || "Failed to delete project.";
+    onError: (error: AxiosError<{ message?: string }>) => {
+      const errorMsg = error.response?.data?.message ?? "Failed to delete project.";
       toast.error("Deletion Failed", { description: errorMsg });
     },
   });
