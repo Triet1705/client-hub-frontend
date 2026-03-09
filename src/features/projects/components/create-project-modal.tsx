@@ -3,6 +3,8 @@
 import * as React from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { format } from "date-fns";
+import { Calendar, ChevronDown, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 import { useCreateProjectMutation } from "../hooks/use-projects";
@@ -13,6 +15,12 @@ import {
 } from "../validations/project.schema";
 import { ProjectStatus } from "../types/project.types";
 
+const STATUS_OPTIONS: { value: ProjectStatus; label: string; color: string }[] = [
+  { value: ProjectStatus.PLANNING,    label: "Planning",    color: "text-slate-300" },
+  { value: ProjectStatus.IN_PROGRESS, label: "In Progress", color: "text-blue-400"  },
+  { value: ProjectStatus.ON_HOLD,     label: "On Hold",     color: "text-amber-400" },
+];
+
 interface CreateProjectModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -21,10 +29,18 @@ interface CreateProjectModalProps {
 export function CreateProjectModal({ isOpen, onClose }: CreateProjectModalProps) {
   const { mutate: createProject, isPending } = useCreateProjectMutation();
 
+  // Custom dropdown state
+  const [statusOpen, setStatusOpen] = React.useState(false);
+  const statusRef = React.useRef<HTMLDivElement>(null);
+  // Date input ref for showPicker()
+  const dateInputRef = React.useRef<HTMLInputElement | null>(null);
+
   const {
     register,
     handleSubmit,
     reset,
+    watch,
+    setValue,
     formState: { errors },
   } = useForm<ProjectFormInputValues, unknown, ProjectFormValues>({
     resolver: zodResolver(projectSchema),
@@ -37,8 +53,24 @@ export function CreateProjectModal({ isOpen, onClose }: CreateProjectModalProps)
     },
   });
 
+  const statusValue  = watch("status");
+  const deadlineValue = watch("deadline");
+
+  // Close status dropdown on outside click
+  React.useEffect(() => {
+    if (!statusOpen) return;
+    const handler = (e: MouseEvent) => {
+      if (statusRef.current && !statusRef.current.contains(e.target as Node)) {
+        setStatusOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [statusOpen]);
+
   const handleClose = () => {
     reset();
+    setStatusOpen(false);
     onClose();
   };
 
@@ -149,15 +181,44 @@ export function CreateProjectModal({ isOpen, onClose }: CreateProjectModalProps)
               <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">
                 Deadline
               </label>
-              <input 
-                {...register("deadline")}
-                className={cn(
-                  "w-full bg-slate-900/50 border rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 transition-all [color-scheme:dark]",
-                  errors.deadline ? "border-rose-500" : "border-slate-700 focus:border-emerald-500"
-                )}
-                type="date"
-              />
-              {errors.deadline && <p className="text-[11px] text-rose-400 mt-1">{errors.deadline.message}</p>}
+              {/* Styled overlay — invisible native input below handles the picker */}
+              <div className="relative">
+                <div
+                  onClick={() => dateInputRef.current?.showPicker()}
+                  className={cn(
+                    "w-full bg-slate-900/50 border rounded-xl px-4 py-3 text-sm flex items-center gap-3 cursor-pointer select-none transition-all",
+                    errors.deadline
+                      ? "border-rose-500"
+                      : "border-slate-700 hover:border-slate-600",
+                    deadlineValue ? "text-white" : "text-slate-600",
+                  )}
+                >
+                  <Calendar className="w-4 h-4 shrink-0 text-slate-500" />
+                  <span>
+                    {deadlineValue
+                      ? format(new Date(deadlineValue + "T00:00:00"), "MMM d, yyyy")
+                      : "Pick a date"}
+                  </span>
+                </div>
+                {/* Invisible input — inherits position so browser picker opens in-place */}
+                <input
+                  type="date"
+                  {...(() => {
+                    const { ref, ...rest } = register("deadline");
+                    return {
+                      ...rest,
+                      ref: (el: HTMLInputElement | null) => {
+                        ref(el);
+                        dateInputRef.current = el;
+                      },
+                    };
+                  })()}
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer [color-scheme:dark]"
+                />
+              </div>
+              {errors.deadline && (
+                <p className="text-[11px] text-rose-400 mt-1">{errors.deadline.message}</p>
+              )}
             </div>
           </div>
 
@@ -165,14 +226,54 @@ export function CreateProjectModal({ isOpen, onClose }: CreateProjectModalProps)
             <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">
               Initial Status
             </label>
-            <select 
-              {...register("status")}
-              className="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all appearance-none cursor-pointer"
-            >
-              <option value={ProjectStatus.PLANNING}>Planning</option>
-              <option value={ProjectStatus.IN_PROGRESS}>In Progress</option>
-              <option value={ProjectStatus.ON_HOLD}>On Hold</option>
-            </select>
+            {/* Custom dropdown — replaces native <select> */}
+            <div ref={statusRef} className="relative">
+              <button
+                type="button"
+                disabled={isPending}
+                onClick={() => setStatusOpen((o) => !o)}
+                className={cn(
+                  "w-full bg-slate-900/50 border rounded-xl px-4 py-3 text-sm text-white flex items-center justify-between transition-all focus:outline-none",
+                  statusOpen
+                    ? "border-emerald-500 ring-2 ring-emerald-500/20"
+                    : "border-slate-700 hover:border-slate-600",
+                )}
+              >
+                <span className={STATUS_OPTIONS.find((o) => o.value === statusValue)?.color}>
+                  {STATUS_OPTIONS.find((o) => o.value === statusValue)?.label ?? "Select status"}
+                </span>
+                <ChevronDown
+                  className={cn(
+                    "w-4 h-4 text-slate-500 transition-transform duration-200",
+                    statusOpen && "rotate-180",
+                  )}
+                />
+              </button>
+
+              {statusOpen && (
+                <div className="absolute top-full left-0 right-0 mt-1.5 bg-slate-900 border border-slate-700 rounded-xl overflow-hidden z-50 shadow-2xl animate-in fade-in slide-in-from-top-1 duration-150">
+                  {STATUS_OPTIONS.map((option) => (
+                    <button
+                      key={option.value}
+                      type="button"
+                      onClick={() => {
+                        setValue("status", option.value, { shouldValidate: true });
+                        setStatusOpen(false);
+                      }}
+                      className="w-full flex items-center justify-between px-4 py-3 text-sm transition-colors hover:bg-slate-800 first:rounded-t-xl last:rounded-b-xl"
+                    >
+                      <span className={option.color}>{option.label}</span>
+                      {statusValue === option.value && (
+                        <Check className="w-4 h-4 text-emerald-400" />
+                      )}
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              {/* Hidden field — keeps react-hook-form register + Zod validation */}
+              <input type="hidden" {...register("status")} />
+            </div>
           </div>
         </form>
 
