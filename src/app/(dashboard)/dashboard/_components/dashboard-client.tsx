@@ -11,16 +11,21 @@ import {
 } from "@/components/icons";
 import { useProjectsQuery } from "@/features/projects/hooks/use-projects";
 import { Project, ProjectStatus } from "@/features/projects/types/project.types";
+import { useDashboardStatsQuery, useTaskSummaryQuery } from "@/features/dashboard/hooks/use-dashboard";
+import type { TaskSummary } from "@/features/dashboard/types/dashboard.types";
+import { useAuthStore } from "@/features/auth/store/auth.store";
 import { cn } from "@/lib/utils";
 
-function formatBudget(budget: string | null): string {
-  if (!budget) return "—";
+function formatCurrency(value: string | number | null | undefined): string {
+  if (value == null) return "—";
+  const num = typeof value === "string" ? parseFloat(value) : value;
+  if (isNaN(num)) return "—";
   return new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: "USD",
-    minimumFractionDigits: 0,
+    minimumFractionDigits: 2,
     maximumFractionDigits: 2,
-  }).format(parseFloat(budget));
+  }).format(num);
 }
 
 function daysUntil(deadline: string | null): number | null {
@@ -75,16 +80,27 @@ const STATUS_STYLES: Record<ProjectStatus, { label: string; className: string }>
   },
 };
 
-// TODO: Replace with real task API when task hooks are wired up
-const TASK_SEED_DATA = [
-  { label: "To Do", count: 1, total: 3, color: "bg-slate-500" },
-  { label: "In Progress", count: 1, total: 3, color: "bg-blue-500" },
-  { label: "Done", count: 1, total: 3, color: "bg-emerald-500" },
-];
 
-function TaskOverviewChart() {
-  const completionRate = Math.round((1 / 3) * 100);
+function TaskOverviewChart({
+  taskSummary,
+  isLoading,
+}: {
+  taskSummary: TaskSummary | undefined;
+  isLoading: boolean;
+}) {
+  const todo       = taskSummary?.todo       ?? 0;
+  const inProgress = taskSummary?.inProgress ?? 0;
+  const done       = taskSummary?.done       ?? 0;
+  const total      = taskSummary?.total      ?? 0;
 
+  const completionRate = total > 0 ? Math.round((done / total) * 100) : 0;
+
+  const bars = [
+    { label: "To Do",       count: todo,       color: "bg-slate-500" },
+    { label: "In Progress", count: inProgress, color: "bg-blue-500" },
+    { label: "Done",        count: done,       color: "bg-emerald-500" },
+  ];
+  const maxCount = Math.max(todo, inProgress, done, 1);
   return (
     <div className="bg-[#0f172a]/50 backdrop-blur-sm border border-slate-800 rounded-2xl p-6">
       <div className="flex items-center justify-between mb-6">
@@ -97,37 +113,50 @@ function TaskOverviewChart() {
 
       <div className="mb-6">
         <div className="flex items-end gap-1.5 h-16 px-1">
-          {TASK_SEED_DATA.map((item) => {
-            const heightPct = Math.max(20, (item.count / item.total) * 100);
-            return (
-              <div
-                key={item.label}
-                className="flex-1 flex flex-col items-center gap-1.5"
-              >
-                <div className="w-full flex items-end h-12">
-                  <div
-                    className={cn(
-                      "w-full rounded-t transition-all duration-700",
-                      item.color,
-                    )}
-                    style={{ height: `${heightPct}%` }}
-                  />
+          {isLoading
+            ? [1, 2, 3].map((i) => (
+                <div key={i} className="flex-1 flex flex-col items-center gap-1.5">
+                  <div className="w-full flex items-end h-12">
+                    <div className="w-full rounded-t bg-slate-800 animate-pulse" style={{ height: "60%" }} />
+                  </div>
+                  <span className="text-[10px] text-slate-500">&nbsp;</span>
                 </div>
-                <span className="text-[10px] text-slate-500">{item.label}</span>
-              </div>
-            );
-          })}
+              ))
+            : bars.map((item) => {
+                const heightPct = Math.max(12, (item.count / maxCount) * 100);
+                return (
+                  <div
+                    key={item.label}
+                    className="flex-1 flex flex-col items-center gap-1.5"
+                  >
+                    <div className="w-full flex items-end h-12">
+                      <div
+                        className={cn(
+                          "w-full rounded-t transition-all duration-700",
+                          item.color,
+                        )}
+                        style={{ height: `${heightPct}%` }}
+                      />
+                    </div>
+                    <span className="text-[10px] text-slate-500">{item.label}</span>
+                  </div>
+                );
+              })}
         </div>
       </div>
 
       <div className="space-y-2.5">
-        {TASK_SEED_DATA.map((item) => (
+        {bars.map((item) => (
           <div key={item.label} className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <div className={cn("w-2 h-2 rounded-full", item.color)} />
               <span className="text-xs text-slate-400">{item.label}</span>
             </div>
-            <span className="text-xs font-bold text-white">{item.count}</span>
+            {isLoading ? (
+              <div className="w-4 h-3 rounded bg-slate-800 animate-pulse" />
+            ) : (
+              <span className="text-xs font-bold text-white">{item.count}</span>
+            )}
           </div>
         ))}
       </div>
@@ -186,7 +215,7 @@ function ProjectRow({ project }: { project: Project }) {
         </span>
         <div className="text-right hidden sm:block">
           <p className="text-xs font-mono text-slate-300">
-            {formatBudget(project.budget)}
+            {formatCurrency(project.budget)}
           </p>
           <DeadlineBadge deadline={project.deadline} />
         </div>
@@ -197,8 +226,11 @@ function ProjectRow({ project }: { project: Project }) {
 
 export function DashboardClient() {
   const { data: projectsData, isLoading: projectsLoading } = useProjectsQuery(0, 5);
+  const { data: statsData,    isLoading: statsLoading    } = useDashboardStatsQuery();
+  const { data: taskSummary,  isLoading: taskSummaryLoading } = useTaskSummaryQuery();
+  const { user } = useAuthStore();
+  const canCreate = user?.role === "CLIENT" || user?.role === "ADMIN";
 
-  const activeProjectCount = projectsData?.totalElements ?? "—";
   const recentProjects = projectsData?.content ?? [];
 
   return (
@@ -217,13 +249,15 @@ export function DashboardClient() {
             <ActionPlusIcon className="w-4 h-4" />
             New Task
           </button>
-          <Link
-            href="/projects"
-            className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors shadow-lg shadow-emerald-900/20"
-          >
-            <ActionPlusIcon className="w-4 h-4" />
-            Create Project
-          </Link>
+          {canCreate && (
+            <Link
+              href="/projects"
+              className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors shadow-lg shadow-emerald-900/20"
+            >
+              <ActionPlusIcon className="w-4 h-4" />
+              Create Project
+            </Link>
+          )}
         </div>
       </div>
 
@@ -242,50 +276,63 @@ export function DashboardClient() {
           <div>
             <h3 className="text-slate-400 text-sm font-medium">Active Projects</h3>
             <p className="text-3xl font-bold text-white mt-1">
-              {projectsLoading ? (
+              {statsLoading ? (
                 <span className="inline-block w-8 h-8 rounded bg-slate-800 animate-pulse" />
               ) : (
-                activeProjectCount
+                statsData?.activeProjects ?? "—"
               )}
             </p>
           </div>
         </div>
 
-        {/* TODO: Replace with real task API when task hooks are available */}
+        {/* Pending Tasks — real data from GET /api/tasks/summary */}
         <div className="bg-[#0f172a]/50 backdrop-blur-sm border border-slate-800 p-6 rounded-2xl flex flex-col justify-between group hover:border-slate-700 transition-colors">
           <div className="flex justify-between items-start mb-4">
             <div className="p-2 bg-amber-500/10 rounded-lg text-amber-400 group-hover:bg-amber-500/20 transition-colors">
               <NavTasksIcon className="w-6 h-6" />
             </div>
-            <span className="text-xs font-medium text-amber-400 bg-amber-400/10 px-2 py-1 rounded-full">
-              2 open
-            </span>
+            {!statsLoading && (
+              <span className="text-xs font-medium text-amber-400 bg-amber-400/10 px-2 py-1 rounded-full">
+                {(statsData?.pendingTasks ?? 0) === 0 ? "All clear" : `${statsData?.pendingTasks} open`}
+              </span>
+            )}
           </div>
           <div>
             <h3 className="text-slate-400 text-sm font-medium">Pending Tasks</h3>
-            <p className="text-3xl font-bold text-white mt-1">2</p>
+            <p className="text-3xl font-bold text-white mt-1">
+              {statsLoading ? (
+                <span className="inline-block w-8 h-8 rounded bg-slate-800 animate-pulse" />
+              ) : (
+                statsData?.pendingTasks ?? "—"
+              )}
+            </p>
           </div>
         </div>
 
-        {/* TODO: Replace with real invoice API (sum of SENT invoices) */}
         <div className="bg-[#0f172a]/50 backdrop-blur-sm border border-slate-800 p-6 rounded-2xl flex flex-col justify-between group hover:border-slate-700 transition-colors">
           <div className="flex justify-between items-start mb-4">
             <div className="p-2 bg-rose-500/10 rounded-lg text-rose-400 group-hover:bg-rose-500/20 transition-colors">
               <NavInvoicesIcon className="w-6 h-6" />
             </div>
-            <span className="text-xs font-medium text-rose-400 bg-rose-400/10 px-2 py-1 rounded-full">
-              Action needed
-            </span>
+            {!statsLoading && (
+              <span className="text-xs font-medium text-rose-400 bg-rose-400/10 px-2 py-1 rounded-full">
+                {parseFloat(statsData?.awaitingPaymentAmount ?? "0") > 0 ? "Action needed" : "All clear"}
+              </span>
+            )}
           </div>
           <div>
             <h3 className="text-slate-400 text-sm font-medium">Awaiting Payment</h3>
             <p className="text-3xl font-bold text-white mt-1">
-              $2,500<span className="text-sm text-slate-500 ml-1">.00</span>
+              {statsLoading ? (
+                <span className="inline-block w-24 h-8 rounded bg-slate-800 animate-pulse" />
+              ) : (
+                formatCurrency(statsData?.awaitingPaymentAmount)
+              )}
             </p>
           </div>
         </div>
 
-        {/* TODO: Replace with real on-chain balance from smart contract */}
+        {/* Escrow Locked — 0 until M3 Web3 integration */}
         <div className="rainbow-border relative bg-[#020617] p-6 rounded-2xl flex flex-col justify-between shadow-lg">
           <div className="flex justify-between items-start mb-4 relative z-10">
             <div className="p-2 bg-emerald-500/10 rounded-lg text-emerald-400">
@@ -304,14 +351,13 @@ export function DashboardClient() {
           <div className="relative z-10">
             <h3 className="text-slate-400 text-sm font-medium">Escrow Locked (USDT)</h3>
             <p className="text-3xl font-bold text-white mt-1">
-              0<span className="text-sm text-slate-500 ml-1">.00</span>
+              {formatCurrency(statsData?.escrowLocked ?? "0")}
             </p>
           </div>
         </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left: Recent Projects (lg:col-span-2) */}
         <div className="lg:col-span-2 space-y-6">
           <div className="bg-[#0f172a]/50 backdrop-blur-sm border border-slate-800 rounded-2xl p-6">
             <div className="flex items-center justify-between mb-6">
@@ -352,7 +398,7 @@ export function DashboardClient() {
         </div>
 
         <div className="space-y-6">
-          <TaskOverviewChart />
+          <TaskOverviewChart taskSummary={taskSummary} isLoading={taskSummaryLoading} />
 
           <div className="bg-[#0f172a]/50 backdrop-blur-sm border border-slate-800 rounded-2xl p-6">
             <div className="flex items-center justify-between mb-6">

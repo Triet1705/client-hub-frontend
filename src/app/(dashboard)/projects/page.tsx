@@ -6,17 +6,19 @@ import { ProjectStats } from "@/features/projects/components/project-stats";
 import { ProjectTable } from "@/features/projects/components/project-table";
 import { useProjectsQuery } from "@/features/projects/hooks/use-projects";
 import { ProjectStatus } from "@/features/projects/types/project.types";
-// awaitingPaymentAmount → GET /api/invoices?status=SENT (CONTEXT.md §7.2)
-import statsMock from "@/features/projects/mocks/projects-stats.mock.json";
+import { useAuthStore } from "@/features/auth/store/auth.store";
+import { useDashboardStatsQuery } from "@/features/dashboard/hooks/use-dashboard";
 import { CreateProjectModal } from "@/features/projects/components/create-project-modal";
 
 export default function ProjectsPage() {
   const [page, setPage] = React.useState(0);
   const pageSize = 10;
-
   const [isCreateModalOpen, setIsCreateModalOpen] = React.useState(false);
+  const { user } = useAuthStore();
+  const canCreate = user?.role === "CLIENT" || user?.role === "ADMIN";
 
   const { data, isLoading, isError } = useProjectsQuery(page, pageSize);
+  const { data: statsData } = useDashboardStatsQuery();
 
   const projects = data?.content || [];
   const totalPages = data?.totalPages || 0;
@@ -41,7 +43,7 @@ export default function ProjectsPage() {
       <ProjectStats
         isLoading={isLoading}
         activeProjects={activeProjects}
-        awaitingPaymentAmount={statsMock.awaitingPaymentAmount}
+        awaitingPaymentAmount={statsData?.awaitingPaymentAmount ?? "0"}
         upcomingDeadlines={upcomingDeadlines}
       />
 
@@ -50,13 +52,15 @@ export default function ProjectsPage() {
           <h1 className="text-2xl font-bold text-white">Projects</h1>
           <p className="text-slate-400 text-sm">Manage your active engagements</p>
         </div>
-        <button 
-          onClick={() => setIsCreateModalOpen(true)}
-          className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white px-5 py-2.5 rounded-xl text-sm font-bold transition-all shadow-lg shadow-emerald-900/20"
-        >
-          <ActionPlusIcon className="w-5 h-5" />
-          Create Project
-        </button>
+        {canCreate && (
+          <button
+            onClick={() => setIsCreateModalOpen(true)}
+            className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white px-5 py-2.5 rounded-xl text-sm font-bold transition-all shadow-lg shadow-emerald-900/20"
+          >
+            <ActionPlusIcon className="w-5 h-5" />
+            Create Project
+          </button>
+        )}
       </div>
 
       {isError ? (

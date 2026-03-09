@@ -33,6 +33,13 @@ export function useCreateProjectMutation() {
       queryClient.invalidateQueries({ queryKey: projectKeys.lists() });
     },
     onError: (error: any) => {
+      const status = error.response?.status;
+      if (status === 403) {
+        toast.error("Access Denied", {
+          description: "Only clients can create projects.",
+        });
+        return;
+      }
       const errorMsg = error.response?.data?.message || "Failed to create project.";
       toast.error("Creation Failed", { description: errorMsg });
     },
