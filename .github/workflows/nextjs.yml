@@ -29,8 +29,9 @@ jobs:
           cache: "npm"
 
       # 3. Install Dependencies
+      # --legacy-peer-deps: zod v4 vs transitive zod v3 peer conflict (@hookform/resolvers)
       - name: Install Dependencies
-        run: npm ci
+        run: npm ci --legacy-peer-deps
 
       # 4. Lint Check
       - name: Run ESLint
