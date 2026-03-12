@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { cn } from "@/lib/utils";
 
@@ -58,7 +58,7 @@ export function CreateTaskModal({
     register,
     handleSubmit,
     reset,
-    watch,
+    control,
     setValue,
     formState: { errors },
   } = useForm<TaskFormInputValues, unknown, TaskFormValues>({
@@ -74,9 +74,9 @@ export function CreateTaskModal({
     },
   });
 
-  const priorityValue  = watch("priority")   ?? TaskPriority.MEDIUM;
-  const statusValue    = watch("status")      ?? defaultStatus;
-  const projectIdValue = watch("projectId")   ?? "";
+  const priorityValue  = useWatch({ control, name: "priority" })  ?? TaskPriority.MEDIUM;
+  const statusValue    = useWatch({ control, name: "status" })     ?? defaultStatus;
+  const projectIdValue = useWatch({ control, name: "projectId" })  ?? "";
 
   React.useEffect(() => {
     if (isOpen) reset((prev) => ({ ...prev, status: defaultStatus }));
