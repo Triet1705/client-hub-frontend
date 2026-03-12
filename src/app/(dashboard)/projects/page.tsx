@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { ActionPlusIcon } from "@/components/icons";
+import { Plus } from "lucide-react";
 import { ProjectStats } from "@/features/projects/components/project-stats";
 import { ProjectTable } from "@/features/projects/components/project-table";
 import { useProjectsQuery } from "@/features/projects/hooks/use-projects";
@@ -57,7 +57,7 @@ export default function ProjectsPage() {
             onClick={() => setIsCreateModalOpen(true)}
             className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white px-5 py-2.5 rounded-xl text-sm font-bold transition-all shadow-lg shadow-emerald-900/20"
           >
-            <ActionPlusIcon className="w-5 h-5" />
+            <Plus className="w-5 h-5" />
             Create Project
           </button>
         )}

@@ -112,12 +112,14 @@ export function CreateProjectModal({ isOpen, onClose }: CreateProjectModalProps)
           <h3 id="create-project-title" className="text-xl font-bold text-white tracking-tight font-sans">
             Create New Project
           </h3>
-          <button 
+          <button
+            type="button"
             onClick={handleClose}
             disabled={isPending}
             className="text-slate-500 hover:text-white transition-colors disabled:opacity-50"
+            aria-label="Close"
           >
-            <span className="material-symbols-outlined">close</span>
+            <span className="material-symbols-outlined text-[22px]">close</span>
           </button>
         </div>
 
