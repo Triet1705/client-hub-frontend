@@ -58,7 +58,6 @@ export function TaskDetailSlideover({
   const [description,     setDescription]     = React.useState("");
   const [activeStatus,    setActiveStatus]    = React.useState<TaskStatus>(TaskStatus.TODO);
 
-  // Sync state when selected task changes
   React.useEffect(() => {
     if (!task) return;
     setAssignedToId(task.assignedTo?.id ?? "");
@@ -68,9 +67,8 @@ export function TaskDetailSlideover({
     setDueDate(task.dueDate ?? "");
     setDescription(task.description ?? "");
     setActiveStatus(task.status);
-  }, [task?.id]);
+  }, [task]);
 
-  // ESC to close
   React.useEffect(() => {
     if (!isOpen) return;
     const handler = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
@@ -123,7 +121,6 @@ export function TaskDetailSlideover({
 
   return (
     <>
-      {/* Backdrop */}
       <div
         className={cn(
           "fixed inset-0 bg-black/50 z-40 transition-opacity duration-300",
@@ -132,7 +129,6 @@ export function TaskDetailSlideover({
         onClick={onClose}
       />
 
-      {/* Panel */}
       <div
         className={cn(
           "fixed top-0 right-0 h-full w-120 bg-[#111827] border-l border-[#1f2937] z-50",
@@ -140,7 +136,6 @@ export function TaskDetailSlideover({
           isOpen ? "translate-x-0" : "translate-x-full",
         )}
       >
-        {/* Header */}
         <div className="p-6 border-b border-[#1f2937] flex items-start justify-between shrink-0">
           <div className="flex-1 min-w-0 pr-4">
             {task && (
@@ -166,9 +161,7 @@ export function TaskDetailSlideover({
           </button>
         </div>
 
-        {/* Body */}
         <div className="flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar">
-          {/* Status toggles */}
           <section>
             <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-3">
               Update Status
@@ -193,9 +186,7 @@ export function TaskDetailSlideover({
 
           <div className="border-t border-[#1f2937]" />
 
-          {/* Details */}
           <section className="space-y-4">
-            {/* Assignee */}
             <div>
               <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-2">
                 Assigned To
@@ -217,7 +208,6 @@ export function TaskDetailSlideover({
               )}
             </div>
 
-            {/* Due Date + Priority */}
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-2">
@@ -254,7 +244,6 @@ export function TaskDetailSlideover({
               </div>
             </div>
 
-            {/* Est Hours + Act Hours */}
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-2">
@@ -295,7 +284,6 @@ export function TaskDetailSlideover({
 
           <div className="border-t border-[#1f2937]" />
 
-          {/* Description */}
           <section>
             <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-2">
               Description
