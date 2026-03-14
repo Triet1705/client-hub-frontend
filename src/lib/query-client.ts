@@ -6,16 +6,31 @@ import {
 } from "@tanstack/react-query";
 import { toast } from "sonner";
 
-function handleError(error: Error, context?: { queryKey?: QueryKey }) {
+function normalizeErrorMessage(error: unknown): string {
+  if (error instanceof Error && error.message) {
+    return error.message;
+  }
+
+  if (typeof error === "object" && error !== null) {
+    const maybeMessage = (error as { message?: unknown }).message;
+    if (typeof maybeMessage === "string" && maybeMessage.length > 0) {
+      return maybeMessage;
+    }
+  }
+
+  return "An unexpected error occurred";
+}
+
+function handleError(error: unknown, context?: { queryKey?: QueryKey }) {
+  const errorMessage = normalizeErrorMessage(error);
+
   if (process.env.NODE_ENV === "development") {
     console.error("API Error:", {
-      message: error.message,
+      message: errorMessage,
       queryKey: context?.queryKey,
       error,
     });
   }
-
-  const errorMessage = error.message || "An unexpected error occurred";
 
   if (
     errorMessage.includes("Network Error") ||
@@ -41,13 +56,13 @@ function handleError(error: Error, context?: { queryKey?: QueryKey }) {
 export const queryClient = new QueryClient({
   queryCache: new QueryCache({
     onError: (error, query) => {
-      handleError(error as Error, { queryKey: query.queryKey });
+      handleError(error, { queryKey: query.queryKey });
     },
   }),
 
   mutationCache: new MutationCache({
     onError: (error) => {
-      handleError(error as Error);
+      handleError(error);
     },
   }),
 

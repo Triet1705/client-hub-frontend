@@ -43,3 +43,26 @@ export interface ProjectRequestPayload {
     deadline?: string;          // ISO date yyyy-MM-dd
     status?: ProjectStatus;
 }
+
+export interface ProjectMember {
+    userId: string;
+    email: string;
+    fullName: string;
+    role: "CLIENT" | "FREELANCER" | "ADMIN";
+    addedAt?: string;
+}
+
+export interface ProjectFreelancerCandidate {
+    userId: string;
+    email: string;
+    fullName: string;
+    role: "FREELANCER";
+}
+
+export interface ProjectInvoice {
+    id: string;
+    invoiceNumber?: string;
+    amount: string;
+    status: string;             // DRAFT | SENT | PAID | OVERDUE | LOCKED
+    createdAt?: string;
+}

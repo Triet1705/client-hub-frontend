@@ -27,8 +27,10 @@ export function TaskCard({ task, onClick }: TaskCardProps) {
     <div
       onClick={() => onClick?.(task)}
       className={cn(
-        "group bg-[#111111] rounded-md p-3 cursor-pointer flex flex-col gap-3 relative transition-all border",
-        isDone || isCancelled ? "opacity-60 border-[#333333]" : "border-[#333333] hover:border-emerald-500",
+        "group bg-slate-900/85 rounded-lg p-3.5 cursor-pointer flex flex-col gap-3 relative transition-all border",
+        isDone || isCancelled
+          ? "opacity-65 border-slate-800"
+          : "border-slate-800 hover:border-emerald-500/70 hover:bg-slate-900",
         task.status === TaskStatus.IN_PROGRESS && "border-emerald-500/50",
         isCancelled && "cursor-default"
       )}
@@ -53,9 +55,9 @@ export function TaskCard({ task, onClick }: TaskCardProps) {
         )}
       </div>
 
-      <div className="flex items-center justify-between border-t border-[#333333] pt-3 mt-1">
+      <div className="flex items-center justify-between border-t border-slate-800 pt-3 mt-1">
         <div 
-          className="w-6 h-6 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-[9px] font-bold text-slate-400"
+          className="w-6 h-6 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-[9px] font-bold text-slate-300"
           title={task.assignedTo?.email || "Unassigned"}
         >
           {task.assignedTo ? avatarInitials : "—"}

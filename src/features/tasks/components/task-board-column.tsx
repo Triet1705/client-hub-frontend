@@ -21,20 +21,20 @@ export function TaskBoardColumn({ title, status, tasks, onTaskClick, onAddTask }
       case TaskStatus.IN_PROGRESS:
         return "border-emerald-500 shadow-[0_0_20px_-5px_rgba(16,185,129,0.2)]";
       case TaskStatus.DONE:
-        return "border-emerald-500";
+        return "border-blue-500";
       case TaskStatus.CANCELLED:
-        return "border-slate-700";
+        return "border-rose-500/40";
       case TaskStatus.TODO:
       default:
-        return "border-slate-600";
+        return "border-slate-500/70";
     }
   };
 
   const getTitleStyle = () => {
     switch (status) {
       case TaskStatus.IN_PROGRESS: return "text-white";
-      case TaskStatus.DONE: return "text-emerald-500";
-      case TaskStatus.CANCELLED: return "text-slate-500";
+      case TaskStatus.DONE: return "text-blue-400";
+      case TaskStatus.CANCELLED: return "text-rose-300";
       case TaskStatus.TODO:
       default: return "text-slate-300";
     }
@@ -43,15 +43,15 @@ export function TaskBoardColumn({ title, status, tasks, onTaskClick, onAddTask }
   const getBadgeStyle = () => {
     switch (status) {
       case TaskStatus.IN_PROGRESS: return "bg-emerald-500/20 border-emerald-500/40 text-emerald-500";
-      case TaskStatus.DONE: return "bg-emerald-500/10 border-emerald-500/30 text-emerald-500";
-      case TaskStatus.CANCELLED: return "bg-slate-800 border-slate-700 text-slate-500";
+      case TaskStatus.DONE: return "bg-blue-500/10 border-blue-500/30 text-blue-400";
+      case TaskStatus.CANCELLED: return "bg-rose-500/10 border-rose-500/30 text-rose-300";
       case TaskStatus.TODO:
       default: return "bg-[#161616] border-[#333333] text-slate-400";
     }
   };
 
   return (
-    <div className="w-80 flex flex-col gap-3 h-full shrink-0">
+    <div className="w-72 flex flex-col gap-3 h-full shrink-0">
       <div className={cn("flex items-center justify-between px-1 pb-2 border-b-2", getHeaderStyle())}>
         <div className="flex items-center gap-2">
           <span className={cn("text-sm font-semibold", getTitleStyle())}>{title}</span>
