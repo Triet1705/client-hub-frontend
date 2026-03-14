@@ -16,6 +16,7 @@ import {
 } from "../validations/task.schema";
 import { TaskStatus, TaskPriority, type TaskRequestPayload } from "../types/task.types";
 import { useProjectsQuery } from "@/features/projects/hooks/use-projects";
+import { useProjectMembersQuery } from "@/features/projects/hooks/use-projects";
 
 const PRIORITY_OPTIONS: SelectOption<TaskPriority>[] = [
   { value: TaskPriority.LOW,    label: "Low",    color: "text-slate-400"  },
@@ -77,10 +78,44 @@ export function CreateTaskModal({
   const priorityValue  = useWatch({ control, name: "priority" })  ?? TaskPriority.MEDIUM;
   const statusValue    = useWatch({ control, name: "status" })     ?? defaultStatus;
   const projectIdValue = useWatch({ control, name: "projectId" })  ?? "";
+  const assignedToValue = useWatch({ control, name: "assignedToId" }) ?? "";
+  const { data: projectMembers = [], isLoading: isLoadingMembers } = useProjectMembersQuery(projectIdValue);
+
+  const assigneeOptions = React.useMemo<SelectOption<string>[]>(
+    () => [
+      { value: "", label: "Unassigned" },
+      ...projectMembers
+        .filter((member) => member.role === "FREELANCER")
+        .map((member) => ({ value: member.userId, label: member.fullName || member.email })),
+    ],
+    [projectMembers],
+  );
 
   React.useEffect(() => {
     if (isOpen) reset((prev) => ({ ...prev, status: defaultStatus }));
   }, [isOpen, defaultStatus, reset]);
+
+  React.useEffect(() => {
+    if (!isOpen) {
+      return;
+    }
+
+    if (!projectIdValue) {
+      if (assignedToValue) {
+        setValue("assignedToId", undefined, { shouldValidate: true });
+      }
+      return;
+    }
+
+    if (!assignedToValue) {
+      return;
+    }
+
+    const isStillValid = assigneeOptions.some((opt) => opt.value === assignedToValue);
+    if (!isStillValid) {
+      setValue("assignedToId", undefined, { shouldValidate: true });
+    }
+  }, [isOpen, projectIdValue, assignedToValue, assigneeOptions, setValue]);
 
   const handleClose = () => {
     reset();
@@ -200,6 +235,19 @@ export function CreateTaskModal({
             <input type="hidden" {...register("status")} />
           </FormField>
         </div>
+
+        {/* Assignee (scoped by selected project members) */}
+        <FormField label="Assignee">
+          <SelectDropdown
+            options={assigneeOptions}
+            value={assignedToValue}
+            onChange={(v) => setValue("assignedToId", v || undefined, { shouldValidate: true })}
+            placeholder={projectIdValue ? "Select assignee" : "Pick a project first"}
+            loading={!!projectIdValue && isLoadingMembers}
+            disabled={!projectIdValue}
+          />
+          <input type="hidden" {...register("assignedToId")} />
+        </FormField>
 
         {/* Est. Hours + Due Date */}
         <div className="grid grid-cols-2 gap-4">

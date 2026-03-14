@@ -1,12 +1,13 @@
 import { useQuery, useMutation, useQueryClient, keepPreviousData } from "@tanstack/react-query";
 import type { AxiosError } from "axios";
 import { toast } from "sonner";
-import { 
-  fetchTasks, 
-  createTask, 
-  updateTaskStatus, 
-  deleteTask, 
-  assignTask 
+import {
+  fetchTasks,
+  createTask,
+  updateTask,
+  updateTaskStatus,
+  deleteTask,
+  assignTask
 } from "../api/task.api";
 import type { FetchTasksParams, TaskRequestPayload, TaskStatus, TaskPageResponse } from "../types/task.types";
 
@@ -107,6 +108,23 @@ export function useDeleteTaskMutation() {
     onError: (error: AxiosError<{ message?: string }>) => {
       const errorMsg = error.response?.data?.message ?? "Failed to delete task.";
       toast.error("Deletion Failed", { description: errorMsg });
+    },
+  });
+}
+
+export function useUpdateTaskMutation(currentParams: FetchTasksParams) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, payload }: { id: string; payload: TaskRequestPayload }) =>
+      updateTask(id, payload),
+    onSuccess: () => {
+      toast.success("Task Updated");
+      queryClient.invalidateQueries({ queryKey: taskKeys.list(currentParams) });
+    },
+    onError: (error: AxiosError<{ message?: string }>) => {
+      const errorMsg = error.response?.data?.message ?? "Failed to update task.";
+      toast.error("Update Failed", { description: errorMsg });
     },
   });
 }

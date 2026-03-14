@@ -19,6 +19,7 @@ export function TaskBoard({ tasks, currentParams, onAddTask, onTaskClick }: Task
   const todoTasks = tasks.filter((t) => t.status === TaskStatus.TODO);
   const inProgressTasks = tasks.filter((t) => t.status === TaskStatus.IN_PROGRESS);
   const doneTasks = tasks.filter((t) => t.status === TaskStatus.DONE);
+  const cancelledTasks = tasks.filter((t) => t.status === TaskStatus.CANCELLED);
 
   const handleDragEnd = (result: DropResult) => {
     const { destination, source, draggableId } = result;
@@ -33,7 +34,7 @@ export function TaskBoard({ tasks, currentParams, onAddTask, onTaskClick }: Task
   return (
     <div className="flex-1 overflow-x-auto overflow-y-hidden p-6 custom-scrollbar">
       <DragDropContext onDragEnd={handleDragEnd}>
-        <div className="flex h-full gap-5 min-w-max max-w-5xl mx-auto items-start">
+        <div className="flex h-full gap-5 min-w-max items-start pr-2">
           <TaskBoardColumn
             title="To Do"
             status={TaskStatus.TODO}
@@ -52,6 +53,13 @@ export function TaskBoard({ tasks, currentParams, onAddTask, onTaskClick }: Task
             title="Done"
             status={TaskStatus.DONE}
             tasks={doneTasks}
+            onAddTask={onAddTask}
+            onTaskClick={onTaskClick}
+          />
+          <TaskBoardColumn
+            title="Cancelled"
+            status={TaskStatus.CANCELLED}
+            tasks={cancelledTasks}
             onAddTask={onAddTask}
             onTaskClick={onTaskClick}
           />

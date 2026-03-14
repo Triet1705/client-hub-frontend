@@ -209,7 +209,7 @@ export default function TasksPage() {
         </div>
       ) : isLoading ? (
         <div className="flex-1 flex h-full gap-5 p-6 max-w-5xl mx-auto w-full">
-          {[1, 2, 3].map(i => (
+          {[1, 2, 3, 4].map(i => (
             <div key={i} className="w-80 flex flex-col gap-3">
               <div className="h-8 bg-slate-800/50 rounded-md animate-pulse"></div>
               <div className="h-24 bg-slate-800/30 rounded-md animate-pulse"></div>

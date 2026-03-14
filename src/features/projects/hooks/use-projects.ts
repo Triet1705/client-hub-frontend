@@ -1,6 +1,16 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import type { AxiosError } from "axios";
-import { fetchProjects, createProject, deleteProject } from "../api/project.api";
+import {
+  fetchProjects,
+  createProject,
+  deleteProject,
+  fetchProjectById,
+  fetchProjectMembers,
+  addProjectMember,
+  removeProjectMember,
+  fetchProjectInvoices,
+  searchProjectFreelancers,
+} from "../api/project.api";
 import type { ProjectRequestPayload } from "../types/project.types";
 import { toast } from "sonner";
 
@@ -8,6 +18,9 @@ export const projectKeys = {
   all: ["projects"] as const,
   lists: () => [...projectKeys.all, "list"] as const,
   detail: (id: string) => [...projectKeys.all, "detail", id] as const,
+  members: (id: string) => [...projectKeys.all, "detail", id, "members"] as const,
+  invoices: (id: string) => [...projectKeys.all, "detail", id, "invoices"] as const,
+  freelancerSearch: (id: string, keyword: string) => [...projectKeys.all, "detail", id, "freelancer-search", keyword] as const,
 };
 
 export function useProjectsQuery(page = 0, size = 20) {
@@ -19,6 +32,39 @@ export function useProjectsQuery(page = 0, size = 20) {
       ...data,
       currentPage: data.pageable.pageNumber,
     }),
+  });
+}
+
+export function useProjectDetailQuery(id: string) {
+  return useQuery({
+    queryKey: projectKeys.detail(id),
+    queryFn: () => fetchProjectById(id),
+    enabled: !!id,
+  });
+}
+
+export function useProjectMembersQuery(id: string) {
+  return useQuery({
+    queryKey: projectKeys.members(id),
+    queryFn: () => fetchProjectMembers(id),
+    enabled: !!id,
+  });
+}
+
+export function useProjectInvoicesQuery(id: string) {
+  return useQuery({
+    queryKey: projectKeys.invoices(id),
+    queryFn: () => fetchProjectInvoices(id),
+    enabled: !!id,
+  });
+}
+
+export function useProjectFreelancerSearchQuery(id: string, keyword: string, enabled = true) {
+  const normalizedKeyword = keyword.trim();
+  return useQuery({
+    queryKey: projectKeys.freelancerSearch(id, normalizedKeyword),
+    queryFn: () => searchProjectFreelancers(id, normalizedKeyword),
+    enabled: enabled && !!id && normalizedKeyword.length >= 2,
   });
 }
 
@@ -59,6 +105,36 @@ export function useDeleteProjectMutation() {
     onError: (error: AxiosError<{ message?: string }>) => {
       const errorMsg = error.response?.data?.message ?? "Failed to delete project.";
       toast.error("Deletion Failed", { description: errorMsg });
+    },
+  });
+}
+
+export function useAddMemberMutation(projectId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (userId: string) => addProjectMember(projectId, userId),
+    onSuccess: () => {
+      toast.success("Member added");
+      queryClient.invalidateQueries({ queryKey: projectKeys.members(projectId) });
+    },
+    onError: (error: AxiosError<{ message?: string }>) => {
+      const msg = error.response?.data?.message ?? "Failed to add member.";
+      toast.error("Error", { description: msg });
+    },
+  });
+}
+
+export function useRemoveMemberMutation(projectId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (userId: string) => removeProjectMember(projectId, userId),
+    onSuccess: () => {
+      toast.success("Member removed");
+      queryClient.invalidateQueries({ queryKey: projectKeys.members(projectId) });
+    },
+    onError: (error: AxiosError<{ message?: string }>) => {
+      const msg = error.response?.data?.message ?? "Failed to remove member.";
+      toast.error("Error", { description: msg });
     },
   });
 }
