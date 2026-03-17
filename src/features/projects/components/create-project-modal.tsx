@@ -4,7 +4,7 @@ import * as React from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { format } from "date-fns";
-import { Calendar, ChevronDown, Check } from "lucide-react";
+import { Calendar, ChevronDown, Check, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 import { useCreateProjectMutation } from "../hooks/use-projects";
@@ -56,6 +56,22 @@ export function CreateProjectModal({ isOpen, onClose }: CreateProjectModalProps)
   const statusValue  = watch("status");
   const deadlineValue = watch("deadline");
 
+  const openDatePicker = React.useCallback(() => {
+    const input = dateInputRef.current;
+    if (!input) {
+      return;
+    }
+
+    if (typeof input.showPicker === "function") {
+      input.showPicker();
+      return;
+    }
+
+    // Fallback for browsers without showPicker support.
+    input.focus();
+    input.click();
+  }, []);
+
   // Close status dropdown on outside click
   React.useEffect(() => {
     if (!statusOpen) return;
@@ -96,7 +112,7 @@ export function CreateProjectModal({ isOpen, onClose }: CreateProjectModalProps)
 
   return (
     <div
-      className="fixed inset-0 z-[100] flex items-center justify-center p-4"
+      className="fixed inset-0 z-100 flex items-center justify-center p-4"
       role="dialog"
       aria-modal="true"
       aria-labelledby="create-project-title"
@@ -106,7 +122,7 @@ export function CreateProjectModal({ isOpen, onClose }: CreateProjectModalProps)
         onClick={isPending ? undefined : handleClose}
       />
 
-      <div className="relative w-full max-w-xl bg-[#0f172a] border border-slate-800 rounded-2xl shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+      <div className="relative w-full max-w-xl bg-[#0f172a] border border-slate-800 rounded-2xl shadow-2xl overflow-visible animate-in fade-in zoom-in-95 duration-200">
         
         <div className="px-8 py-6 border-b border-slate-800 flex items-center justify-between">
           <h3 id="create-project-title" className="text-xl font-bold text-white tracking-tight font-sans">
@@ -119,7 +135,7 @@ export function CreateProjectModal({ isOpen, onClose }: CreateProjectModalProps)
             className="text-slate-500 hover:text-white transition-colors disabled:opacity-50"
             aria-label="Close"
           >
-            <span className="material-symbols-outlined text-[22px]">close</span>
+            <X size={20} />
           </button>
         </div>
 
@@ -186,7 +202,15 @@ export function CreateProjectModal({ isOpen, onClose }: CreateProjectModalProps)
               {/* Styled overlay — invisible native input below handles the picker */}
               <div className="relative">
                 <div
-                  onClick={() => dateInputRef.current?.showPicker()}
+                  onClick={openDatePicker}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      openDatePicker();
+                    }
+                  }}
+                  role="button"
+                  tabIndex={0}
                   className={cn(
                     "w-full bg-slate-900/50 border rounded-xl px-4 py-3 text-sm flex items-center gap-3 cursor-pointer select-none transition-all",
                     errors.deadline
@@ -215,7 +239,7 @@ export function CreateProjectModal({ isOpen, onClose }: CreateProjectModalProps)
                       },
                     };
                   })()}
-                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer [color-scheme:dark]"
+                  className="absolute inset-0 w-full h-full opacity-0 pointer-events-none scheme-dark"
                 />
               </div>
               {errors.deadline && (

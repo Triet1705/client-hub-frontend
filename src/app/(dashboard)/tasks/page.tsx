@@ -3,12 +3,14 @@
 import * as React from "react";
 import { Plus, User, ChevronDown, LayoutGrid, List, Flag, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { TaskStatus } from "@/features/tasks/types/task.types";
+import { TaskStatus, type Task } from "@/features/tasks/types/task.types";
 import { ProjectStatus } from "@/features/projects/types/project.types";
+import { useAuthStore } from "@/features/auth/store/auth.store";
 import { useTasksQuery } from "@/features/tasks/hooks/use-tasks";
-import { useProjectsQuery } from "@/features/projects/hooks/use-projects";
+import { useProjectsQuery, useProjectMembersQuery } from "@/features/projects/hooks/use-projects";
 import { TaskBoard } from "@/features/tasks/components/task-board";
 import { CreateTaskModal } from "@/features/tasks/components/create-task-modal";
+import { TaskDetailSlideover } from "@/features/projects/components/task-detail-slideover";
 
 type ViewMode = "kanban" | "list";
 
@@ -29,11 +31,15 @@ const PROJECT_STATUS_LABEL: Record<ProjectStatus, string> = {
 };
 
 export default function TasksPage() {
+  const { user } = useAuthStore();
+  const canManageTask = user?.role === "CLIENT" || user?.role === "ADMIN";
+
   const [selectedProjectId, setSelectedProjectId] = React.useState<string | undefined>(undefined);
   const [isCreateModalOpen, setIsCreateModalOpen] = React.useState(false);
   const [defaultStatus, setDefaultStatus] = React.useState<TaskStatus>(TaskStatus.TODO);
   const [viewMode, setViewMode] = React.useState<ViewMode>("kanban");
   const [projectDropdownOpen, setProjectDropdownOpen] = React.useState(false);
+  const [selectedTask, setSelectedTask] = React.useState<Task | null>(null);
   const dropdownRef = React.useRef<HTMLDivElement>(null);
 
   const { data: projectsData } = useProjectsQuery(0, 50);
@@ -47,6 +53,7 @@ export default function TasksPage() {
   }, [projects, selectedProjectId]);
 
   const selectedProject = projects.find(p => p.id === selectedProjectId);
+  const { data: projectMembers = [] } = useProjectMembersQuery(selectedProjectId ?? "");
 
   const params = React.useMemo(
     () => ({ projectId: selectedProjectId, page: 0, size: 50 }),
@@ -72,6 +79,10 @@ export default function TasksPage() {
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
   }, []);
+
+  React.useEffect(() => {
+    setSelectedTask(null);
+  }, [selectedProjectId]);
 
   if (!isMounted) return null;
 
@@ -222,6 +233,7 @@ export default function TasksPage() {
           tasks={tasks}
           currentParams={params}
           onAddTask={handleAddTask}
+          onTaskClick={setSelectedTask}
         />
       )}
 
@@ -229,6 +241,15 @@ export default function TasksPage() {
         isOpen={isCreateModalOpen}
         onClose={() => setIsCreateModalOpen(false)}
         defaultStatus={defaultStatus}
+      />
+
+      <TaskDetailSlideover
+        task={selectedTask}
+        isClient={canManageTask}
+        projectMembers={projectMembers}
+        projectParams={params}
+        currentUserId={user?.id}
+        onClose={() => setSelectedTask(null)}
       />
     </div>
   );

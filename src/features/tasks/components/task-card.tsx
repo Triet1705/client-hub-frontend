@@ -11,7 +11,7 @@ interface TaskCardProps {
 
 export function TaskCard({ task, onClick }: TaskCardProps) {
   const isDone = task.status === TaskStatus.DONE;
-  const isCancelled = task.status === TaskStatus.CANCELLED;
+  const isCancelled = task.status === TaskStatus.CANCELED;
 
   let dateText: string | null = null;
   let isOverdue = false;

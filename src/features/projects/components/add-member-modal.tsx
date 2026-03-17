@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { Check } from "lucide-react";
 import { ModalShell } from "@/components/ui/modal-shell";
 import { FormField } from "@/components/ui/form-field";
 import { useProjectFreelancerSearchQuery } from "@/features/projects/hooks/use-projects";
@@ -24,11 +25,19 @@ export function AddMemberModal({
   onSubmit,
 }: AddMemberModalProps) {
   const [keyword, setKeyword] = React.useState("");
+  const [debouncedKeyword, setDebouncedKeyword] = React.useState("");
   const [selectedUserId, setSelectedUserId] = React.useState("");
   const [error, setError] = React.useState<string | null>(null);
 
-  const debouncedKeyword = React.useDeferredValue(keyword);
   const normalizedKeyword = debouncedKeyword.trim();
+
+  React.useEffect(() => {
+    const timer = window.setTimeout(() => {
+      setDebouncedKeyword(keyword);
+    }, 250);
+
+    return () => window.clearTimeout(timer);
+  }, [keyword]);
 
   const { data: candidates = [], isLoading: isSearching } = useProjectFreelancerSearchQuery(
     projectId,
@@ -43,8 +52,20 @@ export function AddMemberModal({
   );
 
   React.useEffect(() => {
+    if (!selectedUserId) {
+      return;
+    }
+
+    const stillVisible = visibleCandidates.some((candidate) => candidate.userId === selectedUserId);
+    if (!stillVisible) {
+      setSelectedUserId("");
+    }
+  }, [visibleCandidates, selectedUserId]);
+
+  React.useEffect(() => {
     if (!isOpen) {
       setKeyword("");
+      setDebouncedKeyword("");
       setSelectedUserId("");
       setError(null);
     }
@@ -73,8 +94,8 @@ export function AddMemberModal({
       <button
         type="button"
         onClick={handleSubmit}
-        disabled={isPending}
-        className="px-6 py-2.5 rounded-xl text-sm font-bold bg-emerald-600 hover:bg-emerald-500 text-white transition-all disabled:opacity-70"
+        disabled={isPending || !selectedUserId}
+        className="px-6 py-2.5 rounded-xl text-sm font-bold bg-emerald-600 hover:bg-emerald-500 text-white transition-all disabled:opacity-60 disabled:cursor-not-allowed"
       >
         {isPending ? "Adding..." : "Add Member"}
       </button>
@@ -116,17 +137,22 @@ export function AddMemberModal({
                 <button
                   key={candidate.userId}
                   type="button"
+                  aria-pressed={isSelected}
+                  onMouseDown={(event) => event.preventDefault()}
                   onClick={() => {
                     setSelectedUserId(candidate.userId);
                     setError(null);
                   }}
                   className={cn(
-                    "w-full text-left px-4 py-3 border-b border-slate-800 last:border-b-0 transition-colors",
+                    "w-full text-left px-4 py-3 border-b border-slate-800 last:border-b-0 transition-colors flex items-start justify-between gap-3",
                     isSelected ? "bg-emerald-500/15" : "hover:bg-slate-800/60",
                   )}
                 >
-                  <p className="text-sm text-slate-200 font-medium">{candidate.fullName || candidate.email}</p>
-                  <p className="text-xs text-slate-500">{candidate.email}</p>
+                  <div className="min-w-0">
+                    <p className="text-sm text-slate-200 font-medium truncate">{candidate.fullName || candidate.email}</p>
+                    <p className="text-xs text-slate-500 truncate">{candidate.email}</p>
+                  </div>
+                  {isSelected ? <Check size={14} className="text-emerald-400 mt-0.5 shrink-0" /> : null}
                 </button>
               );
             })

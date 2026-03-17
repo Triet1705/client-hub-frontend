@@ -19,7 +19,7 @@ export function TaskBoard({ tasks, currentParams, onAddTask, onTaskClick }: Task
   const todoTasks = tasks.filter((t) => t.status === TaskStatus.TODO);
   const inProgressTasks = tasks.filter((t) => t.status === TaskStatus.IN_PROGRESS);
   const doneTasks = tasks.filter((t) => t.status === TaskStatus.DONE);
-  const cancelledTasks = tasks.filter((t) => t.status === TaskStatus.CANCELLED);
+  const canceledTasks = tasks.filter((t) => t.status === TaskStatus.CANCELED);
 
   const handleDragEnd = (result: DropResult) => {
     const { destination, source, draggableId } = result;
@@ -58,8 +58,8 @@ export function TaskBoard({ tasks, currentParams, onAddTask, onTaskClick }: Task
           />
           <TaskBoardColumn
             title="Cancelled"
-            status={TaskStatus.CANCELLED}
-            tasks={cancelledTasks}
+            status={TaskStatus.CANCELED}
+            tasks={canceledTasks}
             onAddTask={onAddTask}
             onTaskClick={onTaskClick}
           />

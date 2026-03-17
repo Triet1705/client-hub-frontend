@@ -4,7 +4,7 @@ export enum TaskStatus {
     TODO = "TODO",
     IN_PROGRESS = "IN_PROGRESS",
     DONE = "DONE",
-    CANCELLED = "CANCELLED",
+  CANCELED = "CANCELED",
 }
 
 export enum TaskPriority {
@@ -16,6 +16,7 @@ export enum TaskPriority {
 
 export interface UserSummary {
   id: string;
+  fullName?: string;
   email: string;
   role: string;
 }
@@ -39,6 +40,8 @@ export interface Task {
   
   createdAt: string; 
   updatedAt: string;
+  createdBy?: string;
+  lastModifiedBy?: string;
 }
 
 export interface TaskRequestPayload {

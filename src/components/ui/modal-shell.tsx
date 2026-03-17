@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface ModalShellProps {
@@ -60,7 +61,7 @@ export function ModalShell({
             className="text-slate-500 hover:text-white transition-colors disabled:opacity-50"
             aria-label="Close"
           >
-            <span className="material-symbols-outlined text-[22px]">close</span>
+            <X size={20} />
           </button>
         </div>
 

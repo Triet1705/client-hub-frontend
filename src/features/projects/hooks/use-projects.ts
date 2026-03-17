@@ -65,6 +65,7 @@ export function useProjectFreelancerSearchQuery(id: string, keyword: string, ena
     queryKey: projectKeys.freelancerSearch(id, normalizedKeyword),
     queryFn: () => searchProjectFreelancers(id, normalizedKeyword),
     enabled: enabled && !!id && normalizedKeyword.length >= 2,
+    placeholderData: (prev) => prev,
   });
 }
 

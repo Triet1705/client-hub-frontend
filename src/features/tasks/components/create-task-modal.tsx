@@ -29,7 +29,7 @@ const TASK_STATUS_OPTIONS: SelectOption<TaskStatus>[] = [
   { value: TaskStatus.TODO,        label: "To Do",       color: "text-slate-400"   },
   { value: TaskStatus.IN_PROGRESS, label: "In Progress", color: "text-blue-400"    },
   { value: TaskStatus.DONE,        label: "Done",        color: "text-emerald-400" },
-  { value: TaskStatus.CANCELLED,   label: "Cancelled",   color: "text-rose-400"    },
+  { value: TaskStatus.CANCELED,    label: "Cancelled",   color: "text-rose-400"    },
 ];
 
 const INPUT_CLS =
