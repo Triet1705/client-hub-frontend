@@ -1,10 +1,13 @@
 "use client";
 
 import * as React from "react";
-import { X, Trash2 } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { Trash2 } from "lucide-react";
 import { Task, TaskStatus, TaskPriority, type TaskRequestPayload, type FetchTasksParams } from "@/features/tasks/types/task.types";
 import { TaskPriorityBadge } from "@/features/tasks/components/task-priority-badge";
+import { TaskDetailLayout } from "@/features/tasks/components/task-detail-layout";
+import { TaskStatusBadge } from "@/features/tasks/components/task-status-badge";
+import { TaskStatusSelector } from "@/features/tasks/components/task-status-selector";
+import { UserAvatar } from "@/components/ui/user-avatar";
 import { SelectDropdown, type SelectOption } from "@/components/ui/select-dropdown";
 import {
   useUpdateTaskMutation,
@@ -28,13 +31,6 @@ const PRIORITY_OPTIONS: SelectOption<TaskPriority>[] = [
   { value: TaskPriority.HIGH,   label: "High",   color: "text-amber-400" },
   { value: TaskPriority.URGENT, label: "Urgent", color: "text-red-400"   },
 ];
-
-const STATUS_LABELS: Record<TaskStatus, string> = {
-  [TaskStatus.TODO]:        "To Do",
-  [TaskStatus.IN_PROGRESS]: "In Progress",
-  [TaskStatus.DONE]:        "Done",
-  [TaskStatus.CANCELLED]:   "Cancelled",
-};
 
 export function TaskDetailSlideover({
   task,
@@ -64,17 +60,10 @@ export function TaskDetailSlideover({
     setPriority(task.priority);
     setEstimatedHours(task.estimatedHours != null ? String(task.estimatedHours) : "");
     setActualHours(task.actualHours != null ? String(task.actualHours) : "");
-    setDueDate(task.dueDate ?? "");
+    setDueDate(task.dueDate ? task.dueDate.slice(0, 10) : "");
     setDescription(task.description ?? "");
     setActiveStatus(task.status);
   }, [task]);
-
-  React.useEffect(() => {
-    if (!isOpen) return;
-    const handler = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
-    document.addEventListener("keydown", handler);
-    return () => document.removeEventListener("keydown", handler);
-  }, [isOpen, onClose]);
 
   const handleStatusClick = (status: TaskStatus) => {
     if (!task || status === activeStatus) return;
@@ -112,76 +101,47 @@ export function TaskDetailSlideover({
     ? (projectMembers.find((m) => m.userId === task.assignedTo?.id)?.fullName ?? task.assignedTo.email)
     : "Unassigned";
 
-  const statusBadgeClass = {
-    [TaskStatus.TODO]:        "bg-slate-800 text-slate-400 border-slate-700",
-    [TaskStatus.IN_PROGRESS]: "bg-emerald-500/10 text-emerald-400 border-emerald-500/30",
-    [TaskStatus.DONE]:        "bg-blue-500/10 text-blue-400 border-blue-500/30",
-    [TaskStatus.CANCELLED]:   "bg-red-500/10 text-red-400 border-red-500/30",
-  };
+  const headerBadge = task ? (
+    <div className="flex items-center gap-2">
+      <TaskPriorityBadge priority={task.priority} />
+      <TaskStatusBadge status={activeStatus} />
+    </div>
+  ) : null;
+
+  const footer = (
+    <>
+      <button
+        onClick={handleSave}
+        disabled={isSaving}
+        className="flex-1 py-3 bg-emerald-500 hover:bg-emerald-600 disabled:opacity-50 text-black font-bold text-xs rounded-xl uppercase tracking-widest transition-colors"
+      >
+        {isSaving ? "Saving..." : "Save Changes"}
+      </button>
+      {isClient && (
+        <button
+          onClick={handleDelete}
+          className="px-4 py-3 border border-red-500/30 text-red-400 hover:bg-red-500/10 font-bold text-xs rounded-xl uppercase tracking-wider transition-colors flex items-center gap-2"
+        >
+          <Trash2 size={14} />
+          Delete
+        </button>
+      )}
+    </>
+  );
 
   return (
-    <>
-      <div
-        className={cn(
-          "fixed inset-0 bg-black/50 z-40 transition-opacity duration-300",
-          isOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none",
-        )}
-        onClick={onClose}
-      />
-
-      <div
-        className={cn(
-          "fixed top-0 right-0 h-full w-120 bg-[#111827] border-l border-[#1f2937] z-50",
-          "flex flex-col shadow-2xl transition-transform duration-300",
-          isOpen ? "translate-x-0" : "translate-x-full",
-        )}
-      >
-        <div className="p-6 border-b border-[#1f2937] flex items-start justify-between shrink-0">
-          <div className="flex-1 min-w-0 pr-4">
-            {task && (
-              <div className="flex items-center gap-2 mb-2">
-                <TaskPriorityBadge priority={task.priority} />
-                <span className={cn(
-                  "px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider border",
-                  statusBadgeClass[activeStatus],
-                )}>
-                  {STATUS_LABELS[activeStatus]}
-                </span>
-              </div>
-            )}
-            <h2 className="text-lg font-bold text-slate-100 leading-tight">
-              {task?.title ?? "Task Details"}
-            </h2>
-          </div>
-          <button
-            onClick={onClose}
-            className="p-2 text-slate-500 hover:text-white transition-colors rounded-lg hover:bg-slate-800 shrink-0"
-          >
-            <X size={20} />
-          </button>
-        </div>
-
-        <div className="flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar">
+    <TaskDetailLayout
+      isOpen={isOpen}
+      title={task?.title ?? "Task Details"}
+      onClose={onClose}
+      headerBadge={headerBadge}
+      footer={footer}
+    >
           <section>
             <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-3">
               Update Status
             </p>
-            <div className="grid grid-cols-2 gap-2">
-              {(Object.values(TaskStatus) as TaskStatus[]).map((s) => (
-                <button
-                  key={s}
-                  onClick={() => handleStatusClick(s)}
-                  className={cn(
-                    "px-3 py-2 rounded-lg border text-[10px] font-bold uppercase tracking-wider transition-all",
-                    activeStatus === s
-                      ? "border-emerald-500 bg-emerald-500/10 text-emerald-400"
-                      : "border-[#1f2937] text-slate-500 hover:border-slate-600 hover:text-slate-300",
-                  )}
-                >
-                  {STATUS_LABELS[s]}
-                </button>
-              ))}
-            </div>
+            <TaskStatusSelector activeStatus={activeStatus} onStatusChange={handleStatusClick} />
           </section>
 
           <div className="border-t border-[#1f2937]" />
@@ -200,9 +160,7 @@ export function TaskDetailSlideover({
                 />
               ) : (
                 <div className="flex items-center gap-2 px-4 py-3 bg-slate-900/50 border border-[#1f2937] rounded-xl">
-                  <div className="w-6 h-6 rounded-full bg-slate-700 flex items-center justify-center text-[10px] font-bold shrink-0">
-                    {currentAssigneeName.substring(0, 2).toUpperCase()}
-                  </div>
+                  <UserAvatar name={currentAssigneeName} />
                   <span className="text-sm text-slate-300">{currentAssigneeName}</span>
                 </div>
               )}
@@ -302,28 +260,17 @@ export function TaskDetailSlideover({
               </p>
             )}
           </section>
-        </div>
 
-        {/* Footer */}
-        <div className="p-6 border-t border-[#1f2937] bg-[#0a0c10]/50 flex items-center gap-3 shrink-0">
-          <button
-            onClick={handleSave}
-            disabled={isSaving}
-            className="flex-1 py-3 bg-emerald-500 hover:bg-emerald-600 disabled:opacity-50 text-black font-bold text-xs rounded-xl uppercase tracking-widest transition-colors"
-          >
-            {isSaving ? "Saving…" : "Save Changes"}
-          </button>
-          {isClient && (
-            <button
-              onClick={handleDelete}
-              className="px-4 py-3 border border-red-500/30 text-red-400 hover:bg-red-500/10 font-bold text-xs rounded-xl uppercase tracking-wider transition-colors flex items-center gap-2"
-            >
-              <Trash2 size={14} />
-              Delete
-            </button>
-          )}
-        </div>
-      </div>
-    </>
+          <div className="border-t border-[#1f2937]" />
+
+          <section className="space-y-2">
+            <p className="text-[10px] text-slate-500">
+              Created by <span className="text-slate-300">{task?.createdBy ?? "Unknown"}</span>
+            </p>
+            <p className="text-[10px] text-slate-500">
+              Last updated by <span className="text-slate-300">{task?.lastModifiedBy ?? "Unknown"}</span>
+            </p>
+          </section>
+    </TaskDetailLayout>
   );
 }
