@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import type { AxiosError } from "axios";
 import { getApiErrorMessage, getApiErrorStatus } from "@/lib/api/error";
 import {
   fetchProjects,
