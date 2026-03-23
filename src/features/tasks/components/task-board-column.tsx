@@ -77,8 +77,8 @@ export function TaskBoardColumn({ title, status, tasks, onTaskClick, onAddTask }
             ref={provided.innerRef}
             {...provided.droppableProps}
             className={cn(
-              "flex-1 flex flex-col gap-3 overflow-y-auto pb-4 rounded-md transition-colors no-scrollbar",
-              snapshot.isDraggingOver && "bg-emerald-500/5"
+              "flex-1 flex flex-col gap-3 overflow-y-auto pb-4 rounded-xl transition-colors no-scrollbar p-1.5 bg-slate-900/40 ring-1 ring-white/5 mt-2",
+              snapshot.isDraggingOver && "bg-emerald-500/10 ring-emerald-500/30"
             )}
           >
             {tasks.map((task, index) => (

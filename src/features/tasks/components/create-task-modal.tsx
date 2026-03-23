@@ -15,22 +15,10 @@ import {
   type TaskFormInputValues,
 } from "../validations/task.schema";
 import { TaskStatus, TaskPriority, type TaskRequestPayload } from "../types/task.types";
+import { TASK_PRIORITY_OPTIONS, TASK_STATUS_OPTIONS } from "../constants/task-ui.constants";
 import { useProjectsQuery } from "@/features/projects/hooks/use-projects";
 import { useProjectMembersQuery } from "@/features/projects/hooks/use-projects";
-
-const PRIORITY_OPTIONS: SelectOption<TaskPriority>[] = [
-  { value: TaskPriority.LOW,    label: "Low",    color: "text-slate-400"  },
-  { value: TaskPriority.MEDIUM, label: "Medium", color: "text-amber-400"  },
-  { value: TaskPriority.HIGH,   label: "High",   color: "text-orange-400" },
-  { value: TaskPriority.URGENT, label: "Urgent", color: "text-rose-400"   },
-];
-
-const TASK_STATUS_OPTIONS: SelectOption<TaskStatus>[] = [
-  { value: TaskStatus.TODO,        label: "To Do",       color: "text-slate-400"   },
-  { value: TaskStatus.IN_PROGRESS, label: "In Progress", color: "text-blue-400"    },
-  { value: TaskStatus.DONE,        label: "Done",        color: "text-emerald-400" },
-  { value: TaskStatus.CANCELED,    label: "Cancelled",   color: "text-rose-400"    },
-];
+import { useAuthStore } from "@/features/auth/store/auth.store";
 
 const INPUT_CLS =
   "w-full bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all";
@@ -46,6 +34,8 @@ export function CreateTaskModal({
   onClose,
   defaultStatus = TaskStatus.TODO,
 }: CreateTaskModalProps) {
+  const { user } = useAuthStore();
+  const canAssignOthers = user?.role === "CLIENT" || user?.role === "ADMIN";
   const { mutate: createTask, isPending } = useCreateTaskMutation();
   const { data: projectsData, isLoading: isLoadingProjects } = useProjectsQuery(0, 50);
   const projects = projectsData?.content ?? [];
@@ -127,7 +117,7 @@ export function CreateTaskModal({
       projectId:      data.projectId,
       title:          data.title,
       description:    data.description    ?? undefined,
-      assignedToId:   data.assignedToId   ?? undefined,
+      assignedToId:   canAssignOthers ? (data.assignedToId ?? undefined) : (user?.id ?? undefined),
       priority:       data.priority,
       status:         data.status,
       estimatedHours: data.estimatedHours ?? undefined,
@@ -217,7 +207,7 @@ export function CreateTaskModal({
         <div className="grid grid-cols-2 gap-4">
           <FormField label="Priority">
             <SelectDropdown
-              options={PRIORITY_OPTIONS}
+              options={TASK_PRIORITY_OPTIONS}
               value={priorityValue}
               onChange={(v) => setValue("priority", v as TaskPriority, { shouldValidate: true })}
               disabled={isPending}
@@ -236,20 +226,20 @@ export function CreateTaskModal({
           </FormField>
         </div>
 
-        {/* Assignee (scoped by selected project members) */}
-        <FormField label="Assignee">
-          <SelectDropdown
-            options={assigneeOptions}
-            value={assignedToValue}
-            onChange={(v) => setValue("assignedToId", v || undefined, { shouldValidate: true })}
-            placeholder={projectIdValue ? "Select assignee" : "Pick a project first"}
-            loading={!!projectIdValue && isLoadingMembers}
-            disabled={!projectIdValue}
-          />
-          <input type="hidden" {...register("assignedToId")} />
-        </FormField>
+        {canAssignOthers ? (
+          <FormField label="Assignee">
+            <SelectDropdown
+              options={assigneeOptions}
+              value={assignedToValue}
+              onChange={(v) => setValue("assignedToId", v || undefined, { shouldValidate: true })}
+              placeholder={projectIdValue ? "Select assignee" : "Pick a project first"}
+              loading={!!projectIdValue && isLoadingMembers}
+              disabled={!projectIdValue}
+            />
+            <input type="hidden" {...register("assignedToId")} />
+          </FormField>
+        ) : null}
 
-        {/* Est. Hours + Due Date */}
         <div className="grid grid-cols-2 gap-4">
           <FormField label="Est. Hours">
             <input

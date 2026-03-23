@@ -17,7 +17,10 @@ export default function DashboardLayout({
     <div className="relative min-h-screen bg-[#020617] font-space-grotesk text-slate-100 selection:bg-emerald-500/30">
       <Sidebar />
 
-      <div className="flex flex-col pl-64 min-h-screen transition-all duration-300">
+      <div
+        className="flex flex-col min-h-screen transition-[padding] duration-300"
+        style={{ paddingLeft: "var(--dashboard-sidebar-width,16rem)" }}
+      >
         <Header />
 
         <main className="flex-1 p-8 overflow-y-auto">

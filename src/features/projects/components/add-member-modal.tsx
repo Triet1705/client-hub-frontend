@@ -5,6 +5,7 @@ import { Check } from "lucide-react";
 import { ModalShell } from "@/components/ui/modal-shell";
 import { FormField } from "@/components/ui/form-field";
 import { useProjectFreelancerSearchQuery } from "@/features/projects/hooks/use-projects";
+import { useAsyncSearch } from "@/hooks/use-async-search";
 import { cn } from "@/lib/utils";
 
 interface AddMemberModalProps {
@@ -24,25 +25,17 @@ export function AddMemberModal({
   onClose,
   onSubmit,
 }: AddMemberModalProps) {
-  const [keyword, setKeyword] = React.useState("");
-  const [debouncedKeyword, setDebouncedKeyword] = React.useState("");
+  const { keyword, setKeyword, normalizedKeyword, canSearch, minChars, resetSearch } = useAsyncSearch({
+    debounceMs: 250,
+    minChars: 2,
+  });
   const [selectedUserId, setSelectedUserId] = React.useState("");
   const [error, setError] = React.useState<string | null>(null);
-
-  const normalizedKeyword = debouncedKeyword.trim();
-
-  React.useEffect(() => {
-    const timer = window.setTimeout(() => {
-      setDebouncedKeyword(keyword);
-    }, 250);
-
-    return () => window.clearTimeout(timer);
-  }, [keyword]);
 
   const { data: candidates = [], isLoading: isSearching } = useProjectFreelancerSearchQuery(
     projectId,
     normalizedKeyword,
-    isOpen,
+    isOpen && canSearch,
   );
 
   const existingMemberIdSet = React.useMemo(() => new Set(currentMemberIds), [currentMemberIds]);
@@ -64,12 +57,11 @@ export function AddMemberModal({
 
   React.useEffect(() => {
     if (!isOpen) {
-      setKeyword("");
-      setDebouncedKeyword("");
+      resetSearch();
       setSelectedUserId("");
       setError(null);
     }
-  }, [isOpen]);
+  }, [isOpen, resetSearch]);
 
   const handleSubmit = () => {
     if (!selectedUserId) {
@@ -124,8 +116,8 @@ export function AddMemberModal({
         </FormField>
 
         <div className="rounded-xl border border-slate-800 bg-slate-900/40 max-h-72 overflow-auto">
-          {normalizedKeyword.length < 2 ? (
-            <p className="px-4 py-3 text-xs text-slate-500">Type at least 2 characters to search.</p>
+          {!canSearch ? (
+            <p className="px-4 py-3 text-xs text-slate-500">Type at least {minChars} characters to search.</p>
           ) : isSearching ? (
             <p className="px-4 py-3 text-xs text-slate-500">Searching freelancers...</p>
           ) : visibleCandidates.length === 0 ? (

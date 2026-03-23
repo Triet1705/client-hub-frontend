@@ -65,7 +65,7 @@ export function ModalShell({
           </button>
         </div>
 
-        <div className="px-8 py-7 overflow-y-auto max-h-[65vh]">
+        <div className="px-8 py-7 overflow-y-auto custom-scrollbar max-h-[65vh]">
           {children}
         </div>
 
