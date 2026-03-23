@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient, keepPreviousData } from "@tanstack/react-query";
-import type { AxiosError } from "axios";
 import { toast } from "sonner";
+import { getApiErrorMessage } from "@/lib/api/error";
 import {
   fetchTasks,
   createTask,
@@ -35,8 +35,8 @@ export function useCreateTaskMutation() {
       toast.success("Task Created", { description: `${newTask.title} added successfully.` });
       queryClient.invalidateQueries({ queryKey: taskKeys.lists() });
     },
-    onError: (error: AxiosError<{ message?: string }>) => {
-      const errorMsg = error.response?.data?.message ?? "Failed to create task.";
+    onError: (error: unknown) => {
+      const errorMsg = getApiErrorMessage(error, "Failed to create task.");
       toast.error("Error", { description: errorMsg });
     },
   });
@@ -66,11 +66,11 @@ export function useUpdateTaskStatusMutation(currentParams: FetchTasksParams) {
       return { previousTasks };
     },
 
-    onError: (err: AxiosError<{ message?: string }>, _variables, context) => {
+    onError: (err: unknown, _variables, context) => {
       if (context?.previousTasks) {
         queryClient.setQueryData(queryKeyToUpdate, context.previousTasks);
       }
-      const errorMsg = err.response?.data?.message ?? "Invalid state transition.";
+      const errorMsg = getApiErrorMessage(err, "Invalid state transition.");
       toast.error("Update Failed", { description: errorMsg });
     },
 
@@ -89,8 +89,8 @@ export function useAssignTaskMutation() {
       toast.success("Task Assigned");
       queryClient.invalidateQueries({ queryKey: taskKeys.lists() });
     },
-    onError: (error: AxiosError<{ message?: string }>) => {
-      const errorMsg = error.response?.data?.message ?? "Failed to assign task.";
+    onError: (error: unknown) => {
+      const errorMsg = getApiErrorMessage(error, "Failed to assign task.");
       toast.error("Assignment Failed", { description: errorMsg });
     }
   });
@@ -105,8 +105,8 @@ export function useDeleteTaskMutation() {
       toast.success("Task Deleted");
       queryClient.invalidateQueries({ queryKey: taskKeys.lists() });
     },
-    onError: (error: AxiosError<{ message?: string }>) => {
-      const errorMsg = error.response?.data?.message ?? "Failed to delete task.";
+    onError: (error: unknown) => {
+      const errorMsg = getApiErrorMessage(error, "Failed to delete task.");
       toast.error("Deletion Failed", { description: errorMsg });
     },
   });
@@ -122,8 +122,8 @@ export function useUpdateTaskMutation(currentParams: FetchTasksParams) {
       toast.success("Task Updated");
       queryClient.invalidateQueries({ queryKey: taskKeys.list(currentParams) });
     },
-    onError: (error: AxiosError<{ message?: string }>) => {
-      const errorMsg = error.response?.data?.message ?? "Failed to update task.";
+    onError: (error: unknown) => {
+      const errorMsg = getApiErrorMessage(error, "Failed to update task.");
       toast.error("Update Failed", { description: errorMsg });
     },
   });
