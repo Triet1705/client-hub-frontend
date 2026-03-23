@@ -11,6 +11,14 @@ import { useDashboardStatsQuery } from "@/features/dashboard/hooks/use-dashboard
 import { CreateProjectModal } from "@/features/projects/components/create-project-modal";
 
 export default function ProjectsPage() {
+  return (
+    <React.Suspense fallback={<div className="p-6 text-sm text-slate-400">Loading projects...</div>}>
+      <ProjectsPageContent />
+    </React.Suspense>
+  );
+}
+
+function ProjectsPageContent() {
   const [page, setPage] = React.useState(0);
   const pageSize = 10;
   const [isCreateModalOpen, setIsCreateModalOpen] = React.useState(false);

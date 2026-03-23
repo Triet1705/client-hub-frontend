@@ -67,6 +67,14 @@ function getQuickActionLabel(status: InvoiceStatus): string {
 const INVOICES_TABLE_PREFERENCES_KEY = "invoices.list";
 
 export default function InvoicesPage() {
+  return (
+    <React.Suspense fallback={<div className="p-6 text-sm text-slate-400">Loading invoices...</div>}>
+      <InvoicesPageContent />
+    </React.Suspense>
+  );
+}
+
+function InvoicesPageContent() {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();

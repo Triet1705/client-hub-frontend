@@ -40,6 +40,14 @@ const PROJECT_STATUS_LABEL: Record<ProjectStatus, string> = {
 };
 
 export default function TasksPage() {
+  return (
+    <React.Suspense fallback={<div className="p-6 text-sm text-slate-400">Loading tasks...</div>}>
+      <TasksPageContent />
+    </React.Suspense>
+  );
+}
+
+function TasksPageContent() {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
