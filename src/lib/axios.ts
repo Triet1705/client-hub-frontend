@@ -1,5 +1,6 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from "axios";
 import JSONBigInt from "json-bigint";
+import { normalizeApiError } from "@/lib/api/error";
 import {
   getAuthToken,
   getTenantId,
@@ -9,6 +10,14 @@ import {
 } from "./cookies";
 
 const JSONBig = JSONBigInt({ storeAsString: true });
+
+function createRequestId(): string {
+  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+    return crypto.randomUUID();
+  }
+
+  return `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+}
 
 export const apiClient = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api",
@@ -43,9 +52,11 @@ apiClient.interceptors.request.use(
       config.headers["X-Tenant-ID"] = tenantId;
     }
 
+    config.headers["X-Request-ID"] = createRequestId();
+
     return config;
   },
-  (error) => Promise.reject(error),
+  (error) => Promise.reject(normalizeApiError(error)),
 );
 
 let isRefreshing = false;
@@ -79,7 +90,7 @@ apiClient.interceptors.response.use(
       error.response?.status !== 401 ||
       originalRequest.url?.includes("/auth/refresh-token")
     ) {
-      return Promise.reject(error);
+      return Promise.reject(normalizeApiError(error));
     }
 
     if (originalRequest && !originalRequest._retry) {
@@ -91,7 +102,7 @@ apiClient.interceptors.response.use(
             originalRequest.headers.Authorization = `Bearer ${token}`;
             return apiClient(originalRequest);
           })
-          .catch((err) => Promise.reject(err));
+          .catch((err) => Promise.reject(normalizeApiError(err)));
       }
 
       originalRequest._retry = true;
@@ -103,7 +114,7 @@ apiClient.interceptors.response.use(
       if (!refreshToken) {
         clearAuthCookies();
         if (typeof window !== "undefined") window.location.href = "/login";
-        return Promise.reject(error);
+        return Promise.reject(normalizeApiError(error));
       }
 
       try {
@@ -126,12 +137,12 @@ apiClient.interceptors.response.use(
         processQueue(refreshError as AxiosError, null);
         clearAuthCookies();
         if (typeof window !== "undefined") window.location.href = "/login";
-        return Promise.reject(refreshError);
+        return Promise.reject(normalizeApiError(refreshError));
       } finally {
         isRefreshing = false;
       }
     }
 
-    return Promise.reject(error);
+    return Promise.reject(normalizeApiError(error));
   },
 );
