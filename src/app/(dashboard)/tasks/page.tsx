@@ -1,18 +1,27 @@
 "use client";
 
 import * as React from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Plus, User, ChevronDown, LayoutGrid, List, Flag, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { TaskStatus, type Task } from "@/features/tasks/types/task.types";
+import { buildUpdatedQueryString } from "@/lib/url-query";
+import { TaskPriority, TaskStatus, type Task } from "@/features/tasks/types/task.types";
+import { TASK_PRIORITY_OPTIONS } from "@/features/tasks/constants/task-ui.constants";
 import { ProjectStatus } from "@/features/projects/types/project.types";
 import { useAuthStore } from "@/features/auth/store/auth.store";
 import { useTasksQuery } from "@/features/tasks/hooks/use-tasks";
 import { useProjectsQuery, useProjectMembersQuery } from "@/features/projects/hooks/use-projects";
 import { TaskBoard } from "@/features/tasks/components/task-board";
+import { TaskList } from "@/features/tasks/components/task-list";
 import { CreateTaskModal } from "@/features/tasks/components/create-task-modal";
 import { TaskDetailSlideover } from "@/features/projects/components/task-detail-slideover";
+import {
+  parseTasksQuery,
+  type TaskPriorityFilterValue,
+  type TasksViewMode,
+} from "@/features/tasks/query/tasks-query.schema";
 
-type ViewMode = "kanban" | "list";
+const TASKS_VIEW_STORAGE_KEY = "clienthub.tasks.view-mode";
 
 const PROJECT_STATUS_BADGE: Record<ProjectStatus, string> = {
   [ProjectStatus.PLANNING]:   "text-slate-300 bg-slate-700/50 border-slate-600/40",
@@ -31,16 +40,33 @@ const PROJECT_STATUS_LABEL: Record<ProjectStatus, string> = {
 };
 
 export default function TasksPage() {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const initialQueryState = parseTasksQuery(searchParams);
+  const queryString = searchParams.toString();
   const { user } = useAuthStore();
   const canManageTask = user?.role === "CLIENT" || user?.role === "ADMIN";
 
-  const [selectedProjectId, setSelectedProjectId] = React.useState<string | undefined>(undefined);
+  const [selectedProjectId, setSelectedProjectId] = React.useState<string | undefined>(
+    initialQueryState.projectId,
+  );
   const [isCreateModalOpen, setIsCreateModalOpen] = React.useState(false);
   const [defaultStatus, setDefaultStatus] = React.useState<TaskStatus>(TaskStatus.TODO);
-  const [viewMode, setViewMode] = React.useState<ViewMode>("kanban");
+  const [viewMode, setViewMode] = React.useState<TasksViewMode>(initialQueryState.viewMode);
+  const [priorityFilter, setPriorityFilter] = React.useState<TaskPriorityFilterValue>(
+    initialQueryState.priorityFilter,
+  );
+  const [selectedAssigneeId, setSelectedAssigneeId] = React.useState<string | undefined>(
+    initialQueryState.assigneeId,
+  );
   const [projectDropdownOpen, setProjectDropdownOpen] = React.useState(false);
+  const [priorityDropdownOpen, setPriorityDropdownOpen] = React.useState(false);
+  const [assigneeDropdownOpen, setAssigneeDropdownOpen] = React.useState(false);
   const [selectedTask, setSelectedTask] = React.useState<Task | null>(null);
   const dropdownRef = React.useRef<HTMLDivElement>(null);
+  const priorityDropdownRef = React.useRef<HTMLDivElement>(null);
+  const assigneeDropdownRef = React.useRef<HTMLDivElement>(null);
 
   const { data: projectsData } = useProjectsQuery(0, 50);
   const projects = React.useMemo(() => projectsData?.content ?? [], [projectsData]);
@@ -52,20 +78,76 @@ export default function TasksPage() {
     }
   }, [projects, selectedProjectId]);
 
+  React.useEffect(() => {
+    if (searchParams.get("view")) return;
+    if (typeof window === "undefined") return;
+
+    const stored = window.localStorage.getItem(TASKS_VIEW_STORAGE_KEY);
+    if (stored === "kanban" || stored === "list") {
+      setViewMode(stored);
+    }
+  }, [searchParams]);
+
+  React.useEffect(() => {
+    if (typeof window === "undefined") return;
+    window.localStorage.setItem(TASKS_VIEW_STORAGE_KEY, viewMode);
+  }, [viewMode]);
+
+  React.useEffect(() => {
+    const next = buildUpdatedQueryString(queryString, [
+      { key: "projectId", value: selectedProjectId },
+      { key: "view", value: viewMode, defaultValue: "kanban" },
+      { key: "priority", value: priorityFilter, defaultValue: "ALL" },
+      { key: "assignee", value: selectedAssigneeId },
+    ]);
+
+    if (queryString !== next) {
+      router.replace(next ? `${pathname}?${next}` : pathname, { scroll: false });
+    }
+  }, [pathname, priorityFilter, queryString, router, selectedAssigneeId, selectedProjectId, viewMode]);
+
   const selectedProject = projects.find(p => p.id === selectedProjectId);
   const { data: projectMembers = [] } = useProjectMembersQuery(selectedProjectId ?? "");
 
+  React.useEffect(() => {
+    if (!selectedAssigneeId) return;
+    const stillExists = projectMembers.some((member) => member.userId === selectedAssigneeId);
+    if (!stillExists) {
+      setSelectedAssigneeId(undefined);
+    }
+  }, [projectMembers, selectedAssigneeId]);
+
   const params = React.useMemo(
-    () => ({ projectId: selectedProjectId, page: 0, size: 50 }),
-    [selectedProjectId]
+    () => ({
+      projectId: selectedProjectId,
+      assignedToId: selectedAssigneeId,
+      priority: priorityFilter === "ALL" ? undefined : priorityFilter,
+      page: 0,
+      size: 50,
+    }),
+    [priorityFilter, selectedAssigneeId, selectedProjectId]
   );
 
   const { data, isLoading, isError } = useTasksQuery(params);
-  const tasks = data?.content ?? [];
+  const tasks = React.useMemo(() => data?.content ?? [], [data?.content]);
 
-  const todoCount       = tasks.filter(t => t.status === TaskStatus.TODO).length;
-  const inProgressCount = tasks.filter(t => t.status === TaskStatus.IN_PROGRESS).length;
-  const doneCount       = tasks.filter(t => t.status === TaskStatus.DONE).length;
+  const filteredTasks = tasks;
+
+  const todoCount       = filteredTasks.filter((t) => t.status === TaskStatus.TODO).length;
+  const inProgressCount = filteredTasks.filter((t) => t.status === TaskStatus.IN_PROGRESS).length;
+  const doneCount       = filteredTasks.filter((t) => t.status === TaskStatus.DONE).length;
+
+  const assigneeLabel = React.useMemo(() => {
+    if (!selectedAssigneeId) return "Assignee";
+    const member = projectMembers.find((item) => item.userId === selectedAssigneeId);
+    return member?.fullName || member?.email || "Assignee";
+  }, [projectMembers, selectedAssigneeId]);
+
+  const priorityLabel = React.useMemo(() => {
+    if (priorityFilter === "ALL") return "Priority";
+    const option = TASK_PRIORITY_OPTIONS.find((item) => item.value === priorityFilter as TaskPriority);
+    return option?.label || "Priority";
+  }, [priorityFilter]);
 
   const [isMounted, setIsMounted] = React.useState(false);
   React.useEffect(() => { setIsMounted(true); }, []);
@@ -74,6 +156,12 @@ export default function TasksPage() {
     const handler = (e: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
         setProjectDropdownOpen(false);
+      }
+      if (priorityDropdownRef.current && !priorityDropdownRef.current.contains(e.target as Node)) {
+        setPriorityDropdownOpen(false);
+      }
+      if (assigneeDropdownRef.current && !assigneeDropdownRef.current.contains(e.target as Node)) {
+        setAssigneeDropdownOpen(false);
       }
     };
     document.addEventListener("mousedown", handler);
@@ -155,7 +243,7 @@ export default function TasksPage() {
             )}
           </div>
 
-          {!isLoading && tasks.length >= 0 && (
+          {!isLoading && filteredTasks.length >= 0 && (
             <div className="flex items-center gap-2 text-xs text-slate-500">
               <span>To Do: <span className="text-slate-300 font-medium">{todoCount}</span></span>
               <span className="text-slate-700">·</span>
@@ -163,7 +251,7 @@ export default function TasksPage() {
               <span className="text-slate-700">·</span>
               <span>Done: <span className="text-slate-300 font-medium">{doneCount}</span></span>
               <span className="text-slate-700">·</span>
-              <span>Total: <span className="text-slate-300 font-medium">{tasks.length}</span></span>
+              <span>Total: <span className="text-slate-300 font-medium">{filteredTasks.length}</span></span>
             </div>
           )}
         </div>
@@ -193,16 +281,91 @@ export default function TasksPage() {
           </div>
 
           <div className="ml-auto flex items-center gap-2">
-            <button className="flex items-center gap-1.5 px-3 py-1.5 bg-white/4 border border-white/8 rounded-full text-xs text-slate-400 hover:border-white/20 hover:text-slate-200 transition-colors">
-              <Flag size={12} className="text-slate-500" />
-              Priority
-              <ChevronDown size={11} className="text-slate-500" />
-            </button>
-            <button className="flex items-center gap-1.5 px-3 py-1.5 bg-white/4 border border-white/8 rounded-full text-xs text-slate-400 hover:border-white/20 hover:text-slate-200 transition-colors">
-              <User size={13} className="text-slate-500" />
-              Assignee
-              <ChevronDown size={11} className="text-slate-500" />
-            </button>
+            <div className="relative" ref={priorityDropdownRef}>
+              <button
+                onClick={() => setPriorityDropdownOpen((current) => !current)}
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-white/4 border border-white/8 rounded-full text-xs text-slate-400 hover:border-white/20 hover:text-slate-200 transition-colors"
+              >
+                <Flag size={12} className="text-slate-500" />
+                {priorityLabel}
+                <ChevronDown size={11} className={cn("text-slate-500 transition-transform", priorityDropdownOpen && "rotate-180")} />
+              </button>
+
+              {priorityDropdownOpen ? (
+                <div className="absolute right-0 mt-2 w-48 bg-[#111111] border border-white/10 rounded-xl shadow-2xl z-50 overflow-hidden py-1">
+                  <button
+                    onClick={() => {
+                      setPriorityFilter("ALL");
+                      setPriorityDropdownOpen(false);
+                    }}
+                    className={cn(
+                      "w-full px-3 py-2 text-left text-xs hover:bg-white/5 transition-colors",
+                      priorityFilter === "ALL" ? "text-emerald-400" : "text-slate-300",
+                    )}
+                  >
+                    All Priorities
+                  </button>
+                  {TASK_PRIORITY_OPTIONS.map((option) => (
+                    <button
+                      key={option.value}
+                      onClick={() => {
+                        setPriorityFilter(option.value);
+                        setPriorityDropdownOpen(false);
+                      }}
+                      className={cn(
+                        "w-full px-3 py-2 text-left text-xs hover:bg-white/5 transition-colors",
+                        priorityFilter === option.value ? "text-emerald-400" : "text-slate-300",
+                      )}
+                    >
+                      {option.label}
+                    </button>
+                  ))}
+                </div>
+              ) : null}
+            </div>
+
+            <div className="relative" ref={assigneeDropdownRef}>
+              <button
+                onClick={() => setAssigneeDropdownOpen((current) => !current)}
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-white/4 border border-white/8 rounded-full text-xs text-slate-400 hover:border-white/20 hover:text-slate-200 transition-colors"
+              >
+                <User size={13} className="text-slate-500" />
+                <span className="max-w-28 truncate">{assigneeLabel}</span>
+                <ChevronDown size={11} className={cn("text-slate-500 transition-transform", assigneeDropdownOpen && "rotate-180")} />
+              </button>
+
+              {assigneeDropdownOpen ? (
+                <div className="absolute right-0 mt-2 w-56 bg-[#111111] border border-white/10 rounded-xl shadow-2xl z-50 overflow-hidden py-1 max-h-72 overflow-y-auto no-scrollbar">
+                  <button
+                    onClick={() => {
+                      setSelectedAssigneeId(undefined);
+                      setAssigneeDropdownOpen(false);
+                    }}
+                    className={cn(
+                      "w-full px-3 py-2 text-left text-xs hover:bg-white/5 transition-colors",
+                      !selectedAssigneeId ? "text-emerald-400" : "text-slate-300",
+                    )}
+                  >
+                    All Assignees
+                  </button>
+                  {projectMembers.map((member) => (
+                    <button
+                      key={member.userId}
+                      onClick={() => {
+                        setSelectedAssigneeId(member.userId);
+                        setAssigneeDropdownOpen(false);
+                      }}
+                      className={cn(
+                        "w-full px-3 py-2 text-left text-xs hover:bg-white/5 transition-colors",
+                        selectedAssigneeId === member.userId ? "text-emerald-400" : "text-slate-300",
+                      )}
+                    >
+                      {member.fullName || member.email}
+                    </button>
+                  ))}
+                </div>
+              ) : null}
+            </div>
             <button
               onClick={() => handleAddTask(TaskStatus.TODO)}
               className="flex items-center gap-1.5 px-4 py-2 text-xs font-bold bg-emerald-600 text-white rounded-lg hover:bg-emerald-500 transition-colors ml-1"
@@ -228,9 +391,13 @@ export default function TasksPage() {
             </div>
           ))}
         </div>
+      ) : viewMode === "list" ? (
+        <div className="px-6 flex-1 w-full max-w-7xl mx-auto overflow-y-auto">
+          <TaskList tasks={filteredTasks} onTaskClick={setSelectedTask} />
+        </div>
       ) : (
         <TaskBoard
-          tasks={tasks}
+          tasks={filteredTasks}
           currentParams={params}
           onAddTask={handleAddTask}
           onTaskClick={setSelectedTask}

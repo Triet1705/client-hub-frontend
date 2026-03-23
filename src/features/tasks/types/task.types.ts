@@ -59,6 +59,7 @@ export interface TaskRequestPayload {
 export interface FetchTasksParams {
   projectId?: string;
   status?: TaskStatus;
+  priority?: TaskPriority;
   assignedToId?: string;
   page?: number;
   size?: number;
