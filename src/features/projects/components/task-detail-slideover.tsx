@@ -7,6 +7,7 @@ import { TaskPriorityBadge } from "@/features/tasks/components/task-priority-bad
 import { TaskDetailLayout } from "@/features/tasks/components/task-detail-layout";
 import { TaskStatusBadge } from "@/features/tasks/components/task-status-badge";
 import { TaskStatusSelector } from "@/features/tasks/components/task-status-selector";
+import { TASK_PRIORITY_OPTIONS } from "@/features/tasks/constants/task-ui.constants";
 import { UserAvatar } from "@/components/ui/user-avatar";
 import { SelectDropdown, type SelectOption } from "@/components/ui/select-dropdown";
 import {
@@ -24,13 +25,6 @@ interface TaskDetailSlideoverProps {
   currentUserId?: string;
   onClose: () => void;
 }
-
-const PRIORITY_OPTIONS: SelectOption<TaskPriority>[] = [
-  { value: TaskPriority.LOW,    label: "Low",    color: "text-slate-400" },
-  { value: TaskPriority.MEDIUM, label: "Medium", color: "text-blue-400"  },
-  { value: TaskPriority.HIGH,   label: "High",   color: "text-amber-400" },
-  { value: TaskPriority.URGENT, label: "Urgent", color: "text-red-400"   },
-];
 
 export function TaskDetailSlideover({
   task,
@@ -190,7 +184,7 @@ export function TaskDetailSlideover({
                 </label>
                 {isClient ? (
                   <SelectDropdown
-                    options={PRIORITY_OPTIONS}
+                    options={TASK_PRIORITY_OPTIONS}
                     value={priority}
                     onChange={setPriority}
                   />

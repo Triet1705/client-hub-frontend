@@ -27,12 +27,12 @@ export function TaskCard({ task, onClick }: TaskCardProps) {
     <div
       onClick={() => onClick?.(task)}
       className={cn(
-        "group bg-slate-900/85 rounded-lg p-3.5 cursor-pointer flex flex-col gap-3 relative transition-all border",
+        "group bg-slate-800/40 rounded-xl p-3.5 cursor-pointer flex flex-col gap-3 relative transition-all duration-300 ring-1",
         isDone || isCancelled
-          ? "opacity-65 border-slate-800"
-          : "border-slate-800 hover:border-emerald-500/70 hover:bg-slate-900",
-        task.status === TaskStatus.IN_PROGRESS && "border-emerald-500/50",
-        isCancelled && "cursor-default"
+          ? "opacity-65 ring-transparent"
+          : "ring-white/5 hover:ring-white/10 hover:-translate-y-[1px] hover:shadow-xl hover:bg-slate-800/60",
+        task.status === TaskStatus.IN_PROGRESS && "ring-emerald-500/30",
+        isCancelled && "cursor-default drop-shadow-none"
       )}
     >
       {task.status === TaskStatus.IN_PROGRESS && (
@@ -55,7 +55,7 @@ export function TaskCard({ task, onClick }: TaskCardProps) {
         )}
       </div>
 
-      <div className="flex items-center justify-between border-t border-slate-800 pt-3 mt-1">
+      <div className="flex items-center justify-between border-t border-white/5 pt-3 mt-1">
         <div 
           className="w-6 h-6 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-[9px] font-bold text-slate-300"
           title={task.assignedTo?.email || "Unassigned"}
