@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import type { AxiosError } from "axios";
+import { getApiErrorMessage, getApiErrorStatus } from "@/lib/api/error";
 import {
   fetchProjects,
   createProject,
@@ -81,14 +81,14 @@ export function useCreateProjectMutation() {
       queryClient.invalidateQueries({ queryKey: projectKeys.lists() });
     },
     onError: (error: AxiosError<{ message?: string }>) => {
-      const status = error.response?.status;
+      const status = getApiErrorStatus(error);
       if (status === 403) {
         toast.error("Access Denied", {
           description: "Only clients can create projects.",
         });
         return;
       }
-      const errorMsg = error.response?.data?.message ?? "Failed to create project.";
+      const errorMsg = getApiErrorMessage(error, "Failed to create project.");
       toast.error("Creation Failed", { description: errorMsg });
     },
   });
@@ -103,8 +103,8 @@ export function useDeleteProjectMutation() {
       toast.success("Project Deleted");
       queryClient.invalidateQueries({ queryKey: projectKeys.lists() });
     },
-    onError: (error: AxiosError<{ message?: string }>) => {
-      const errorMsg = error.response?.data?.message ?? "Failed to delete project.";
+    onError: (error: unknown) => {
+      const errorMsg = getApiErrorMessage(error, "Failed to delete project.");
       toast.error("Deletion Failed", { description: errorMsg });
     },
   });
@@ -118,8 +118,8 @@ export function useAddMemberMutation(projectId: string) {
       toast.success("Member added");
       queryClient.invalidateQueries({ queryKey: projectKeys.members(projectId) });
     },
-    onError: (error: AxiosError<{ message?: string }>) => {
-      const msg = error.response?.data?.message ?? "Failed to add member.";
+    onError: (error: unknown) => {
+      const msg = getApiErrorMessage(error, "Failed to add member.");
       toast.error("Error", { description: msg });
     },
   });
@@ -133,8 +133,8 @@ export function useRemoveMemberMutation(projectId: string) {
       toast.success("Member removed");
       queryClient.invalidateQueries({ queryKey: projectKeys.members(projectId) });
     },
-    onError: (error: AxiosError<{ message?: string }>) => {
-      const msg = error.response?.data?.message ?? "Failed to remove member.";
+    onError: (error: unknown) => {
+      const msg = getApiErrorMessage(error, "Failed to remove member.");
       toast.error("Error", { description: msg });
     },
   });
