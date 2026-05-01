@@ -16,10 +16,16 @@ interface TaskBoardProps {
 export function TaskBoard({ tasks, currentParams, onAddTask, onTaskClick }: TaskBoardProps) {
   const { mutate: updateStatus } = useUpdateTaskStatusMutation(currentParams);
 
-  const todoTasks = tasks.filter((t) => t.status === TaskStatus.TODO);
-  const inProgressTasks = tasks.filter((t) => t.status === TaskStatus.IN_PROGRESS);
-  const doneTasks = tasks.filter((t) => t.status === TaskStatus.DONE);
-  const canceledTasks = tasks.filter((t) => t.status === TaskStatus.CANCELED);
+  const [boardTasks, setBoardTasks] = React.useState<Task[]>(tasks);
+
+  React.useEffect(() => {
+    setBoardTasks(tasks);
+  }, [tasks]);
+
+  const todoTasks = boardTasks.filter((t) => t.status === TaskStatus.TODO);
+  const inProgressTasks = boardTasks.filter((t) => t.status === TaskStatus.IN_PROGRESS);
+  const doneTasks = boardTasks.filter((t) => t.status === TaskStatus.DONE);
+  const canceledTasks = boardTasks.filter((t) => t.status === TaskStatus.CANCELED);
 
   const handleDragEnd = (result: DropResult) => {
     const { destination, source, draggableId } = result;
@@ -27,8 +33,50 @@ export function TaskBoard({ tasks, currentParams, onAddTask, onTaskClick }: Task
     if (!destination) return;
     if (destination.droppableId === source.droppableId && destination.index === source.index) return;
 
-    const newStatus = destination.droppableId as TaskStatus;
-    updateStatus({ id: draggableId, status: newStatus });
+    const sourceStatus = source.droppableId as TaskStatus;
+    const destinationStatus = destination.droppableId as TaskStatus;
+
+    setBoardTasks((prev) => {
+      const byStatus: Record<TaskStatus, Task[]> = {
+        [TaskStatus.TODO]: prev.filter((t) => t.status === TaskStatus.TODO),
+        [TaskStatus.IN_PROGRESS]: prev.filter((t) => t.status === TaskStatus.IN_PROGRESS),
+        [TaskStatus.DONE]: prev.filter((t) => t.status === TaskStatus.DONE),
+        [TaskStatus.CANCELED]: prev.filter((t) => t.status === TaskStatus.CANCELED),
+      };
+
+      const sourceColumn = [...byStatus[sourceStatus]];
+      const [movedTask] = sourceColumn.splice(source.index, 1);
+
+      if (!movedTask) {
+        return prev;
+      }
+
+      const destinationColumn =
+        sourceStatus === destinationStatus
+          ? sourceColumn
+          : [...byStatus[destinationStatus]];
+
+      const movedWithUpdatedStatus =
+        sourceStatus === destinationStatus
+          ? movedTask
+          : { ...movedTask, status: destinationStatus };
+
+      destinationColumn.splice(destination.index, 0, movedWithUpdatedStatus);
+
+      byStatus[sourceStatus] = sourceColumn;
+      byStatus[destinationStatus] = destinationColumn;
+
+      return [
+        ...byStatus[TaskStatus.TODO],
+        ...byStatus[TaskStatus.IN_PROGRESS],
+        ...byStatus[TaskStatus.DONE],
+        ...byStatus[TaskStatus.CANCELED],
+      ];
+    });
+
+    if (sourceStatus !== destinationStatus) {
+      updateStatus({ id: draggableId, status: destinationStatus });
+    }
   };
 
   return (
