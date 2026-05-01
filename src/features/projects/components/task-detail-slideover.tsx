@@ -7,6 +7,7 @@ import { TaskPriorityBadge } from "@/features/tasks/components/task-priority-bad
 import { TaskDetailLayout } from "@/features/tasks/components/task-detail-layout";
 import { TaskStatusBadge } from "@/features/tasks/components/task-status-badge";
 import { TaskStatusSelector } from "@/features/tasks/components/task-status-selector";
+import { TaskDiscussion } from "@/features/tasks/components/task-discussion";
 import { TASK_PRIORITY_OPTIONS } from "@/features/tasks/constants/task-ui.constants";
 import { UserAvatar } from "@/components/ui/user-avatar";
 import { SelectDropdown, type SelectOption } from "@/components/ui/select-dropdown";
@@ -47,6 +48,7 @@ export function TaskDetailSlideover({
   const [dueDate,         setDueDate]         = React.useState("");
   const [description,     setDescription]     = React.useState("");
   const [activeStatus,    setActiveStatus]    = React.useState<TaskStatus>(TaskStatus.TODO);
+  const [activeTab,       setActiveTab]       = React.useState("details");
 
   React.useEffect(() => {
     if (!task) return;
@@ -130,7 +132,15 @@ export function TaskDetailSlideover({
       onClose={onClose}
       headerBadge={headerBadge}
       footer={footer}
+      tabs={[
+        { id: "details", label: "Details" },
+        { id: "discussion", label: "Discussion" },
+      ]}
+      activeTab={activeTab}
+      onTabChange={setActiveTab}
     >
+      {activeTab === "details" ? (
+        <>
           <section>
             <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-3">
               Update Status
@@ -265,6 +275,10 @@ export function TaskDetailSlideover({
               Last updated by <span className="text-slate-300">{task?.lastModifiedBy ?? "Unknown"}</span>
             </p>
           </section>
+        </>
+      ) : (
+        task ? <TaskDiscussion taskId={task.id} /> : null
+      )}
     </TaskDetailLayout>
   );
 }
