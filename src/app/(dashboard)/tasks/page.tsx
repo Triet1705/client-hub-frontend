@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { Plus, User, ChevronDown, LayoutGrid, List, Flag, Check } from "lucide-react";
+import { Plus, User, ChevronDown, LayoutGrid, List, Flag, Check, TimerReset, SlidersHorizontal, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { buildUpdatedQueryString } from "@/lib/url-query";
 import { TaskPriority, TaskStatus, type Task } from "@/features/tasks/types/task.types";
@@ -17,11 +17,123 @@ import { CreateTaskModal } from "@/features/tasks/components/create-task-modal";
 import { TaskDetailSlideover } from "@/features/projects/components/task-detail-slideover";
 import {
   parseTasksQuery,
+  type TaskDueFilterValue,
   type TaskPriorityFilterValue,
+  type TaskStatusFilterValue,
   type TasksViewMode,
 } from "@/features/tasks/query/tasks-query.schema";
 
 const TASKS_VIEW_STORAGE_KEY = "clienthub.tasks.view-mode";
+
+const TASK_STATUS_FILTER_OPTIONS: Array<{ value: TaskStatusFilterValue; label: string }> = [
+  { value: "ALL", label: "All Statuses" },
+  { value: TaskStatus.TODO, label: "To Do" },
+  { value: TaskStatus.IN_PROGRESS, label: "In Progress" },
+  { value: TaskStatus.DONE, label: "Done" },
+  { value: TaskStatus.CANCELED, label: "Cancelled" },
+];
+
+const TASK_DUE_FILTER_OPTIONS: Array<{ value: TaskDueFilterValue; label: string }> = [
+  { value: "ALL", label: "All Due Dates" },
+  { value: "OVERDUE", label: "Overdue" },
+  { value: "TODAY", label: "Due Today" },
+  { value: "THIS_WEEK", label: "Due This Week" },
+  { value: "NO_DUE_DATE", label: "No Due Date" },
+];
+
+type AdvancedFilters = {
+  keyword: string;
+  statuses: TaskStatus[];
+  minEstimate: string;
+  maxEstimate: string;
+};
+
+const DEFAULT_ADVANCED_FILTERS: AdvancedFilters = {
+  keyword: "",
+  statuses: [],
+  minEstimate: "",
+  maxEstimate: "",
+};
+
+function isTaskMatchingDueFilter(task: Task, dueFilter: TaskDueFilterValue): boolean {
+  if (dueFilter === "ALL") {
+    return true;
+  }
+
+  if (!task.dueDate) {
+    return dueFilter === "NO_DUE_DATE";
+  }
+
+  const dueDate = new Date(task.dueDate);
+  if (Number.isNaN(dueDate.getTime())) {
+    return false;
+  }
+
+  const now = new Date();
+  const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const startOfTomorrow = new Date(startOfToday);
+  startOfTomorrow.setDate(startOfTomorrow.getDate() + 1);
+  const endOfThisWeek = new Date(startOfToday);
+  endOfThisWeek.setDate(endOfThisWeek.getDate() + 7);
+
+  if (dueFilter === "OVERDUE") {
+    return dueDate < startOfToday && task.status !== TaskStatus.DONE && task.status !== TaskStatus.CANCELED;
+  }
+
+  if (dueFilter === "TODAY") {
+    return dueDate >= startOfToday && dueDate < startOfTomorrow;
+  }
+
+  if (dueFilter === "THIS_WEEK") {
+    return dueDate >= startOfToday && dueDate < endOfThisWeek;
+  }
+
+  return false;
+}
+
+function isTaskMatchingAdvancedFilters(task: Task, filters: AdvancedFilters): boolean {
+  const keyword = filters.keyword.trim().toLowerCase();
+  if (keyword) {
+    const searchable = [
+      task.title,
+      task.description ?? "",
+      task.projectTitle,
+      task.assignedTo?.fullName ?? "",
+      task.assignedTo?.email ?? "",
+    ]
+      .join(" ")
+      .toLowerCase();
+
+    if (!searchable.includes(keyword)) {
+      return false;
+    }
+  }
+
+  if (filters.statuses.length > 0 && !filters.statuses.includes(task.status)) {
+    return false;
+  }
+
+  const minEstimate = filters.minEstimate.trim() === "" ? undefined : Number(filters.minEstimate);
+  const maxEstimate = filters.maxEstimate.trim() === "" ? undefined : Number(filters.maxEstimate);
+
+  if ((minEstimate !== undefined && Number.isNaN(minEstimate)) || (maxEstimate !== undefined && Number.isNaN(maxEstimate))) {
+    return false;
+  }
+
+  if (minEstimate !== undefined || maxEstimate !== undefined) {
+    if (typeof task.estimatedHours !== "number") {
+      return false;
+    }
+    if (minEstimate !== undefined && task.estimatedHours < minEstimate) {
+      return false;
+    }
+    if (maxEstimate !== undefined && task.estimatedHours > maxEstimate) {
+      return false;
+    }
+  }
+
+  return true;
+}
 
 const PROJECT_STATUS_BADGE: Record<ProjectStatus, string> = {
   [ProjectStatus.PLANNING]:   "text-slate-300 bg-slate-700/50 border-slate-600/40",
@@ -65,15 +177,38 @@ function TasksPageContent() {
   const [priorityFilter, setPriorityFilter] = React.useState<TaskPriorityFilterValue>(
     initialQueryState.priorityFilter,
   );
+  const [statusFilter, setStatusFilter] = React.useState<TaskStatusFilterValue>(
+    initialQueryState.statusFilter,
+  );
+  const [dueFilter, setDueFilter] = React.useState<TaskDueFilterValue>(
+    initialQueryState.dueFilter,
+  );
   const [selectedAssigneeId, setSelectedAssigneeId] = React.useState<string | undefined>(
     initialQueryState.assigneeId,
   );
   const [projectDropdownOpen, setProjectDropdownOpen] = React.useState(false);
   const [priorityDropdownOpen, setPriorityDropdownOpen] = React.useState(false);
+  const [statusDropdownOpen, setStatusDropdownOpen] = React.useState(false);
+  const [dueDropdownOpen, setDueDropdownOpen] = React.useState(false);
   const [assigneeDropdownOpen, setAssigneeDropdownOpen] = React.useState(false);
+  const [isAdvancedFiltersOpen, setIsAdvancedFiltersOpen] = React.useState(false);
+  const [advancedFilters, setAdvancedFilters] = React.useState<AdvancedFilters>({
+    keyword: initialQueryState.keyword,
+    statuses: initialQueryState.advancedStatuses,
+    minEstimate: initialQueryState.estimateMin,
+    maxEstimate: initialQueryState.estimateMax,
+  });
+  const [draftAdvancedFilters, setDraftAdvancedFilters] = React.useState<AdvancedFilters>({
+    keyword: initialQueryState.keyword,
+    statuses: initialQueryState.advancedStatuses,
+    minEstimate: initialQueryState.estimateMin,
+    maxEstimate: initialQueryState.estimateMax,
+  });
   const [selectedTask, setSelectedTask] = React.useState<Task | null>(null);
   const dropdownRef = React.useRef<HTMLDivElement>(null);
   const priorityDropdownRef = React.useRef<HTMLDivElement>(null);
+  const statusDropdownRef = React.useRef<HTMLDivElement>(null);
+  const dueDropdownRef = React.useRef<HTMLDivElement>(null);
   const assigneeDropdownRef = React.useRef<HTMLDivElement>(null);
 
   const { data: projectsData } = useProjectsQuery(0, 50);
@@ -102,17 +237,39 @@ function TasksPageContent() {
   }, [viewMode]);
 
   React.useEffect(() => {
+    const serializedAdvancedStatuses = advancedFilters.statuses.join(",");
+
     const next = buildUpdatedQueryString(queryString, [
       { key: "projectId", value: selectedProjectId },
       { key: "view", value: viewMode, defaultValue: "kanban" },
       { key: "priority", value: priorityFilter, defaultValue: "ALL" },
+      { key: "status", value: statusFilter, defaultValue: "ALL" },
+      { key: "due", value: dueFilter, defaultValue: "ALL" },
       { key: "assignee", value: selectedAssigneeId },
+      { key: "keyword", value: advancedFilters.keyword },
+      { key: "statuses", value: serializedAdvancedStatuses },
+      { key: "estimateMin", value: advancedFilters.minEstimate },
+      { key: "estimateMax", value: advancedFilters.maxEstimate },
     ]);
 
     if (queryString !== next) {
       router.replace(next ? `${pathname}?${next}` : pathname, { scroll: false });
     }
-  }, [pathname, priorityFilter, queryString, router, selectedAssigneeId, selectedProjectId, viewMode]);
+  }, [
+    advancedFilters.keyword,
+    advancedFilters.maxEstimate,
+    advancedFilters.minEstimate,
+    advancedFilters.statuses,
+    dueFilter,
+    pathname,
+    priorityFilter,
+    queryString,
+    router,
+    selectedAssigneeId,
+    selectedProjectId,
+    statusFilter,
+    viewMode,
+  ]);
 
   const selectedProject = projects.find(p => p.id === selectedProjectId);
   const { data: projectMembers = [] } = useProjectMembersQuery(selectedProjectId ?? "");
@@ -130,16 +287,31 @@ function TasksPageContent() {
       projectId: selectedProjectId,
       assignedToId: selectedAssigneeId,
       priority: priorityFilter === "ALL" ? undefined : priorityFilter,
+      status: statusFilter === "ALL" ? undefined : statusFilter,
       page: 0,
       size: 50,
     }),
-    [priorityFilter, selectedAssigneeId, selectedProjectId]
+    [priorityFilter, selectedAssigneeId, selectedProjectId, statusFilter]
   );
 
   const { data, isLoading, isError } = useTasksQuery(params);
   const tasks = React.useMemo(() => data?.content ?? [], [data?.content]);
 
-  const filteredTasks = tasks;
+  const filteredTasks = React.useMemo(
+    () => tasks
+      .filter((task) => isTaskMatchingDueFilter(task, dueFilter))
+      .filter((task) => isTaskMatchingAdvancedFilters(task, advancedFilters)),
+    [advancedFilters, dueFilter, tasks],
+  );
+
+  const hasActiveAdvancedFilters = React.useMemo(() => {
+    return (
+      advancedFilters.keyword.trim() !== "" ||
+      advancedFilters.statuses.length > 0 ||
+      advancedFilters.minEstimate.trim() !== "" ||
+      advancedFilters.maxEstimate.trim() !== ""
+    );
+  }, [advancedFilters]);
 
   const todoCount       = filteredTasks.filter((t) => t.status === TaskStatus.TODO).length;
   const inProgressCount = filteredTasks.filter((t) => t.status === TaskStatus.IN_PROGRESS).length;
@@ -157,6 +329,18 @@ function TasksPageContent() {
     return option?.label || "Priority";
   }, [priorityFilter]);
 
+  const statusLabel = React.useMemo(() => {
+    if (statusFilter === "ALL") return "Status";
+    const option = TASK_STATUS_FILTER_OPTIONS.find((item) => item.value === statusFilter);
+    return option?.label || "Status";
+  }, [statusFilter]);
+
+  const dueLabel = React.useMemo(() => {
+    if (dueFilter === "ALL") return "Due";
+    const option = TASK_DUE_FILTER_OPTIONS.find((item) => item.value === dueFilter);
+    return option?.label || "Due";
+  }, [dueFilter]);
+
   const [isMounted, setIsMounted] = React.useState(false);
   React.useEffect(() => { setIsMounted(true); }, []);
 
@@ -167,6 +351,12 @@ function TasksPageContent() {
       }
       if (priorityDropdownRef.current && !priorityDropdownRef.current.contains(e.target as Node)) {
         setPriorityDropdownOpen(false);
+      }
+      if (statusDropdownRef.current && !statusDropdownRef.current.contains(e.target as Node)) {
+        setStatusDropdownOpen(false);
+      }
+      if (dueDropdownRef.current && !dueDropdownRef.current.contains(e.target as Node)) {
+        setDueDropdownOpen(false);
       }
       if (assigneeDropdownRef.current && !assigneeDropdownRef.current.contains(e.target as Node)) {
         setAssigneeDropdownOpen(false);
@@ -180,11 +370,37 @@ function TasksPageContent() {
     setSelectedTask(null);
   }, [selectedProjectId]);
 
+  React.useEffect(() => {
+    if (isAdvancedFiltersOpen) {
+      setDraftAdvancedFilters(advancedFilters);
+    }
+  }, [advancedFilters, isAdvancedFiltersOpen]);
+
   if (!isMounted) return null;
 
   const handleAddTask = (status: TaskStatus) => {
     setDefaultStatus(status);
     setIsCreateModalOpen(true);
+  };
+
+  const handleToggleDraftStatus = (status: TaskStatus) => {
+    setDraftAdvancedFilters((prev) => {
+      const exists = prev.statuses.includes(status);
+      return {
+        ...prev,
+        statuses: exists ? prev.statuses.filter((item) => item !== status) : [...prev.statuses, status],
+      };
+    });
+  };
+
+  const handleApplyAdvancedFilters = () => {
+    setAdvancedFilters(draftAdvancedFilters);
+    setIsAdvancedFiltersOpen(false);
+  };
+
+  const handleResetAdvancedFilters = () => {
+    setDraftAdvancedFilters(DEFAULT_ADVANCED_FILTERS);
+    setAdvancedFilters(DEFAULT_ADVANCED_FILTERS);
   };
 
   return (
@@ -374,6 +590,87 @@ function TasksPageContent() {
                 </div>
               ) : null}
             </div>
+
+            <div className="relative" ref={statusDropdownRef}>
+              <button
+                onClick={() => setStatusDropdownOpen((current) => !current)}
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-white/4 border border-white/8 rounded-full text-xs text-slate-400 hover:border-white/20 hover:text-slate-200 transition-colors"
+              >
+                <Check size={12} className="text-slate-500" />
+                {statusLabel}
+                <ChevronDown size={11} className={cn("text-slate-500 transition-transform", statusDropdownOpen && "rotate-180")} />
+              </button>
+
+              {statusDropdownOpen ? (
+                <div className="absolute right-0 mt-2 w-48 bg-[#111111] border border-white/10 rounded-xl shadow-2xl z-50 overflow-hidden py-1">
+                  {TASK_STATUS_FILTER_OPTIONS.map((option) => (
+                    <button
+                      key={option.value}
+                      onClick={() => {
+                        setStatusFilter(option.value);
+                        setStatusDropdownOpen(false);
+                      }}
+                      className={cn(
+                        "w-full px-3 py-2 text-left text-xs hover:bg-white/5 transition-colors",
+                        statusFilter === option.value ? "text-emerald-400" : "text-slate-300",
+                      )}
+                    >
+                      {option.label}
+                    </button>
+                  ))}
+                </div>
+              ) : null}
+            </div>
+
+            <div className="relative" ref={dueDropdownRef}>
+              <button
+                onClick={() => setDueDropdownOpen((current) => !current)}
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-white/4 border border-white/8 rounded-full text-xs text-slate-400 hover:border-white/20 hover:text-slate-200 transition-colors"
+              >
+                <TimerReset size={12} className="text-slate-500" />
+                {dueLabel}
+                <ChevronDown size={11} className={cn("text-slate-500 transition-transform", dueDropdownOpen && "rotate-180")} />
+              </button>
+
+              {dueDropdownOpen ? (
+                <div className="absolute right-0 mt-2 w-52 bg-[#111111] border border-white/10 rounded-xl shadow-2xl z-50 overflow-hidden py-1">
+                  {TASK_DUE_FILTER_OPTIONS.map((option) => (
+                    <button
+                      key={option.value}
+                      onClick={() => {
+                        setDueFilter(option.value);
+                        setDueDropdownOpen(false);
+                      }}
+                      className={cn(
+                        "w-full px-3 py-2 text-left text-xs hover:bg-white/5 transition-colors",
+                        dueFilter === option.value ? "text-emerald-400" : "text-slate-300",
+                      )}
+                    >
+                      {option.label}
+                    </button>
+                  ))}
+                </div>
+              ) : null}
+            </div>
+
+            <button
+              onClick={() => setIsAdvancedFiltersOpen(true)}
+              className={cn(
+                "flex items-center gap-1.5 px-3 py-1.5 border rounded-full text-xs transition-colors",
+                hasActiveAdvancedFilters
+                  ? "bg-emerald-500/12 border-emerald-500/30 text-emerald-300"
+                  : "bg-white/4 border-white/8 text-slate-400 hover:border-white/20 hover:text-slate-200",
+              )}
+            >
+              <SlidersHorizontal size={12} className={hasActiveAdvancedFilters ? "text-emerald-300" : "text-slate-500"} />
+              Advanced
+              {hasActiveAdvancedFilters ? (
+                <span className="inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-emerald-400/20 px-1 text-[10px] font-semibold text-emerald-300">
+                  ON
+                </span>
+              ) : null}
+            </button>
+
             <button
               onClick={() => handleAddTask(TaskStatus.TODO)}
               className="flex items-center gap-1.5 px-4 py-2 text-xs font-bold bg-emerald-600 text-white rounded-lg hover:bg-emerald-500 transition-colors ml-1"
@@ -383,6 +680,11 @@ function TasksPageContent() {
             </button>
           </div>
         </div>
+
+        {/*
+          TODO(tasks-filters-v2): Persist custom filter presets (Saved Views) per user.
+          TODO(tasks-filters-v2): Move due-date and keyword filters to backend query params when API supports predicates.
+        */}
       </div>
 
       {isError ? (
@@ -411,6 +713,126 @@ function TasksPageContent() {
           onTaskClick={setSelectedTask}
         />
       )}
+
+      {isAdvancedFiltersOpen ? (
+        <>
+          <button
+            aria-label="Close advanced filters"
+            onClick={() => setIsAdvancedFiltersOpen(false)}
+            className="fixed inset-0 z-40 bg-black/50 backdrop-blur-[1px]"
+          />
+          <aside className="fixed right-0 top-0 z-50 h-full w-full max-w-md border-l border-white/10 bg-[#0c0c0c] shadow-2xl">
+            <div className="flex h-full flex-col">
+              <div className="flex items-center justify-between border-b border-white/10 px-5 py-4">
+                <div>
+                  <h3 className="text-sm font-semibold text-white">Advanced Filters</h3>
+                  <p className="mt-1 text-xs text-slate-400">Refine tasks by keyword, statuses, and estimate range.</p>
+                </div>
+                <button
+                  onClick={() => setIsAdvancedFiltersOpen(false)}
+                  className="rounded-md border border-white/10 p-1.5 text-slate-400 transition-colors hover:border-white/20 hover:text-slate-200"
+                >
+                  <X size={14} />
+                </button>
+              </div>
+
+              <div className="flex-1 space-y-6 overflow-y-auto px-5 py-5">
+                <div className="space-y-2">
+                  <label className="text-xs font-semibold uppercase tracking-wide text-slate-400">Keyword</label>
+                  <input
+                    value={draftAdvancedFilters.keyword}
+                    onChange={(event) =>
+                      setDraftAdvancedFilters((prev) => ({
+                        ...prev,
+                        keyword: event.target.value,
+                      }))
+                    }
+                    placeholder="Title, description, project, assignee..."
+                    className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-slate-200 placeholder:text-slate-500 focus:border-emerald-400/40 focus:outline-none"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-xs font-semibold uppercase tracking-wide text-slate-400">Statuses</label>
+                  <div className="grid grid-cols-2 gap-2">
+                    {[
+                      { label: "To Do", value: TaskStatus.TODO },
+                      { label: "In Progress", value: TaskStatus.IN_PROGRESS },
+                      { label: "Done", value: TaskStatus.DONE },
+                      { label: "Cancelled", value: TaskStatus.CANCELED },
+                    ].map((option) => {
+                      const selected = draftAdvancedFilters.statuses.includes(option.value);
+                      return (
+                        <button
+                          key={option.value}
+                          onClick={() => handleToggleDraftStatus(option.value)}
+                          className={cn(
+                            "rounded-lg border px-3 py-2 text-left text-xs font-medium transition-colors",
+                            selected
+                              ? "border-emerald-500/40 bg-emerald-500/10 text-emerald-300"
+                              : "border-white/10 bg-white/5 text-slate-300 hover:border-white/20",
+                          )}
+                        >
+                          {option.label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-xs font-semibold uppercase tracking-wide text-slate-400">Estimated Hours</label>
+                  <div className="grid grid-cols-2 gap-2">
+                    <input
+                      type="number"
+                      min={0}
+                      step={0.5}
+                      value={draftAdvancedFilters.minEstimate}
+                      onChange={(event) =>
+                        setDraftAdvancedFilters((prev) => ({
+                          ...prev,
+                          minEstimate: event.target.value,
+                        }))
+                      }
+                      placeholder="Min"
+                      className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-slate-200 placeholder:text-slate-500 focus:border-emerald-400/40 focus:outline-none"
+                    />
+                    <input
+                      type="number"
+                      min={0}
+                      step={0.5}
+                      value={draftAdvancedFilters.maxEstimate}
+                      onChange={(event) =>
+                        setDraftAdvancedFilters((prev) => ({
+                          ...prev,
+                          maxEstimate: event.target.value,
+                        }))
+                      }
+                      placeholder="Max"
+                      className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-slate-200 placeholder:text-slate-500 focus:border-emerald-400/40 focus:outline-none"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between gap-2 border-t border-white/10 px-5 py-4">
+                <button
+                  onClick={handleResetAdvancedFilters}
+                  className="rounded-lg border border-white/10 px-3 py-2 text-xs font-medium text-slate-300 transition-colors hover:border-white/20"
+                >
+                  Reset
+                </button>
+                <button
+                  onClick={handleApplyAdvancedFilters}
+                  className="rounded-lg bg-emerald-600 px-3 py-2 text-xs font-semibold text-white transition-colors hover:bg-emerald-500"
+                >
+                  Apply Filters
+                </button>
+              </div>
+            </div>
+          </aside>
+        </>
+      ) : null}
 
       <CreateTaskModal
         isOpen={isCreateModalOpen}
