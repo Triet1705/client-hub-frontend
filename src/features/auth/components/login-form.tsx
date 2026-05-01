@@ -27,6 +27,7 @@ export function LoginForm() {
   const {
     register,
     handleSubmit,
+    setError,
     formState: { errors },
   } = useForm<LoginInputValues, unknown, LoginFormValues>({
     resolver: zodResolver(loginSchema),
@@ -39,6 +40,22 @@ export function LoginForm() {
   });
 
   const onSubmit = async (data: LoginFormValues) => {
+    const passwordLooksQuoted =
+      data.password.length >= 2 &&
+      ((data.password.startsWith("'") && data.password.endsWith("'")) ||
+        (data.password.startsWith('"') && data.password.endsWith('"')));
+
+    if (passwordLooksQuoted) {
+      setError("password", {
+        type: "manual",
+        message: "Password appears to include copied quote characters. Remove leading/trailing quotes and try again.",
+      });
+      toast.error("Invalid password format", {
+        description: "Please remove copied quote characters around your password.",
+      });
+      return;
+    }
+
     setIsLoading(true);
     try {
       const response = await login(
@@ -62,9 +79,19 @@ export function LoginForm() {
       const callbackUrl = searchParams.get("callbackUrl") ?? "/dashboard";
       router.push(callbackUrl);
     } catch (error: unknown) {
-      const err = error as { response?: { data?: { message?: string } } };
+      const err = error as {
+        response?: { status?: number; data?: { message?: string } };
+      };
       const errorMsg =
         err.response?.data?.message || "Invalid credentials or tenant ID.";
+
+      if (err.response?.status === 401 || err.response?.status === 403) {
+        setError("password", {
+          type: "manual",
+          message: "Incorrect email or password. Check copied characters and try again.",
+        });
+      }
+
       toast.error("Authentication Failed", { description: errorMsg });
     } finally {
       setIsLoading(false);
