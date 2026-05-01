@@ -86,9 +86,21 @@ apiClient.interceptors.response.use(
       _retry?: boolean;
     };
 
+    const requestUrl = originalRequest.url || "";
+    const isAuthEndpoint =
+      requestUrl.includes("/auth/login") ||
+      requestUrl.includes("/auth/register") ||
+      requestUrl.includes("/auth/logout") ||
+      requestUrl.includes("/auth/refresh-token");
+    const isOnAuthPage =
+      typeof window !== "undefined" &&
+      (window.location.pathname === "/login" ||
+        window.location.pathname === "/register" ||
+        window.location.pathname === "/recovery");
+
     if (
       error.response?.status !== 401 ||
-      originalRequest.url?.includes("/auth/refresh-token")
+      isAuthEndpoint
     ) {
       return Promise.reject(normalizeApiError(error));
     }
@@ -112,8 +124,10 @@ apiClient.interceptors.response.use(
       const tenantId = getTenantId();
 
       if (!refreshToken) {
-        clearAuthCookies();
-        if (typeof window !== "undefined") window.location.href = "/login";
+        if (!isOnAuthPage) {
+          clearAuthCookies();
+          if (typeof window !== "undefined") window.location.href = "/login";
+        }
         return Promise.reject(normalizeApiError(error));
       }
 
@@ -135,8 +149,10 @@ apiClient.interceptors.response.use(
         return apiClient(originalRequest);
       } catch (refreshError) {
         processQueue(refreshError as AxiosError, null);
-        clearAuthCookies();
-        if (typeof window !== "undefined") window.location.href = "/login";
+        if (!isOnAuthPage) {
+          clearAuthCookies();
+          if (typeof window !== "undefined") window.location.href = "/login";
+        }
         return Promise.reject(normalizeApiError(refreshError));
       } finally {
         isRefreshing = false;
