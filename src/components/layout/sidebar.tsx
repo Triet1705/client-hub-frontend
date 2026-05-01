@@ -14,6 +14,7 @@ import {
   NavTasksIcon,
   NavInvoicesIcon,
   NavCommunicationIcon,
+  NavSmartTasksIcon,
   NavAdminIcon,
 } from "@/components/icons";
 
@@ -50,6 +51,12 @@ const NAV_ITEMS = [
     name: "Communication",
     href: "/communication",
     icon: NavCommunicationIcon,
+    roles: ["ADMIN", "CLIENT", "FREELANCER"],
+  },
+  {
+    name: "Smart Tasks",
+    href: "/smart-tasks",
+    icon: NavSmartTasksIcon,
     roles: ["ADMIN", "CLIENT", "FREELANCER"],
   },
   {
