@@ -102,14 +102,6 @@ export function LoginForm() {
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
       <div className="space-y-6">
         <AuthInput
-          label="Workspace Domain / Tenant ID"
-          icon={WorkspaceDomainIcon}
-          placeholder="org-alias-01  (leave blank for Admin / default workspace)"
-          error={errors.tenantId?.message}
-          {...register("tenantId")}
-        />
-
-        <AuthInput
           label="Email Identity"
           icon={EmailIcon}
           type="email"
