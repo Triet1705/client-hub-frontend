@@ -7,6 +7,22 @@ import {
 import { toast } from "sonner";
 
 function normalizeErrorMessage(error: unknown): string {
+  // Axios-style errors often include a response with data and message
+  const anyErr = error as any;
+  if (anyErr?.isAxiosError && anyErr.response) {
+    const resp = anyErr.response;
+    if (resp.data) {
+      if (typeof resp.data === "string") return resp.data;
+      if (typeof resp.data.message === "string") return resp.data.message;
+      try {
+        return JSON.stringify(resp.data);
+      } catch {
+        // fallthrough
+      }
+    }
+    return `HTTP ${resp.status}`;
+  }
+
   if (error instanceof Error && error.message) {
     return error.message;
   }
@@ -25,11 +41,19 @@ function handleError(error: unknown, context?: { queryKey?: QueryKey }) {
   const errorMessage = normalizeErrorMessage(error);
 
   if (process.env.NODE_ENV === "development") {
-    console.error("API Error:", {
-      message: errorMessage,
-      queryKey: context?.queryKey,
-      error,
-    });
+    try {
+      const anyErr = error as any;
+      const debugObj: any = { message: errorMessage, queryKey: context?.queryKey };
+      if (anyErr?.isAxiosError && anyErr.response) {
+        debugObj.status = anyErr.response.status;
+        debugObj.data = anyErr.response.data;
+      } else {
+        debugObj.error = error;
+      }
+      console.error("API Error:", debugObj);
+    } catch (e) {
+      console.error("API Error:", { message: errorMessage, queryKey: context?.queryKey, error });
+    }
   }
 
   if (
