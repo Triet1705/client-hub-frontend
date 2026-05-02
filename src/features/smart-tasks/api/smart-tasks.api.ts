@@ -8,12 +8,7 @@ export const smartTasksApi = {
 
     const response = await apiClient.post<ExtractTasksResponse>(
       "/api/ai/extract-task",
-      formData,
-      {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      }
+      formData
     );
     return response.data;
   },

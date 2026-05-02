@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { ArrowLeft, CheckCircle2, FileText, Loader2, Sparkles } from "lucide-react";
+import { ArrowLeft, CheckCircle2, FileText, Loader2, Sparkles, XCircle } from "lucide-react";
 import { useSmartTasksHistory } from "@/features/smart-tasks/hooks/use-smart-tasks-history";
 import { SmartTaskReviewList } from "@/features/smart-tasks/components/smart-task-review-list";
 import { ExtractedTask } from "@/features/smart-tasks/types/smart-tasks.types";
@@ -117,7 +117,7 @@ export default function SmartTasksReviewPage() {
 
   const projectOptions = projectsData?.content.map(p => ({
     value: p.id,
-    label: p.name
+    label: (p as any).name || p.id,
   })) || [];
 
   return (

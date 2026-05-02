@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { cn } from "@/lib/utils";
 import { Sparkles, History, FileText, CheckCircle2, XCircle, Clock } from "lucide-react";
 import { UploadDropzone } from "@/features/smart-tasks/components/upload-dropzone";
 import { useSmartTasksHistory } from "@/features/smart-tasks/hooks/use-smart-tasks-history";

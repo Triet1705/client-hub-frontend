@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { ExtractedTask } from "../../types/smart-tasks.types";
+import { ExtractedTask } from "../types/smart-tasks.types";
 import { TaskStatusSelector } from "@/features/tasks/components/task-status-selector";
 import { TaskPriorityBadge } from "@/features/tasks/components/task-priority-badge";
 import { TaskStatus, TaskPriority } from "@/features/tasks/types/task.types";
