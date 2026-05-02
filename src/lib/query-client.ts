@@ -6,14 +6,19 @@ import {
 } from "@tanstack/react-query";
 import { toast } from "sonner";
 
+type AxiosLikeError = {
+  isAxiosError?: boolean;
+  response?: { status?: number; data?: unknown };
+};
+
 function normalizeErrorMessage(error: unknown): string {
-  // Axios-style errors often include a response with data and message
-  const anyErr = error as any;
-  if (anyErr?.isAxiosError && anyErr.response) {
-    const resp = anyErr.response;
-    if (resp.data) {
+  const axiosErr = error as AxiosLikeError;
+  if (axiosErr?.isAxiosError && axiosErr.response) {
+    const resp = axiosErr.response;
+      if (resp.data) {
       if (typeof resp.data === "string") return resp.data;
-      if (typeof resp.data.message === "string") return resp.data.message;
+      const respData = resp.data as unknown;
+      if (typeof (respData as { message?: unknown }).message === "string") return (respData as { message: string }).message;
       try {
         return JSON.stringify(resp.data);
       } catch {
@@ -23,15 +28,11 @@ function normalizeErrorMessage(error: unknown): string {
     return `HTTP ${resp.status}`;
   }
 
-  if (error instanceof Error && error.message) {
-    return error.message;
-  }
+  if (error instanceof Error && error.message) return error.message;
 
   if (typeof error === "object" && error !== null) {
     const maybeMessage = (error as { message?: unknown }).message;
-    if (typeof maybeMessage === "string" && maybeMessage.length > 0) {
-      return maybeMessage;
-    }
+    if (typeof maybeMessage === "string" && maybeMessage.length > 0) return maybeMessage;
   }
 
   return "An unexpected error occurred";
@@ -42,39 +43,28 @@ function handleError(error: unknown, context?: { queryKey?: QueryKey }) {
 
   if (process.env.NODE_ENV === "development") {
     try {
-      const anyErr = error as any;
-      const debugObj: any = { message: errorMessage, queryKey: context?.queryKey };
-      if (anyErr?.isAxiosError && anyErr.response) {
-        debugObj.status = anyErr.response.status;
-        debugObj.data = anyErr.response.data;
+      const axiosErr = error as AxiosLikeError;
+      const debugObj: Record<string, unknown> = { message: errorMessage, queryKey: context?.queryKey };
+      if (axiosErr?.isAxiosError && axiosErr.response) {
+        debugObj.status = axiosErr.response.status;
+        debugObj.data = axiosErr.response.data;
       } else {
         debugObj.error = error;
       }
       console.error("API Error:", debugObj);
-    } catch (e) {
+    } catch {
       console.error("API Error:", { message: errorMessage, queryKey: context?.queryKey, error });
     }
   }
 
-  if (
-    errorMessage.includes("Network Error") ||
-    errorMessage.includes("Failed to fetch")
-  ) {
-    toast.error(
-      "Network connection lost. Please check your internet connection.",
-    );
+  if (errorMessage.includes("Network Error") || errorMessage.includes("Failed to fetch")) {
+    toast.error("Network connection lost. Please check your internet connection.");
     return;
   }
 
   toast.error(errorMessage);
 
   // TODO: Send to monitoring service in production
-  // if (process.env.NODE_ENV === 'production') {
-  //   Sentry.captureException(error, {
-  //     tags: { source: 'react-query' },
-  //     extra: { queryKey: context?.queryKey },
-  //   });
-  // }
 }
 
 export const queryClient = new QueryClient({

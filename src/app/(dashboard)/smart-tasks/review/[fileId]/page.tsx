@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { ArrowLeft, CheckCircle2, FileText, Loader2, Sparkles, XCircle } from "lucide-react";
 import { useSmartTasksHistory } from "@/features/smart-tasks/hooks/use-smart-tasks-history";
@@ -8,11 +8,10 @@ import { SmartTaskReviewList } from "@/features/smart-tasks/components/smart-tas
 import { ExtractedTask } from "@/features/smart-tasks/types/smart-tasks.types";
 import { SelectDropdown } from "@/components/ui/select-dropdown";
 import { useProjectsQuery } from "@/features/projects/hooks/use-projects";
-import { useCreateTaskMutation } from "@/features/tasks/hooks/use-tasks";
 import { TaskStatus } from "@/features/tasks/types/task.types";
-import { toast } from "react-hot-toast";
+import { toast } from "sonner";
 import { apiClient } from "@/lib/api-client";
-import { TaskRequestPayload } from "@/features/tasks/types/task.types";
+import { TaskPriority, TaskRequestPayload } from "@/features/tasks/types/task.types";
 
 export default function SmartTasksReviewPage() {
   const router = useRouter();
@@ -20,25 +19,35 @@ export default function SmartTasksReviewPage() {
   const fileId = params.fileId as string;
   
   const { history } = useSmartTasksHistory();
-  const [historyItem, setHistoryItem] = useState(history.find(h => h.id === fileId));
-  
-  const [tasks, setTasks] = useState<ExtractedTask[]>([]);
+  const initialHistoryItem = history.find((h) => h.id === fileId);
+  const historyItem = initialHistoryItem;
+
+  const [tasks, setTasks] = useState<ExtractedTask[]>(() => initialHistoryItem?.extractedTasks ?? []);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [selectedProjectId, setSelectedProjectId] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const { data: projectsData, isLoading: isLoadingProjects } = useProjectsQuery();
+  const { data: projectsData } = useProjectsQuery();
 
-  useEffect(() => {
-    const item = history.find(h => h.id === fileId);
-    if (item) {
-      setHistoryItem(item);
-      if (item.extractedTasks && tasks.length === 0) {
-        setTasks(item.extractedTasks);
-        setSelectedIds(new Set(item.extractedTasks.map(t => t.id)));
-      }
+  const resolveTaskPriority = (priority: string): TaskPriority => {
+    switch (priority) {
+      case TaskPriority.LOW:
+        return TaskPriority.LOW;
+      case TaskPriority.MEDIUM:
+        return TaskPriority.MEDIUM;
+      case TaskPriority.HIGH:
+        return TaskPriority.HIGH;
+      case TaskPriority.URGENT:
+        return TaskPriority.URGENT;
+      default:
+        return TaskPriority.MEDIUM;
     }
-  }, [history, fileId, tasks.length]);
+  };
+
+  // Note: history is read during render and used to initialize state above.
+  // If history is expected to change during the lifetime of this component and
+  // you need to react to those changes, add a controlled sync here that avoids
+  // calling setState synchronously in the effect body (or uses a guard).
 
   if (!historyItem) {
     return (
@@ -89,7 +98,7 @@ export default function SmartTasksReviewPage() {
     setIsSubmitting(true);
     
     try {
-      const selectedTasks = tasks.filter(t => selectedIds.has(t.id));
+        const selectedTasks = tasks.filter((t) => selectedIds.has(t.id));
       
       // Create tasks sequentially to avoid overwhelming the API
       for (const task of selectedTasks) {
@@ -97,7 +106,7 @@ export default function SmartTasksReviewPage() {
           projectId: selectedProjectId,
           title: task.title,
           description: task.description,
-          priority: task.suggestedPriority as any,
+          priority: resolveTaskPriority(task.suggestedPriority),
           status: TaskStatus.TODO,
           estimatedHours: task.estimatedHours || undefined,
         };
@@ -115,9 +124,9 @@ export default function SmartTasksReviewPage() {
     }
   };
 
-  const projectOptions = projectsData?.content.map(p => ({
+  const projectOptions = projectsData?.content.map((p) => ({
     value: p.id,
-    label: (p as any).name || p.id,
+    label: (p as { name?: string }).name || p.id,
   })) || [];
 
   return (

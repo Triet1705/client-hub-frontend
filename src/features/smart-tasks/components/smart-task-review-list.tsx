@@ -1,11 +1,9 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import { ExtractedTask } from "../types/smart-tasks.types";
-import { TaskStatusSelector } from "@/features/tasks/components/task-status-selector";
-import { TaskPriorityBadge } from "@/features/tasks/components/task-priority-badge";
-import { TaskStatus, TaskPriority } from "@/features/tasks/types/task.types";
-import { Check, Trash2 } from "lucide-react";
+import { TaskPriority } from "@/features/tasks/types/task.types";
+import { Check } from "lucide-react";
 import { SelectDropdown } from "@/components/ui/select-dropdown";
 import { TASK_PRIORITY_OPTIONS } from "@/features/tasks/constants/task-ui.constants";
 import { cn } from "@/lib/utils";

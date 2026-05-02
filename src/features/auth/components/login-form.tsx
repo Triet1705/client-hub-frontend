@@ -8,7 +8,6 @@ import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { toast } from "sonner";
 import { AuthInput } from "@/components/ui/auth-input";
 import {
-  WorkspaceDomainIcon,
   EmailIcon,
   PasswordIcon,
 } from "@/components/icons";

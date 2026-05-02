@@ -1,21 +1,18 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { SmartTaskHistoryItem } from "../types/smart-tasks.types";
 
 const HISTORY_KEY = "clienthub_smart_tasks_history";
 
 export function useSmartTasksHistory() {
-  const [history, setHistory] = useState<SmartTaskHistoryItem[]>([]);
-
-  useEffect(() => {
-    const stored = localStorage.getItem(HISTORY_KEY);
-    if (stored) {
-      try {
-        setHistory(JSON.parse(stored));
-      } catch (e) {
-        console.error("Failed to parse smart tasks history", e);
-      }
+  const [history, setHistory] = useState<SmartTaskHistoryItem[]>(() => {
+    try {
+      const stored = localStorage.getItem(HISTORY_KEY);
+      if (stored) return JSON.parse(stored) as SmartTaskHistoryItem[];
+    } catch {
+      // ignore parse errors and start with empty history
     }
-  }, []);
+    return [];
+  });
 
   const addHistoryItem = (item: SmartTaskHistoryItem) => {
     const newHistory = [item, ...history];
