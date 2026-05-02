@@ -361,24 +361,22 @@ export function SmartUploadSlideover({
                           </div>
                         </div>
 
-                        {/* Action Bar Overlay */}
-                        <div className="absolute inset-x-0 bottom-0 top-0 rounded-2xl bg-gradient-to-l from-[#0c0c0c] via-[#0c0c0c]/80 to-transparent opacity-0 group-hover/card:opacity-100 transition-opacity duration-200 flex flex-col items-end justify-center pr-6 pointer-events-none">
-                          <div className="flex flex-col gap-2 pointer-events-auto">
-                            <button
-                              onClick={() => handleApprove(task)}
-                              title="Approve & Create"
-                              className="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500 hover:text-white flex items-center justify-center transition-all shadow-lg"
-                            >
-                              <Check className="w-5 h-5" />
-                            </button>
-                            <button
-                              onClick={() => handleDismiss(task)}
-                              title="Dismiss Draft"
-                              className="w-10 h-10 rounded-xl bg-slate-800 text-slate-400 hover:bg-rose-500 hover:text-white flex items-center justify-center transition-all shadow-lg"
-                            >
-                              <X className="w-5 h-5" />
-                            </button>
-                          </div>
+                        {/* Action Buttons — right edge, no overlay */}
+                        <div className="absolute top-1/2 -translate-y-1/2 right-4 flex flex-col gap-2 opacity-0 group-hover/card:opacity-100 transition-opacity duration-200 z-10">
+                          <button
+                            onClick={() => handleApprove(task)}
+                            title="Approve & Create"
+                            className="w-9 h-9 rounded-lg bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500 hover:text-white flex items-center justify-center transition-all shadow-lg ring-1 ring-emerald-500/30"
+                          >
+                            <Check className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => handleDismiss(task)}
+                            title="Dismiss Draft"
+                            className="w-9 h-9 rounded-lg bg-slate-800 text-slate-400 hover:bg-rose-500 hover:text-white flex items-center justify-center transition-all shadow-lg ring-1 ring-white/10"
+                          >
+                            <X className="w-4 h-4" />
+                          </button>
                         </div>
                       </div>
                     );
