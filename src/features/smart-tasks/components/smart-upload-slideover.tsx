@@ -58,15 +58,15 @@ export function SmartUploadSlideover({
 
     extractTasks(file, {
       onSuccess: (data) => {
-        setExtractedTasks(
-          data.extractedTasks.map((t, index) => ({
-            id: `temp-${Date.now()}-${index}`,
-            title: t.title,
-            description: t.description,
-            estimatedHours: t.estimatedHours,
-            suggestedPriority: t.suggestedPriority,
-          }))
-        );
+        setExtractedTasks([
+          {
+            id: `temp-${Date.now()}`,
+            title: data.title,
+            description: data.description,
+            estimatedHours: data.estimatedHours,
+            suggestedPriority: data.priority,
+          }
+        ]);
         setPhase("review");
       },
       onError: (err) => {

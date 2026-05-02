@@ -16,11 +16,9 @@ export interface SmartTaskHistoryItem {
 }
 
 export interface ExtractTasksResponse {
-  extractedTasks: {
-    title: string;
-    description: string;
-    estimatedHours: number;
-    suggestedPriority: string;
-  }[];
+  title: string;
+  description: string;
+  priority: string;
+  estimatedHours: number | null;
   confidenceScore: number;
 }

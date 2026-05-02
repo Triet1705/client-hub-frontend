@@ -131,9 +131,9 @@ export default function ProjectDetailPage() {
           <div className="shrink-0 flex items-center gap-3">
             <button
               onClick={() => setIsSmartUploadOpen(true)}
-              className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-200 border border-emerald-500/20 hover:border-emerald-500/50 text-sm font-bold transition-all"
+              className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-300 border border-indigo-500/30 hover:border-indigo-400/50 text-sm font-bold transition-all shadow-lg shadow-indigo-900/20 hover:-translate-y-0.5 active:translate-y-0"
             >
-              <Sparkles size={16} className="text-emerald-400" />
+              <Sparkles size={16} className="text-indigo-400" />
               Smart Upload
             </button>
             <button
