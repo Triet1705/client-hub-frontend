@@ -6,11 +6,11 @@ import { cn } from "@/lib/utils";
 import { UploadDropzone } from "./upload-dropzone";
 import { useExtractTasksMutation } from "../hooks/use-smart-tasks";
 import { ExtractedTask } from "../types/smart-tasks.types";
-import { apiClient } from "@/lib/api-client";
 import { TaskRequestPayload, TaskStatus, TaskPriority } from "@/features/tasks/types/task.types";
 import { toast } from "sonner";
 import { SelectDropdown } from "@/components/ui/select-dropdown";
 import { TASK_PRIORITY_OPTIONS } from "@/features/tasks/constants/task-ui.constants";
+import { createTask } from "@/features/tasks/api/task.api";
 
 interface SmartUploadSlideoverProps {
   isOpen: boolean;
@@ -100,7 +100,7 @@ export function SmartUploadSlideover({
       status: TaskStatus.TODO,
       estimatedHours: task.estimatedHours || undefined,
     };
-    await apiClient.post("/api/tasks", payload);
+    await createTask(payload);
   };
 
   const handleApprove = async (task: ExtractedTask) => {

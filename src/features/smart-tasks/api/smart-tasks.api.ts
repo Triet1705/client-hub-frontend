@@ -1,4 +1,4 @@
-import { apiClient } from "@/lib/api-client";
+import { apiClient } from "@/lib/axios";
 import { ExtractTasksResponse } from "../types/smart-tasks.types";
 
 export const smartTasksApi = {
@@ -7,8 +7,13 @@ export const smartTasksApi = {
     formData.append("file", file);
 
     const response = await apiClient.post<ExtractTasksResponse>(
-      "/api/ai/extract-task",
-      formData
+      "/ai/extract-task",
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
     );
     return response.data;
   },
