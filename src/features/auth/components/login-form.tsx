@@ -8,7 +8,6 @@ import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { toast } from "sonner";
 import { AuthInput } from "@/components/ui/auth-input";
 import {
-  WorkspaceDomainIcon,
   EmailIcon,
   PasswordIcon,
 } from "@/components/icons";
@@ -101,14 +100,6 @@ export function LoginForm() {
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
       <div className="space-y-6">
-        <AuthInput
-          label="Workspace Domain / Tenant ID"
-          icon={WorkspaceDomainIcon}
-          placeholder="org-alias-01  (leave blank for Admin / default workspace)"
-          error={errors.tenantId?.message}
-          {...register("tenantId")}
-        />
-
         <AuthInput
           label="Email Identity"
           icon={EmailIcon}
