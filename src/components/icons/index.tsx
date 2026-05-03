@@ -3,7 +3,6 @@ export { NavProjectsIcon } from "./Navigation/NavProjectsIcon";
 export { NavTasksIcon } from "./Navigation/NavTasksIcon";
 export { NavInvoicesIcon } from "./Navigation/NavInvoicesIcon";
 export { NavCommunicationIcon } from "./Navigation/NavCommunicationIcon";
-export { NavSmartTasksIcon } from "./Navigation/NavSmartTasksIcon";
 export { NavAdminIcon } from "./Navigation/NavAdminIcon";
 export { ActionEditIcon } from "./Actions/ActionEditIcon";
 export { ActionDeleteIcon } from "./Actions/ActionDeleteIcon";

@@ -4,7 +4,7 @@ import * as React from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { format } from "date-fns";
-import { ArrowLeft, Calendar, DollarSign, Plus, Users, Receipt, Trash2, FolderGit2 } from "lucide-react";
+import { ArrowLeft, Calendar, DollarSign, Plus, Users, Receipt, Trash2, FolderGit2, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuthStore } from "@/features/auth/store/auth.store";
 import { TaskStatus, type Task } from "@/features/tasks/types/task.types";
@@ -21,6 +21,8 @@ import {
 import { ProjectStatusBadge } from "@/features/projects/components/project-status-badge";
 import { TaskDetailSlideover } from "@/features/projects/components/task-detail-slideover";
 import { AddMemberModal } from "@/features/projects/components/add-member-modal";
+import { SmartUploadSlideover } from "@/features/smart-tasks/components/smart-upload-slideover";
+import { useQueryClient } from "@tanstack/react-query";
 
 export default function ProjectDetailPage() {
   const params = useParams<{ id: string }>();
@@ -29,6 +31,7 @@ export default function ProjectDetailPage() {
   const { user } = useAuthStore();
   const role = user?.role;
   const canManageProject = role === "CLIENT" || role === "ADMIN";
+  const queryClient = useQueryClient();
 
   const { data: project, isLoading: isProjectLoading, isError: isProjectError } = useProjectDetailQuery(projectId);
   const { data: members = [], isLoading: isMembersLoading } = useProjectMembersQuery(projectId);
@@ -45,6 +48,7 @@ export default function ProjectDetailPage() {
   const [defaultStatus, setDefaultStatus] = React.useState(TaskStatus.TODO);
   const [selectedTask, setSelectedTask] = React.useState<Task | null>(null);
   const [isAddMemberOpen, setIsAddMemberOpen] = React.useState(false);
+  const [isSmartUploadOpen, setIsSmartUploadOpen] = React.useState(false);
 
   const { mutate: addMember, isPending: isAddingMember } = useAddMemberMutation(projectId);
   const { mutate: removeMember, isPending: isRemovingMember } = useRemoveMemberMutation(projectId);
@@ -125,6 +129,13 @@ export default function ProjectDetailPage() {
           </div>
 
           <div className="shrink-0 flex items-center gap-3">
+            <button
+              onClick={() => setIsSmartUploadOpen(true)}
+              className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-300 border border-indigo-500/30 hover:border-indigo-400/50 text-sm font-bold transition-all shadow-lg shadow-indigo-900/20 hover:-translate-y-0.5 active:translate-y-0"
+            >
+              <Sparkles size={16} className="text-indigo-400" />
+              Smart Upload
+            </button>
             <button
               onClick={() => handleAddTask(TaskStatus.TODO)}
               className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-slate-950 text-sm font-bold transition-all shadow-lg shadow-emerald-900/20 hover:shadow-emerald-500/25 hover:-translate-y-0.5 active:translate-y-0"
@@ -292,6 +303,15 @@ export default function ProjectDetailPage() {
         projectParams={taskParams}
         currentUserId={user?.id}
         onClose={() => setSelectedTask(null)}
+      />
+
+      <SmartUploadSlideover
+        isOpen={isSmartUploadOpen}
+        projectId={projectId}
+        onClose={() => setIsSmartUploadOpen(false)}
+        onTasksCreated={() => {
+          queryClient.invalidateQueries({ queryKey: ["tasks", { projectId }] });
+        }}
       />
     </div>
   );

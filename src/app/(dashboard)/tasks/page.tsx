@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { Plus, User, ChevronDown, LayoutGrid, List, Flag, Check, TimerReset, SlidersHorizontal, X } from "lucide-react";
+import { Plus, User, ChevronDown, LayoutGrid, List, Flag, Check, TimerReset, SlidersHorizontal, X, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { buildUpdatedQueryString } from "@/lib/url-query";
 import { TaskPriority, TaskStatus, type Task } from "@/features/tasks/types/task.types";
@@ -15,6 +15,9 @@ import { TaskBoard } from "@/features/tasks/components/task-board";
 import { TaskList } from "@/features/tasks/components/task-list";
 import { CreateTaskModal } from "@/features/tasks/components/create-task-modal";
 import { TaskDetailSlideover } from "@/features/projects/components/task-detail-slideover";
+import { SmartUploadSlideover } from "@/features/smart-tasks/components/smart-upload-slideover";
+import { useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 import {
   parseTasksQuery,
   type TaskDueFilterValue,
@@ -167,11 +170,14 @@ function TasksPageContent() {
   const queryString = searchParams.toString();
   const { user } = useAuthStore();
   const canManageTask = user?.role === "CLIENT" || user?.role === "ADMIN";
+  const queryClient = useQueryClient();
 
   const [selectedProjectId, setSelectedProjectId] = React.useState<string | undefined>(
     initialQueryState.projectId,
   );
   const [isCreateModalOpen, setIsCreateModalOpen] = React.useState(false);
+  const [isNewTaskDropdownOpen, setIsNewTaskDropdownOpen] = React.useState(false);
+  const [isSmartUploadOpen, setIsSmartUploadOpen] = React.useState(false);
   const [defaultStatus, setDefaultStatus] = React.useState<TaskStatus>(TaskStatus.TODO);
   const [viewMode, setViewMode] = React.useState<TasksViewMode>(initialQueryState.viewMode);
   const [priorityFilter, setPriorityFilter] = React.useState<TaskPriorityFilterValue>(
@@ -671,13 +677,50 @@ function TasksPageContent() {
               ) : null}
             </button>
 
-            <button
-              onClick={() => handleAddTask(TaskStatus.TODO)}
-              className="flex items-center gap-1.5 px-4 py-2 text-xs font-bold bg-emerald-600 text-white rounded-lg hover:bg-emerald-500 transition-colors ml-1"
-            >
-              <Plus size={15} />
-              Add Task
-            </button>
+            <div className="relative ml-1">
+              <button
+                onClick={() => setIsNewTaskDropdownOpen(!isNewTaskDropdownOpen)}
+                className="flex items-center gap-1.5 px-4 py-2 text-xs font-bold bg-emerald-600 text-white rounded-lg hover:bg-emerald-500 transition-colors shadow-lg shadow-emerald-900/20"
+              >
+                <Plus size={15} />
+                New <ChevronDown size={14} className="ml-0.5 opacity-70" />
+              </button>
+
+              {isNewTaskDropdownOpen && (
+                <>
+                  <div 
+                    className="fixed inset-0 z-40" 
+                    onClick={() => setIsNewTaskDropdownOpen(false)} 
+                  />
+                  <div className="absolute right-0 mt-2 w-48 bg-slate-900 border border-slate-700/50 rounded-xl shadow-xl z-50 overflow-hidden py-1 animate-in fade-in zoom-in-95 duration-100">
+                    <button
+                      onClick={() => {
+                        setIsNewTaskDropdownOpen(false);
+                        handleAddTask(TaskStatus.TODO);
+                      }}
+                      className="w-full text-left px-4 py-2.5 text-sm text-slate-300 hover:bg-slate-800 hover:text-white flex items-center gap-2"
+                    >
+                      <Plus size={16} className="text-emerald-400" />
+                      Manual Task
+                    </button>
+                    <button
+                      onClick={() => {
+                        setIsNewTaskDropdownOpen(false);
+                        if (!selectedProjectId) {
+                          toast.error("Please select a project first to use Smart Upload");
+                          return;
+                        }
+                        setIsSmartUploadOpen(true);
+                      }}
+                      className="w-full text-left px-4 py-2.5 text-sm text-slate-300 hover:bg-slate-800 hover:text-white flex items-center gap-2"
+                    >
+                      <Sparkles size={16} className="text-emerald-400" />
+                      Smart Upload (AI)
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
           </div>
         </div>
 
@@ -847,6 +890,19 @@ function TasksPageContent() {
         projectParams={params}
         currentUserId={user?.id}
         onClose={() => setSelectedTask(null)}
+      />
+
+      <SmartUploadSlideover
+        isOpen={isSmartUploadOpen}
+        projectId={selectedProjectId || ""}
+        onClose={() => setIsSmartUploadOpen(false)}
+        onTasksCreated={() => {
+          if (selectedProjectId) {
+            queryClient.invalidateQueries({ queryKey: ["tasks", { projectId: selectedProjectId }] });
+          } else {
+            queryClient.invalidateQueries({ queryKey: ["tasks"] });
+          }
+        }}
       />
     </div>
   );
