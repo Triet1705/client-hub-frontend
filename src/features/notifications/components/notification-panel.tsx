@@ -83,7 +83,7 @@ export function NotificationPanel({ isOpen, onClose }: NotificationPanelProps) {
     if (referenceType && referenceId) {
       switch (referenceType) {
         case "TASK":
-          router.push("/tasks"); // Slideover might open if we add query params later, or navigate to tasks
+          router.push(`/tasks?taskId=${referenceId}`);
           break;
         case "PROJECT":
           router.push(`/projects/${referenceId}`);

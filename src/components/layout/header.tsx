@@ -10,7 +10,7 @@ import { useUnreadCountQuery } from "@/features/notifications/hooks/use-notifica
 export function Header() {
   const [isNotificationPanelOpen, setIsNotificationPanelOpen] = React.useState(false);
   const { data: unreadData } = useUnreadCountQuery();
-  const unreadCount = unreadData?.count || 0;
+  const unreadCount = unreadData?.unreadCount || 0;
   return (
     <header className="sticky top-0 z-40 flex h-16 shrink-0 items-center justify-between border-b border-slate-800 bg-[#020617]/80 px-8 backdrop-blur-md">
       <div className="flex-1" />
@@ -29,7 +29,7 @@ export function Header() {
           >
             <NotificationBellIcon className="h-5 w-5" />
             {unreadCount > 0 && (
-              <span className="absolute top-1 right-1 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-emerald-500 ring-2 ring-[#020617] text-[9px] font-bold text-white">
+              <span className="absolute top-0 right-0 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 ring-2 ring-[#020617] text-[10px] font-bold text-white">
                 {unreadCount > 9 ? "9+" : unreadCount}
               </span>
             )}

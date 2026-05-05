@@ -9,7 +9,7 @@ export interface NotificationItem {
 }
 
 export interface UnreadCountResponse {
-  count: number;
+  unreadCount: number;
 }
 
 export interface MarkAllReadResponse {
