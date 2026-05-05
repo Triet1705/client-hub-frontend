@@ -40,7 +40,7 @@ export function TaskDiscussion({ taskId }: TaskDiscussionProps) {
     e?.preventDefault();
     if (!content.trim() || postComment.isPending) return;
 
-    postComment.mutate(content.trim(), {
+    postComment.mutate({ content: content.trim(), attachmentUrls: [] }, {
       onSuccess: () => {
         setContent("");
       },

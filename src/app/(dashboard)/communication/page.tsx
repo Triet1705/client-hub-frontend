@@ -3,19 +3,22 @@
 import * as React from "react";
 import type { AxiosError } from "axios";
 import { 
-  ImageIcon, MessageSquare, Paperclip, Pin, Search, Send, User, 
-  FolderOpen, Receipt, Sparkles, Clock, CreditCard
+  MessageSquare, Paperclip, Pin, Search, Send, User, 
+  FolderOpen, Receipt, Sparkles, Clock, CreditCard, LayoutList, X
 } from "lucide-react";
 import { useAuthStore } from "@/features/auth/store/auth.store";
 import { useInvoicesQuery } from "@/features/invoices/hooks/use-invoices";
 import { useProjectsQuery } from "@/features/projects/hooks/use-projects";
-import { useCommentsQuery, usePostCommentMutation } from "@/features/communication/hooks/use-communication";
+import { useTasksQuery } from "@/features/tasks/hooks/use-tasks";
+import { useCommentsQuery, usePostCommentMutation, useUploadAttachmentMutation } from "@/features/communication/hooks/use-communication";
 import type { Invoice } from "@/features/invoices/types/invoice.types";
 import type { CommentTargetType } from "@/features/communication/types/comment.types";
 import type { Project } from "@/features/projects/types/project.types";
+import type { Task } from "@/features/tasks/types/task.types";
 import { cn } from "@/lib/utils";
 import { InvoiceStatusPill } from "@/features/invoices/components/invoice-status-pill";
 import { ProjectStatus } from "@/features/projects/types/project.types";
+import { TaskStatus } from "@/features/tasks/types/task.types";
 
 function formatCurrency(value: string | number | null | undefined): string {
   if (value == null) return "—";
@@ -58,16 +61,32 @@ interface InvoiceConversationTarget {
   data: Invoice;
 }
 
-type ConversationTarget = ProjectConversationTarget | InvoiceConversationTarget;
+interface TaskConversationTarget {
+  key: string;
+  targetType: CommentTargetType;
+  targetId: string;
+  title: string;
+  subtitle: string;
+  category: "TASK";
+  data: Task;
+}
+
+type ConversationTarget = ProjectConversationTarget | InvoiceConversationTarget | TaskConversationTarget;
+type TabType = "ALL" | "PROJECT" | "TASK" | "INVOICE";
 
 export default function CommunicationHub() {
   const { user } = useAuthStore();
   const [keyword, setKeyword] = React.useState("");
+  const [activeCategory, setActiveCategory] = React.useState<TabType>("ALL");
   const [draft, setDraft] = React.useState("");
+  const [uploadedUrls, setUploadedUrls] = React.useState<string[]>([]);
   const [blockedTargetKeys, setBlockedTargetKeys] = React.useState<Set<string>>(new Set());
+  
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
 
   const { data: projectsPage, isLoading: isProjectLoading } = useProjectsQuery(0, 12);
   const { data: invoices = [], isLoading: isInvoiceLoading } = useInvoicesQuery({});
+  const { data: tasksPage, isLoading: isTasksLoading } = useTasksQuery({ page: 0, size: 20 });
 
   const scopedInvoices = React.useMemo(() => {
     if (!user) return [];
@@ -90,6 +109,16 @@ export default function CommunicationHub() {
       data: project,
     }));
 
+    const taskTargets = (tasksPage?.content ?? []).map((task) => ({
+      key: `TASK:${task.id}`,
+      targetType: "TASK" as const,
+      targetId: task.id,
+      title: task.title,
+      subtitle: `${task.projectTitle} • ${task.status}`,
+      category: "TASK" as const,
+      data: task,
+    }));
+
     const invoiceTargets = scopedInvoices.slice(0, 12).map((invoice) => ({
       key: `INVOICE:${invoice.id}`,
       targetType: "INVOICE" as const,
@@ -100,8 +129,8 @@ export default function CommunicationHub() {
       data: invoice,
     }));
 
-    return [...projectTargets, ...invoiceTargets].filter((target) => !blockedTargetKeys.has(target.key));
-  }, [blockedTargetKeys, projectsPage?.content, scopedInvoices]);
+    return [...projectTargets, ...taskTargets, ...invoiceTargets].filter((target) => !blockedTargetKeys.has(target.key));
+  }, [blockedTargetKeys, projectsPage?.content, tasksPage?.content, scopedInvoices]);
 
   const [selectedKey, setSelectedKey] = React.useState<string>("");
 
@@ -128,20 +157,38 @@ export default function CommunicationHub() {
     selectedConversation?.targetType,
     selectedConversation?.targetId,
   );
+  
   const postCommentMutation = usePostCommentMutation(
     selectedConversation?.targetType,
     selectedConversation?.targetId,
   );
 
+  const uploadAttachmentMutation = useUploadAttachmentMutation();
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    uploadAttachmentMutation.mutate(file, {
+      onSuccess: (data) => {
+        setUploadedUrls(prev => [...prev, data.fileUrl]);
+      }
+    });
+    // clear input
+    e.target.value = "";
+  };
+
   const filteredConversations = React.useMemo(() => {
     const normalizedKeyword = keyword.trim().toLowerCase();
-    if (!normalizedKeyword) return conversations;
-
+    
     return conversations.filter((item) => {
+      // Tab filter
+      if (activeCategory !== "ALL" && item.category !== activeCategory) return false;
+      // Keyword filter
+      if (!normalizedKeyword) return true;
       const searchable = `${item.title} ${item.subtitle} ${item.category}`.toLowerCase();
       return searchable.includes(normalizedKeyword);
     });
-  }, [conversations, keyword]);
+  }, [conversations, keyword, activeCategory]);
 
   const messageListRef = React.useRef<HTMLDivElement>(null);
   React.useEffect(() => {
@@ -164,8 +211,14 @@ export default function CommunicationHub() {
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
     const content = draft.trim();
-    if (!content) return;
-    postCommentMutation.mutate(content, { onSuccess: () => setDraft("") });
+    if (!content && uploadedUrls.length === 0) return;
+    
+    postCommentMutation.mutate({ content, attachmentUrls: uploadedUrls }, { 
+      onSuccess: () => {
+        setDraft("");
+        setUploadedUrls([]);
+      } 
+    });
   };
 
   const renderClockTime = (value?: string) => {
@@ -183,9 +236,25 @@ export default function CommunicationHub() {
         <div className="shrink-0 bg-slate-900/60 backdrop-blur-xl ring-1 ring-white/5 p-5 rounded-3xl shadow-2xl shadow-black/50 overflow-hidden relative">
           <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/10 blur-2xl pointer-events-none rounded-full" />
           <h2 className="text-sm font-space-grotesk font-bold text-white uppercase tracking-widest flex items-center gap-2 mb-4 relative z-10">
-            <FolderOpen className="w-4 h-4 text-emerald-400" />
-            Contexts
+            <LayoutList className="w-4 h-4 text-emerald-400" />
+            Conversations
           </h2>
+          
+          <div className="relative z-10 mb-4 flex gap-1 p-1 bg-slate-950/80 rounded-xl ring-1 ring-white/5">
+            {["ALL", "PROJECT", "TASK", "INVOICE"].map((cat) => (
+              <button 
+                key={cat}
+                onClick={() => setActiveCategory(cat as TabType)}
+                className={cn(
+                  "flex-1 py-1.5 text-[10px] font-bold uppercase tracking-widest transition-all rounded-lg",
+                  activeCategory === cat ? "bg-indigo-500/20 text-indigo-300 ring-1 ring-indigo-500/30" : "text-slate-500 hover:bg-white/5 hover:text-slate-300"
+                )}
+              >
+                {cat}
+              </button>
+            ))}
+          </div>
+
           <div className="relative z-10">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-500" />
             <input
@@ -199,7 +268,7 @@ export default function CommunicationHub() {
         </div>
 
         <div className="flex-1 overflow-y-auto custom-scrollbar bg-slate-900/40 backdrop-blur-md ring-1 ring-white/5 rounded-3xl p-3 shadow-inner">
-          {isProjectLoading || isInvoiceLoading ? (
+          {isProjectLoading || isInvoiceLoading || isTasksLoading ? (
             <div className="space-y-3">
               {[1, 2, 3, 4, 5].map(i => <div key={i} className="h-14 bg-white/5 animate-pulse rounded-2xl" />)}
             </div>
@@ -214,6 +283,7 @@ export default function CommunicationHub() {
               {filteredConversations.map((conv) => {
                 const isActive = conv.key === selectedKey;
                 const isProject = conv.category === "PROJECT";
+                const isTask = conv.category === "TASK";
                 return (
                   <button
                     key={conv.key}
@@ -232,6 +302,7 @@ export default function CommunicationHub() {
                         "group-hover:scale-110"
                       )}>
                         {isProject ? <FolderOpen className={cn("w-4 h-4", isActive ? "text-indigo-400" : "text-emerald-400")} /> 
+                                   : isTask ? <Pin className={cn("w-4 h-4", isActive ? "text-indigo-400" : "text-rose-400")} />
                                    : <Receipt className={cn("w-4 h-4", isActive ? "text-indigo-400" : "text-amber-400")} />}
                       </div>
                       {shouldShowActivityDot(conv.key) && !isActive && (
@@ -328,6 +399,17 @@ export default function CommunicationHub() {
                       : "bg-slate-800/80 border-t border-white/10 border-x border-white/5 border-b border-white/5 text-slate-200 rounded-tl-sm shadow-[0_4px_20px_rgba(0,0,0,0.25)]"
                   )}>
                     <p className="text-sm leading-relaxed whitespace-pre-wrap">{comment.content}</p>
+                    {/* Render attachments if any */}
+                    {comment.attachmentUrls && comment.attachmentUrls.length > 0 && (
+                      <div className="mt-3 flex flex-col gap-2">
+                        {comment.attachmentUrls.map((url, i) => (
+                          <a key={i} href={url} target="_blank" rel="noreferrer" className="flex items-center gap-2 px-3 py-2 bg-black/20 rounded border border-white/5 hover:bg-black/30 transition text-xs truncate max-w-full">
+                            <Paperclip className="w-3.5 h-3.5 shrink-0" />
+                            <span className="truncate">{url.split('/').pop() || url}</span>
+                          </a>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 </div>
               );
@@ -336,10 +418,34 @@ export default function CommunicationHub() {
         </div>
 
         <div className="p-4 lg:p-5 border-t border-white/5 bg-slate-950/80 relative z-10 shrink-0">
+          {/* Uploaded Files Preview */}
+          {uploadedUrls.length > 0 && (
+             <div className="flex flex-wrap gap-2 mb-3">
+               {uploadedUrls.map((url, idx) => (
+                 <div key={idx} className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-500/20 text-indigo-200 rounded-lg text-xs ring-1 ring-indigo-500/40">
+                   <Paperclip className="w-3 h-3" />
+                   <span className="max-w-[150px] truncate">{url.split('/').pop() || url}</span>
+                   <button type="button" onClick={() => setUploadedUrls(urls => urls.filter((_, i) => i !== idx))} className="hover:text-white rounded-full p-0.5"><X className="w-3 h-3" /></button>
+                 </div>
+               ))}
+             </div>
+          )}
+
           <form onSubmit={handleSubmit} className="relative flex items-end gap-3">
             <div className="flex flex-col gap-1 p-1 bg-slate-900/60 rounded-xl ring-1 ring-white/5 shadow-inner">
-              <button type="button" className="p-2.5 text-slate-500 hover:text-white hover:bg-white/5 rounded-lg transition-colors"><Paperclip className="w-4 h-4" /></button>
-              <button type="button" className="p-2.5 text-slate-500 hover:text-white hover:bg-white/5 rounded-lg transition-colors"><ImageIcon className="w-4 h-4" /></button>
+              <input type="file" ref={fileInputRef} className="hidden" onChange={handleFileUpload} />
+              <button 
+                 type="button" 
+                 onClick={() => fileInputRef.current?.click()}
+                 className="relative p-2.5 text-slate-500 hover:text-white hover:bg-white/5 rounded-lg transition-colors"
+                 disabled={uploadAttachmentMutation.isPending}
+              >
+                 {uploadAttachmentMutation.isPending ? (
+                    <div className="w-4 h-4 border-2 border-indigo-400 border-t-transparent rounded-full animate-spin flex items-center justify-center"></div>
+                 ) : (
+                    <Paperclip className="w-4 h-4" />
+                 )}
+              </button>
             </div>
             <div className="flex-1 bg-[#0A0E17]/80 backdrop-blur-md ring-1 ring-white/10 rounded-2xl overflow-hidden focus-within:ring-indigo-500/50 transition-all shadow-[inset_0_2px_10px_rgba(0,0,0,0.5)] flex items-center pr-2">
               <textarea
@@ -355,7 +461,7 @@ export default function CommunicationHub() {
               />
               <button
                 type="submit"
-                disabled={!selectedConversation || !draft.trim() || postCommentMutation.isPending}
+                disabled={!selectedConversation || (!draft.trim() && uploadedUrls.length === 0) || postCommentMutation.isPending}
                 className="shrink-0 p-3.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl shadow-[0_0_15px_rgba(79,70,229,0.3)] hover:shadow-[0_0_20px_rgba(79,70,229,0.5)] transition-all disabled:opacity-50 disabled:shadow-none"
               >
                 <Send className="w-4 h-4 translate-x-px -translate-y-px" />
@@ -416,6 +522,37 @@ export default function CommunicationHub() {
                   <div className="w-8 h-8 rounded-full bg-slate-900 flex items-center justify-center font-bold text-[10px] ring-2 ring-slate-800 text-emerald-300 shadow-md">CL</div>
                   <div className="w-8 h-8 rounded-full bg-slate-800/50 flex items-center justify-center p-1 border border-dashed border-slate-600 text-slate-500 hover:text-white hover:border-white/20 transition-colors cursor-pointer"><User className="w-3.5 h-3.5" /></div>
                 </div>
+              </div>
+            </div>
+          </>
+        ) : selectedConversation.category === "TASK" ? (
+          <>
+            <div className="pb-5 border-b border-white/5 relative z-10">
+              <p className="text-[10px] font-bold text-rose-400 uppercase tracking-widest mb-2 flex items-center gap-1.5 px-2.5 py-1 bg-rose-500/10 rounded-full w-fit ring-1 ring-rose-500/20"><Pin className="w-3 h-3" /> Task Evidence</p>
+              <h3 className="text-lg font-space-grotesk font-bold text-white break-words max-w-full leading-tight">{selectedConversation.data.title}</h3>
+              <p className="text-[11px] text-slate-500 mt-2 font-mono">{selectedConversation.data.id}</p>
+            </div>
+            
+            <div className="space-y-4 relative z-10">
+              <div className="bg-slate-800/40 rounded-2xl p-4 ring-1 ring-white/5 flex flex-col hover:bg-slate-800/60 transition-colors cursor-default">
+                  <p className="text-[10px] text-slate-500 uppercase tracking-widest font-bold mb-2">Task Status</p>
+                  <span className={cn(
+                    "text-xs font-bold px-3 py-1.5 rounded-lg w-fit ring-1 ring-inset shadow-inner",
+                    selectedConversation.data.status === TaskStatus.TODO ? "bg-slate-500/10 text-slate-400 ring-slate-500/20 shadow-slate-500/10" :
+                    selectedConversation.data.status === TaskStatus.IN_PROGRESS ? "bg-amber-500/10 text-amber-400 ring-amber-500/20 shadow-amber-500/10" :
+                    "bg-emerald-500/10 text-emerald-400 ring-emerald-500/20 shadow-emerald-500/10"
+                  )}>{selectedConversation.data.status}</span>
+              </div>
+
+              <div className="bg-slate-800/40 rounded-2xl ring-1 ring-white/5 divide-y divide-white/5">
+                 <div className="flex justify-between items-center p-4">
+                   <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Priority</span>
+                   <span className="text-xs font-bold uppercase tracking-widest text-slate-300">{selectedConversation.data.priority}</span>
+                 </div>
+                 <div className="flex justify-between items-center p-4">
+                   <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Due Date</span>
+                   <span className="text-sm font-medium text-slate-300">{formatDate(selectedConversation.data.dueDate)}</span>
+                 </div>
               </div>
             </div>
           </>

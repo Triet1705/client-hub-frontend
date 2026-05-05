@@ -12,6 +12,7 @@ export interface CommentItem {
   content: string;
   author: CommentAuthor;
   threadId: number;
+  attachmentUrls?: string[];
   isDeleted: boolean;
   createdAt?: string;
   updatedAt?: string;
@@ -28,4 +29,5 @@ export interface CreateCommentPayload {
   targetType: CommentTargetType;
   targetId: string;
   content: string;
+  attachmentUrls?: string[];
 }
