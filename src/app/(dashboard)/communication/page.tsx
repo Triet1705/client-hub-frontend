@@ -32,13 +32,11 @@ function formatDate(val: string | null | undefined) {
   return new Date(val).toLocaleDateString("en-US", { month: "short", day: "numeric" });
 }
 
-function shouldShowActivityDot(key: string): boolean {
-  let hash = 0;
-  for (let i = 0; i < key.length; i += 1) {
-    hash = (hash << 5) - hash + key.charCodeAt(i);
-    hash |= 0;
-  }
-  return Math.abs(hash) % 3 === 0;
+function shouldShowActivityDot(target: ConversationTarget): boolean {
+  if (target.category === "PROJECT") return target.data.status === "IN_PROGRESS";
+  if (target.category === "TASK") return target.data.status === "IN_PROGRESS";
+  if (target.category === "INVOICE") return ["SENT", "CRYPTO_ESCROW_WAITING", "DEPOSIT_DETECTED", "LOCKED", "OVERDUE"].includes(target.data.status);
+  return false;
 }
 
 interface ProjectConversationTarget {
@@ -47,6 +45,7 @@ interface ProjectConversationTarget {
   targetId: string;
   title: string;
   subtitle: string;
+  parentName: string;
   category: "PROJECT";
   data: Project;
 }
@@ -57,6 +56,7 @@ interface InvoiceConversationTarget {
   targetId: string;
   title: string;
   subtitle: string;
+  parentName: string;
   category: "INVOICE";
   data: Invoice;
 }
@@ -67,6 +67,7 @@ interface TaskConversationTarget {
   targetId: string;
   title: string;
   subtitle: string;
+  parentName: string;
   category: "TASK";
   data: Task;
 }
@@ -105,6 +106,7 @@ export default function CommunicationHub() {
       targetId: project.id,
       title: project.title,
       subtitle: project.ownerName || project.ownerEmail || "Project conversation",
+      parentName: "Project",
       category: "PROJECT" as const,
       data: project,
     }));
@@ -115,19 +117,24 @@ export default function CommunicationHub() {
       targetId: task.id,
       title: task.title,
       subtitle: `${task.projectTitle} • ${task.status}`,
+      parentName: task.projectTitle || "Task",
       category: "TASK" as const,
       data: task,
     }));
 
-    const invoiceTargets = scopedInvoices.slice(0, 12).map((invoice) => ({
-      key: `INVOICE:${invoice.id}`,
-      targetType: "INVOICE" as const,
-      targetId: invoice.id,
-      title: invoice.title,
-      subtitle: `#${invoice.id} • ${invoice.paymentMethod}`,
-      category: "INVOICE" as const,
-      data: invoice,
-    }));
+    const invoiceTargets = scopedInvoices.slice(0, 12).map((invoice) => {
+      const parentProject = projectsPage?.content?.find((p) => p.id === invoice.projectId);
+      return {
+        key: `INVOICE:${invoice.id}`,
+        targetType: "INVOICE" as const,
+        targetId: invoice.id,
+        title: invoice.title,
+        subtitle: `#${invoice.id} • ${invoice.paymentMethod}`,
+        parentName: parentProject?.title || "Invoice",
+        category: "INVOICE" as const,
+        data: invoice,
+      };
+    });
 
     return [...projectTargets, ...taskTargets, ...invoiceTargets].filter((target) => !blockedTargetKeys.has(target.key));
   }, [blockedTargetKeys, projectsPage?.content, tasksPage?.content, scopedInvoices]);
@@ -305,7 +312,7 @@ export default function CommunicationHub() {
                                    : isTask ? <Pin className={cn("w-4 h-4", isActive ? "text-indigo-400" : "text-rose-400")} />
                                    : <Receipt className={cn("w-4 h-4", isActive ? "text-indigo-400" : "text-amber-400")} />}
                       </div>
-                      {shouldShowActivityDot(conv.key) && !isActive && (
+                      {shouldShowActivityDot(conv) && !isActive && (
                         <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-emerald-500 rounded-full shadow-[0_0_8px_rgba(16,185,129,0.8)] border-2 border-[#0A0E17]" />
                       )}
                     </div>
@@ -337,7 +344,7 @@ export default function CommunicationHub() {
                 {selectedConversation?.title || "Command Thread"}
               </h2>
               <p className="text-xs font-medium text-slate-400 uppercase tracking-widest mt-0.5 truncate">
-                {selectedConversation?.category || "Awaiting Context"} {selectedConversation ? `• ${selectedConversation.targetId}` : ""}
+                {selectedConversation?.category || "Awaiting Context"} {selectedConversation ? `• ${selectedConversation.parentName}` : ""}
               </p>
             </div>
           </div>
@@ -485,10 +492,7 @@ export default function CommunicationHub() {
             <div className="pb-5 border-b border-white/5 relative z-10">
               <p className="text-[10px] font-bold text-emerald-400 uppercase tracking-widest mb-2 flex items-center gap-1.5 px-2.5 py-1 bg-emerald-500/10 rounded-full w-fit ring-1 ring-emerald-500/20"><FolderOpen className="w-3 h-3" /> Project Evidence</p>
               <h3 className="text-lg font-space-grotesk font-bold text-white break-words max-w-full leading-tight">{selectedConversation.data.title}</h3>
-              <p className="text-[11px] text-slate-500 mt-2 font-mono">{selectedConversation.data.id}</p>
-            </div>
-            
-            <div className="space-y-4 relative z-10">
+                <p className="text-[11px] text-slate-500 mt-2 font-mono">Project</p>
               <div className="bg-slate-800/40 rounded-2xl p-4 ring-1 ring-white/5 flex flex-col hover:bg-slate-800/60 transition-colors cursor-default">
                   <p className="text-[10px] text-slate-500 uppercase tracking-widest font-bold mb-2">Stage</p>
                   <span className={cn(
@@ -530,17 +534,15 @@ export default function CommunicationHub() {
             <div className="pb-5 border-b border-white/5 relative z-10">
               <p className="text-[10px] font-bold text-rose-400 uppercase tracking-widest mb-2 flex items-center gap-1.5 px-2.5 py-1 bg-rose-500/10 rounded-full w-fit ring-1 ring-rose-500/20"><Pin className="w-3 h-3" /> Task Evidence</p>
               <h3 className="text-lg font-space-grotesk font-bold text-white break-words max-w-full leading-tight">{selectedConversation.data.title}</h3>
-              <p className="text-[11px] text-slate-500 mt-2 font-mono">{selectedConversation.data.id}</p>
-            </div>
-            
-            <div className="space-y-4 relative z-10">
+                <p className="text-[11px] text-slate-500 mt-2 font-mono">Belongs to: {selectedConversation.parentName}</p>
               <div className="bg-slate-800/40 rounded-2xl p-4 ring-1 ring-white/5 flex flex-col hover:bg-slate-800/60 transition-colors cursor-default">
                   <p className="text-[10px] text-slate-500 uppercase tracking-widest font-bold mb-2">Task Status</p>
                   <span className={cn(
                     "text-xs font-bold px-3 py-1.5 rounded-lg w-fit ring-1 ring-inset shadow-inner",
                     selectedConversation.data.status === TaskStatus.TODO ? "bg-slate-500/10 text-slate-400 ring-slate-500/20 shadow-slate-500/10" :
                     selectedConversation.data.status === TaskStatus.IN_PROGRESS ? "bg-amber-500/10 text-amber-400 ring-amber-500/20 shadow-amber-500/10" :
-                    "bg-emerald-500/10 text-emerald-400 ring-emerald-500/20 shadow-emerald-500/10"
+                      selectedConversation.data.status === TaskStatus.DONE ? "bg-emerald-500/10 text-emerald-400 ring-emerald-500/20 shadow-emerald-500/10" :
+                      "bg-rose-500/10 text-rose-400 ring-rose-500/20 shadow-rose-500/10"
                   )}>{selectedConversation.data.status}</span>
               </div>
 
@@ -561,10 +563,7 @@ export default function CommunicationHub() {
             <div className="pb-5 border-b border-white/5 relative z-10">
               <p className="text-[10px] font-bold text-amber-400 uppercase tracking-widest mb-2 flex items-center gap-1.5 px-2.5 py-1 bg-amber-500/10 rounded-full w-fit ring-1 ring-amber-500/20"><Receipt className="w-3 h-3" /> Invoice Receipt</p>
               <h3 className="text-lg font-space-grotesk font-bold text-white max-w-full truncate leading-tight">{selectedConversation.data.title}</h3>
-              <p className="text-[11px] text-slate-500 mt-2 font-mono">{selectedConversation.data.id}</p>
-            </div>
-            
-            <div className="space-y-4 relative z-10">
+                <p className="text-[11px] text-slate-500 mt-2 font-mono">Belongs to: {selectedConversation.parentName}</p>
                <div className="bg-slate-800/40 rounded-2xl p-4 ring-1 ring-white/5 text-center py-6 shadow-inner">
                  <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2">Total Amount</p>
                  <span className="text-3xl font-space-grotesk tracking-tight text-white font-bold">{formatCurrency(selectedConversation.data.amount)}</span>
