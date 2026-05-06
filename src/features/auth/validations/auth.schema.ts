@@ -1,10 +1,6 @@
 import * as z from "zod";
 
 export const loginSchema = z.object({
-  // Optional at login — backend defaults to "default" tenant if blank.
-  // Regular CLIENT/FREELANCER should enter their workspace domain.
-  // ADMIN can leave blank (uses system-level "default" tenant).
-  tenantId: z.string().optional().default(""),
   email: z.string().email("Invalid email address"),
   password: z.string().min(6, "Password must be at least 6 characters"),
   persistSession: z.boolean().optional(),

@@ -140,8 +140,9 @@ apiClient.interceptors.response.use(
 
         const newAccessToken = data.access_token;
         const newRefreshToken = data.refresh_token;
+        const refreshedTenantId = data.tenant_id || tenantId || "";
 
-        setAuthCookies(newAccessToken, newRefreshToken, tenantId || "");
+        setAuthCookies(newAccessToken, newRefreshToken, refreshedTenantId);
 
         originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
 

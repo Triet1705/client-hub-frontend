@@ -13,7 +13,7 @@ import {
 } from "@/components/icons";
 import { login } from "../api/auth.api";
 import { loginSchema, type LoginFormValues, type LoginInputValues } from "../validations/auth.schema";
-import { setAuthCookies } from "@/lib/cookies";
+import { getTenantId, setAuthCookies } from "@/lib/cookies";
 import { useAuthStore } from "../store/auth.store";
 import { useRouter, useSearchParams } from "next/navigation";
 
@@ -31,7 +31,6 @@ export function LoginForm() {
   } = useForm<LoginInputValues, unknown, LoginFormValues>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      tenantId: "",
       email: "",
       password: "",
       persistSession: false,
@@ -57,15 +56,16 @@ export function LoginForm() {
 
     setIsLoading(true);
     try {
+      const tenantHeader = getTenantId() || "default";
       const response = await login(
         { email: data.email, password: data.password },
-        data.tenantId,
+        tenantHeader,
       );
 
       setAuthCookies(
         response.access_token,
         response.refresh_token,
-        data.tenantId,
+        response.tenant_id,
         data.persistSession,
       );
 

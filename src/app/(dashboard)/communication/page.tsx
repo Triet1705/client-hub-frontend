@@ -6,6 +6,7 @@ import {
   MessageSquare, Paperclip, Pin, Search, Send, User, 
   FolderOpen, Receipt, Sparkles, Clock, CreditCard, LayoutList, X
 } from "lucide-react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useAuthStore } from "@/features/auth/store/auth.store";
 import { useInvoicesQuery } from "@/features/invoices/hooks/use-invoices";
 import { useProjectsQuery } from "@/features/projects/hooks/use-projects";
@@ -35,8 +36,23 @@ function formatDate(val: string | null | undefined) {
 function shouldShowActivityDot(target: ConversationTarget): boolean {
   if (target.category === "PROJECT") return target.data.status === "IN_PROGRESS";
   if (target.category === "TASK") return target.data.status === "IN_PROGRESS";
-  if (target.category === "INVOICE") return ["SENT", "CRYPTO_ESCROW_WAITING", "DEPOSIT_DETECTED", "LOCKED", "OVERDUE"].includes(target.data.status);
+  if (target.category === "INVOICE") {
+    return ["SENT", "OVERDUE", "PAID"].includes(target.data.status);
+  }
   return false;
+}
+
+function getInvoiceActivityDotClass(status: Invoice["status"]): string {
+  switch (status) {
+    case "PAID":
+      return "bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)]";
+    case "OVERDUE":
+      return "bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.8)]";
+    case "SENT":
+      return "bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.8)]";
+    default:
+      return "bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)]";
+  }
 }
 
 interface ProjectConversationTarget {
@@ -76,6 +92,10 @@ type ConversationTarget = ProjectConversationTarget | InvoiceConversationTarget 
 type TabType = "ALL" | "PROJECT" | "TASK" | "INVOICE";
 
 export default function CommunicationHub() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const initialKey = searchParams.get("context") || "";
+
   const { user } = useAuthStore();
   const [keyword, setKeyword] = React.useState("");
   const [activeCategory, setActiveCategory] = React.useState<TabType>("ALL");
@@ -105,7 +125,7 @@ export default function CommunicationHub() {
       targetType: "PROJECT" as const,
       targetId: project.id,
       title: project.title,
-      subtitle: project.ownerName || project.ownerEmail || "Project conversation",
+      subtitle: project.ownerName || project.ownerEmail || "Project",
       parentName: "Project",
       category: "PROJECT" as const,
       data: project,
@@ -139,7 +159,7 @@ export default function CommunicationHub() {
     return [...projectTargets, ...taskTargets, ...invoiceTargets].filter((target) => !blockedTargetKeys.has(target.key));
   }, [blockedTargetKeys, projectsPage?.content, tasksPage?.content, scopedInvoices]);
 
-  const [selectedKey, setSelectedKey] = React.useState<string>("");
+  const [selectedKey, setSelectedKey] = React.useState<string>(initialKey);
 
   React.useEffect(() => {
     if (!selectedKey && conversations.length > 0) {
@@ -152,8 +172,14 @@ export default function CommunicationHub() {
     const stillVisible = conversations.some((item) => item.key === selectedKey);
     if (!stillVisible) {
       setSelectedKey(conversations[0]?.key ?? "");
+    } else {
+      const params = new URLSearchParams(searchParams.toString());
+      if (params.get("context") !== selectedKey) {
+        params.set("context", selectedKey);
+        router.replace(`?${params.toString()}`, { scroll: false });
+      }
     }
-  }, [conversations, selectedKey]);
+  }, [conversations, selectedKey, router, searchParams]);
 
   const selectedConversation = React.useMemo(
     () => conversations.find((item) => item.key === selectedKey),
@@ -217,9 +243,13 @@ export default function CommunicationHub() {
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
-    const content = draft.trim();
+    let content = draft.trim();
     if (!content && uploadedUrls.length === 0) return;
     
+    if (!content && uploadedUrls.length > 0) {
+      content = "Shared an attachment";
+    }
+
     postCommentMutation.mutate({ content, attachmentUrls: uploadedUrls }, { 
       onSuccess: () => {
         setDraft("");
@@ -313,7 +343,14 @@ export default function CommunicationHub() {
                                    : <Receipt className={cn("w-4 h-4", isActive ? "text-indigo-400" : "text-amber-400")} />}
                       </div>
                       {shouldShowActivityDot(conv) && !isActive && (
-                        <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-emerald-500 rounded-full shadow-[0_0_8px_rgba(16,185,129,0.8)] border-2 border-[#0A0E17]" />
+                        <span
+                          className={cn(
+                            "absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full border-2 border-[#0A0E17]",
+                            conv.category === "INVOICE"
+                              ? getInvoiceActivityDotClass(conv.data.status)
+                              : "bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)]",
+                          )}
+                        />
                       )}
                     </div>
                     <div className="min-w-0 flex-1">
@@ -344,7 +381,7 @@ export default function CommunicationHub() {
                 {selectedConversation?.title || "Command Thread"}
               </h2>
               <p className="text-xs font-medium text-slate-400 uppercase tracking-widest mt-0.5 truncate">
-                {selectedConversation?.category || "Awaiting Context"} {selectedConversation ? `• ${selectedConversation.parentName}` : ""}
+                  {selectedConversation?.category || "Awaiting Context"} {selectedConversation?.category === "PROJECT" ? `• ${selectedConversation.subtitle}` : selectedConversation ? `• ${selectedConversation.parentName}` : ""}
               </p>
             </div>
           </div>
@@ -438,7 +475,7 @@ export default function CommunicationHub() {
              </div>
           )}
 
-          <form onSubmit={handleSubmit} className="relative flex items-end gap-3">
+            <form onSubmit={handleSubmit} className="relative flex items-center gap-3">
             <div className="flex flex-col gap-1 p-1 bg-slate-900/60 rounded-xl ring-1 ring-white/5 shadow-inner">
               <input type="file" ref={fileInputRef} className="hidden" onChange={handleFileUpload} />
               <button 
