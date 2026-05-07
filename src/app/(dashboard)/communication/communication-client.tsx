@@ -20,6 +20,7 @@ import { cn } from "@/lib/utils";
 import { InvoiceStatusPill } from "@/features/invoices/components/invoice-status-pill";
 import { ProjectStatus } from "@/features/projects/types/project.types";
 import { TaskStatus } from "@/features/tasks/types/task.types";
+import { InvoiceStatus } from "@/lib/type";
 
 function formatCurrency(value: string | number | null | undefined): string {
   if (value == null) return "—";
@@ -36,13 +37,14 @@ function formatDate(val: string | null | undefined) {
 function shouldShowActivityDot(target: ConversationTarget): boolean {
   if (target.category === "PROJECT") return target.data.status === "IN_PROGRESS";
   if (target.category === "TASK") return target.data.status === "IN_PROGRESS";
-  return target.data.status === "PENDING" || target.data.status === "OVERDUE";
+  const invoiceStatus = (target.data as Invoice).status;
+  return [InvoiceStatus.SENT, InvoiceStatus.OVERDUE, InvoiceStatus.PAID].includes(invoiceStatus);
 }
 
-function getInvoiceActivityDotClass(status: string): string {
-  if (status === "PAID") return "bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)]";
-  if (status === "PENDING") return "bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.8)]";
-  if (status === "OVERDUE") return "bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.8)]";
+function getInvoiceActivityDotClass(status: InvoiceStatus): string {
+  if (status === InvoiceStatus.PAID) return "bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)]";
+  if (status === InvoiceStatus.SENT) return "bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.8)]";
+  if (status === InvoiceStatus.OVERDUE) return "bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.8)]";
   return "bg-slate-500 shadow-[0_0_8px_rgba(100,116,139,0.8)]";
 }
 
@@ -54,7 +56,7 @@ interface ConversationTarget {
   title: string;
   subtitle: string;
   parentName?: string;
-  data: any;
+  data: Project | Task | Invoice;
 }
 
 export default function CommunicationClient() {
@@ -127,7 +129,7 @@ export default function CommunicationClient() {
     if (selectedKey && !conversations.some((conversation) => conversation.key === selectedKey)) {
       setSelectedKey("");
     }
-  }, [conversations, selectedKey, blockedTargetKeys]);
+  }, [conversations, selectedKey, blockedTargetKeys, router, searchParams]);
 
   const selectConversation = React.useCallback((key: string) => {
     setSelectedKey(key);
@@ -310,7 +312,7 @@ export default function CommunicationClient() {
                           className={cn(
                             "absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full border-2 border-[#0A0E17]",
                             conv.category === "INVOICE"
-                              ? getInvoiceActivityDotClass(conv.data.status)
+                              ? getInvoiceActivityDotClass((conv.data as Invoice).status)
                               : "bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)]",
                           )}
                         />
@@ -485,25 +487,29 @@ export default function CommunicationClient() {
           </div>
         ) : selectedConversation.category === "PROJECT" ? (
           <>
+            {(() => {
+              const project = selectedConversation.data as Project;
+              return null;
+            })()}
             <div className="pb-5 border-b border-white/5 relative z-10">
               <p className="text-[10px] font-bold text-emerald-400 uppercase tracking-widest mb-2 flex items-center gap-1.5 px-2.5 py-1 bg-emerald-500/10 rounded-full w-fit ring-1 ring-emerald-500/20"><FolderOpen className="w-3 h-3" /> Project Evidence</p>
-              <h3 className="text-lg font-space-grotesk font-bold text-white break-words max-w-full leading-tight">{selectedConversation.data.title}</h3>
+              <h3 className="text-lg font-space-grotesk font-bold text-white break-words max-w-full leading-tight">{(selectedConversation.data as Project).title}</h3>
               <p className="text-[11px] text-slate-500 mt-2 font-mono">Project</p>
               <div className="bg-slate-800/40 rounded-2xl p-4 ring-1 ring-white/5 flex flex-col hover:bg-slate-800/60 transition-colors cursor-default">
                 <p className="text-[10px] text-slate-500 uppercase tracking-widest font-bold mb-2">Stage</p>
                 <span className={cn(
                   "text-xs font-bold px-3 py-1.5 rounded-lg w-fit ring-1 ring-inset shadow-inner",
-                  selectedConversation.data.status === ProjectStatus.IN_PROGRESS ? "bg-emerald-500/10 text-emerald-400 ring-emerald-500/20 shadow-emerald-500/10" :
-                  selectedConversation.data.status === ProjectStatus.ON_HOLD ? "bg-amber-500/10 text-amber-400 ring-amber-500/20 shadow-amber-500/10" :
+                  (selectedConversation.data as Project).status === ProjectStatus.IN_PROGRESS ? "bg-emerald-500/10 text-emerald-400 ring-emerald-500/20 shadow-emerald-500/10" :
+                  (selectedConversation.data as Project).status === ProjectStatus.ON_HOLD ? "bg-amber-500/10 text-amber-400 ring-amber-500/20 shadow-amber-500/10" :
                   "bg-slate-700/50 text-slate-300 ring-slate-600/50 shadow-black/20"
-                )}>{selectedConversation.data.status}</span>
+                )}>{(selectedConversation.data as Project).status}</span>
               </div>
 
               <div className="bg-slate-800/40 rounded-2xl p-4 ring-1 ring-white/5 flex items-start gap-3 hover:bg-slate-800/60 transition-colors cursor-default">
                 <div className="p-2.5 bg-indigo-500/10 rounded-xl text-indigo-400 shrink-0 ring-1 ring-indigo-500/20"><CreditCard className="w-5 h-5" /></div>
                 <div className="min-w-0">
                   <p className="text-[10px] text-slate-500 uppercase tracking-widest font-bold mb-0.5">Total Budget</p>
-                  <p className="text-xl font-space-grotesk font-bold text-slate-200 truncate">{formatCurrency(selectedConversation.data.budget)}</p>
+                  <p className="text-xl font-space-grotesk font-bold text-slate-200 truncate">{formatCurrency((selectedConversation.data as Project).budget)}</p>
                 </div>
               </div>
 
@@ -511,7 +517,7 @@ export default function CommunicationClient() {
                 <div className="p-2.5 bg-rose-500/10 rounded-xl text-rose-400 shrink-0 ring-1 ring-rose-500/20"><Clock className="w-5 h-5" /></div>
                 <div className="min-w-0">
                   <p className="text-[10px] text-slate-500 uppercase tracking-widest font-bold mb-0.5">Deadline</p>
-                  <p className="text-sm font-medium text-slate-300 pt-1 tracking-wide">{formatDate(selectedConversation.data.deadline)}</p>
+                  <p className="text-sm font-medium text-slate-300 pt-1 tracking-wide">{formatDate((selectedConversation.data as Project).deadline)}</p>
                 </div>
               </div>
 
@@ -527,52 +533,60 @@ export default function CommunicationClient() {
           </>
         ) : selectedConversation.category === "TASK" ? (
           <>
+            {(() => {
+              const task = selectedConversation.data as Task;
+              return null;
+            })()}
             <div className="pb-5 border-b border-white/5 relative z-10">
               <p className="text-[10px] font-bold text-rose-400 uppercase tracking-widest mb-2 flex items-center gap-1.5 px-2.5 py-1 bg-rose-500/10 rounded-full w-fit ring-1 ring-rose-500/20"><Pin className="w-3 h-3" /> Task Evidence</p>
-              <h3 className="text-lg font-space-grotesk font-bold text-white break-words max-w-full leading-tight">{selectedConversation.data.title}</h3>
+              <h3 className="text-lg font-space-grotesk font-bold text-white break-words max-w-full leading-tight">{(selectedConversation.data as Task).title}</h3>
               <p className="text-[11px] text-slate-500 mt-2 font-mono">Belongs to: {selectedConversation.parentName}</p>
               <div className="bg-slate-800/40 rounded-2xl p-4 ring-1 ring-white/5 flex flex-col hover:bg-slate-800/60 transition-colors cursor-default">
                 <p className="text-[10px] text-slate-500 uppercase tracking-widest font-bold mb-2">Task Status</p>
                 <span className={cn(
                   "text-xs font-bold px-3 py-1.5 rounded-lg w-fit ring-1 ring-inset shadow-inner",
-                  selectedConversation.data.status === TaskStatus.TODO ? "bg-slate-500/10 text-slate-400 ring-slate-500/20 shadow-slate-500/10" :
-                  selectedConversation.data.status === TaskStatus.IN_PROGRESS ? "bg-amber-500/10 text-amber-400 ring-amber-500/20 shadow-amber-500/10" :
-                    selectedConversation.data.status === TaskStatus.DONE ? "bg-emerald-500/10 text-emerald-400 ring-emerald-500/20 shadow-emerald-500/10" :
+                  (selectedConversation.data as Task).status === TaskStatus.TODO ? "bg-slate-500/10 text-slate-400 ring-slate-500/20 shadow-slate-500/10" :
+                  (selectedConversation.data as Task).status === TaskStatus.IN_PROGRESS ? "bg-amber-500/10 text-amber-400 ring-amber-500/20 shadow-amber-500/10" :
+                    (selectedConversation.data as Task).status === TaskStatus.DONE ? "bg-emerald-500/10 text-emerald-400 ring-emerald-500/20 shadow-emerald-500/10" :
                     "bg-rose-500/10 text-rose-400 ring-rose-500/20 shadow-rose-500/10"
-                )}>{selectedConversation.data.status}</span>
+                )}>{(selectedConversation.data as Task).status}</span>
               </div>
 
               <div className="bg-slate-800/40 rounded-2xl ring-1 ring-white/5 divide-y divide-white/5">
                 <div className="flex justify-between items-center p-4">
                   <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Priority</span>
-                  <span className="text-xs font-bold uppercase tracking-widest text-slate-300">{selectedConversation.data.priority}</span>
+                  <span className="text-xs font-bold uppercase tracking-widest text-slate-300">{(selectedConversation.data as Task).priority}</span>
                 </div>
                 <div className="flex justify-between items-center p-4">
                   <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Due Date</span>
-                  <span className="text-sm font-medium text-slate-300">{formatDate(selectedConversation.data.dueDate)}</span>
+                  <span className="text-sm font-medium text-slate-300">{formatDate((selectedConversation.data as Task).dueDate)}</span>
                 </div>
               </div>
             </div>
           </>
         ) : (
           <>
+            {(() => {
+              const invoice = selectedConversation.data as Invoice;
+              return null;
+            })()}
             <div className="pb-5 border-b border-white/5 relative z-10">
               <p className="text-[10px] font-bold text-amber-400 uppercase tracking-widest mb-2 flex items-center gap-1.5 px-2.5 py-1 bg-amber-500/10 rounded-full w-fit ring-1 ring-amber-500/20"><Receipt className="w-3 h-3" /> Invoice Receipt</p>
-              <h3 className="text-lg font-space-grotesk font-bold text-white max-w-full truncate leading-tight">{selectedConversation.data.title}</h3>
+              <h3 className="text-lg font-space-grotesk font-bold text-white max-w-full truncate leading-tight">{(selectedConversation.data as Invoice).title}</h3>
               <p className="text-[11px] text-slate-500 mt-2 font-mono">Belongs to: {selectedConversation.parentName}</p>
               <div className="bg-slate-800/40 rounded-2xl p-4 ring-1 ring-white/5 text-center py-6 shadow-inner">
                 <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2">Total Amount</p>
-                <span className="text-3xl font-space-grotesk tracking-tight text-white font-bold">{formatCurrency(selectedConversation.data.amount)}</span>
+                <span className="text-3xl font-space-grotesk tracking-tight text-white font-bold">{formatCurrency((selectedConversation.data as Invoice).amount)}</span>
               </div>
 
               <div className="bg-slate-800/40 rounded-2xl ring-1 ring-white/5 divide-y divide-white/5">
                 <div className="flex justify-between items-center p-4">
                   <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Status</span>
-                  <InvoiceStatusPill status={selectedConversation.data.status} />
+                  <InvoiceStatusPill status={(selectedConversation.data as Invoice).status} />
                 </div>
                 <div className="flex justify-between items-center p-4">
                   <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Due Date</span>
-                  <span className="text-sm text-slate-300 font-medium tracking-wide">{formatDate(selectedConversation.data.dueDate)}</span>
+                  <span className="text-sm text-slate-300 font-medium tracking-wide">{formatDate((selectedConversation.data as Invoice).dueDate)}</span>
                 </div>
               </div>
 
