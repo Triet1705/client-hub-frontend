@@ -3,7 +3,7 @@ import { Project } from "../types/project.types";
 import { ProjectStatusBadge } from "./project-status-badge";
 import { ActionEditIcon, ActionDeleteIcon, NavProjectsIcon } from "@/components/icons";
 
-import { cn, formatFiat } from "@/lib/utils";
+import { formatFiat } from "@/lib/utils";
 
 interface ProjectCardProps {
   project: Project;

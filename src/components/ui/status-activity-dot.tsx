@@ -1,6 +1,6 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
-import { ProjectStatus, TaskStatus, InvoiceStatus } from "@/lib/type";
+import { ProjectStatus, TaskStatus } from "@/lib/type";
 
 export type ActivityCategory = "PROJECT" | "TASK" | "INVOICE";
 
@@ -14,7 +14,6 @@ export function StatusActivityDot({ category, status, className }: StatusActivit
   const isVisible = React.useMemo(() => {
     if (category === "PROJECT") return status === ProjectStatus.IN_PROGRESS;
     if (category === "TASK") return status === TaskStatus.IN_PROGRESS;
-    // Invoices are visible for most active states
     return ["SENT", "PENDING", "OVERDUE", "PAID"].includes(status);
   }, [category, status]);
 
@@ -33,7 +32,6 @@ export function StatusActivityDot({ category, status, className }: StatusActivit
       }
     }
     
-    // Default for Project/Task IN_PROGRESS
     return "bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)]";
   }, [category, status]);
 

@@ -3,7 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { AlertTriangle, CheckCircle2, CircleDot, Search, ShieldCheck } from "lucide-react";
+import { AlertTriangle, CheckCircle2, CircleDot, ShieldCheck } from "lucide-react";
 import { DataTableToolbar } from "@/components/ui/data-table-toolbar";
 import { Pagination } from "@/components/ui/pagination";
 import { FilterSection } from "@/components/ui/filter-section";
@@ -16,7 +16,7 @@ import { useInvoicesQuery, useUpdateInvoiceStatusMutation } from "@/features/inv
 import { parseInvoicesQuery } from "@/features/invoices/query/invoices-query.schema";
 import { SearchInput } from "@/components/ui/search-input";
 import { SummaryCard } from "@/components/ui/summary-card";
-import { cn, formatFiat as formatUsd, formatDate } from "@/lib/utils";
+import { formatFiat as formatUsd, formatDate } from "@/lib/utils";
 import { InvoiceStatus } from "@/lib/type";
 
 import {

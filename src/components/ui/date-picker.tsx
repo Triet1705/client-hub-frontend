@@ -41,7 +41,7 @@ export function DatePicker({
     try {
       // Add time to avoid timezone issues with pure dates
       return format(new Date(value + "T00:00:00"), "MMM d, yyyy");
-    } catch (e) {
+    } catch {
       return null;
     }
   }, [value]);

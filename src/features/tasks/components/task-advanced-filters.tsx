@@ -2,7 +2,7 @@ import * as React from "react";
 import { X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { TaskStatus } from "@/features/tasks/types/task.types";
-import { AdvancedFilters, DEFAULT_ADVANCED_FILTERS } from "../utils/task-filter";
+import { AdvancedFilters } from "../utils/task-filter";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 

@@ -2,12 +2,11 @@
 
 import * as React from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { Plus, User, ChevronDown, LayoutGrid, List, Flag, Check, TimerReset, SlidersHorizontal, X, Sparkles } from "lucide-react";
+import { Plus, User, ChevronDown, LayoutGrid, List, Flag, Check, TimerReset, SlidersHorizontal, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { buildUpdatedQueryString } from "@/lib/url-query";
-import { TaskPriority, TaskStatus, type Task } from "@/features/tasks/types/task.types";
+import { TaskStatus, type Task } from "@/features/tasks/types/task.types";
 import { TASK_PRIORITY_OPTIONS } from "@/features/tasks/constants/task-ui.constants";
-import { ProjectStatus } from "@/features/projects/types/project.types";
 import { useAuthStore } from "@/features/auth/store/auth.store";
 import { useTasksQuery } from "@/features/tasks/hooks/use-tasks";
 import { useProjectsQuery, useProjectMembersQuery } from "@/features/projects/hooks/use-projects";
@@ -34,7 +33,6 @@ import {
 import { TaskAdvancedFilters } from "@/features/tasks/components/task-advanced-filters";
 import { FilterDropdown, type FilterDropdownOption } from "@/components/ui/filter-dropdown";
 import { PROJECT_STATUS_BADGE, PROJECT_STATUS_LABEL } from "@/features/projects/constants/project-ui.constants";
-import { Button } from "@/components/ui/button";
 
 
 const TASKS_VIEW_STORAGE_KEY = "clienthub.tasks.view-mode";

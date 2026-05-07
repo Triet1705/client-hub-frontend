@@ -18,8 +18,7 @@ import type { Project } from "@/features/projects/types/project.types";
 import type { Task } from "@/features/tasks/types/task.types";
 import { cn, formatFiat as formatCurrency, formatDate } from "@/lib/utils";
 import { InvoiceStatusPill } from "@/features/invoices/components/invoice-status-pill";
-import { ProjectStatus, TaskStatus, InvoiceStatus } from "@/lib/type";
-import { StatusActivityDot } from "@/components/ui/status-activity-dot";
+import { StatusActivityDot, type ActivityCategory } from "@/components/ui/status-activity-dot";
 import { SearchInput } from "@/components/ui/search-input";
 import { PROJECT_STATUS_BADGE, PROJECT_STATUS_LABEL } from "@/features/projects/constants/project-ui.constants";
 import { TASK_STATUS_BADGE, TASK_STATUS_LABEL } from "@/features/tasks/constants/task-ui.constants";
@@ -284,7 +283,7 @@ export default function CommunicationClient() {
                       </div>
                       {!isActive && (
                         <StatusActivityDot
-                          category={conv.category === "ALL" ? "PROJECT" : (conv.category as any)}
+                          category={conv.category === "ALL" ? "PROJECT" : (conv.category as ActivityCategory)}
                           status={conv.data.status}
                         />
                       )}
