@@ -14,6 +14,11 @@ import { useAuthStore } from "@/features/auth/store/auth.store";
 import { InvoiceStatusPill } from "@/features/invoices/components/invoice-status-pill";
 import { useInvoicesQuery, useUpdateInvoiceStatusMutation } from "@/features/invoices/hooks/use-invoices";
 import { parseInvoicesQuery } from "@/features/invoices/query/invoices-query.schema";
+import { SearchInput } from "@/components/ui/search-input";
+import { SummaryCard } from "@/components/ui/summary-card";
+import { cn, formatFiat as formatUsd, formatDate } from "@/lib/utils";
+import { InvoiceStatus } from "@/lib/type";
+
 import {
   DEFAULT_INVOICE_VISIBLE_COLUMNS,
   DEFAULT_INVOICE_VISIBLE_COLUMNS_QUERY,
@@ -25,24 +30,6 @@ import {
   type StatusFilterValue,
 } from "@/features/invoices/constants/invoice.constants";
 import { canTransitionTo } from "@/lib/invoice-status-mapper";
-import { InvoiceStatus } from "@/lib/type";
-
-function formatUsd(value: string) {
-  const parsed = Number(value);
-  if (!Number.isFinite(parsed)) return value;
-  return parsed.toLocaleString("en-US", { style: "currency", currency: "USD" });
-}
-
-function formatDate(value?: string) {
-  if (!value) return "-";
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return value;
-  return date.toLocaleDateString("en-US", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-  });
-}
 
 function getTransitionOptions(current: InvoiceStatus): InvoiceStatus[] {
   const allStatuses = Object.values(InvoiceStatus);
@@ -295,47 +282,24 @@ function InvoicesPageContent() {
       </div>
 
       <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-slate-900/60 backdrop-blur-xl ring-1 ring-white/5 shadow-2xl shadow-black/50 p-6 rounded-3xl transition-all duration-300 group hover:scale-[1.02] hover:bg-slate-800/80 hover:ring-white/20 relative overflow-hidden">
-          <div className="absolute inset-0 bg-amber-500/5 blur-2xl pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-          <div className="relative">
-            <div className="flex justify-between items-start mb-4">
-              <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Total Outstanding</p>
-              <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/10 text-amber-300">
-                <AlertTriangle className="h-3 w-3" />
-                Awaiting Payment
-              </span>
-            </div>
-            <span className="text-4xl font-bold text-white font-mono">{formatUsd(String(outstandingAmount))}</span>
-          </div>
-        </div>
-
-        <div className="bg-slate-900/60 backdrop-blur-xl ring-1 ring-white/5 shadow-2xl shadow-black/50 p-6 rounded-3xl transition-all duration-300 group hover:scale-[1.02] hover:bg-slate-800/80 hover:ring-white/20 relative overflow-hidden">
-          <div className="absolute inset-0 bg-emerald-500/5 blur-2xl pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-          <div className="relative">
-            <div className="flex justify-between items-start mb-4">
-              <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Total Collected</p>
-              <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-300">
-                <CheckCircle2 className="h-3 w-3" />
-                30-Day Velocity
-              </span>
-            </div>
-            <span className="text-4xl font-bold text-white font-mono">{formatUsd(String(collectedAmount))}</span>
-          </div>
-        </div>
-
-        <div className="bg-slate-900/60 backdrop-blur-xl ring-1 ring-white/5 shadow-2xl shadow-black/50 p-6 rounded-3xl transition-all duration-300 group hover:scale-[1.02] hover:bg-slate-800/80 hover:ring-white/20 relative overflow-hidden">
-          <div className="absolute inset-0 bg-cyan-500/5 blur-2xl pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-          <div className="relative">
-            <div className="flex justify-between items-start mb-4">
-              <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">System Integrity</p>
-              <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-bold bg-cyan-500/10 text-cyan-300">
-                <ShieldCheck className="h-3 w-3" />
-                Verified
-              </span>
-            </div>
-            <span className="text-4xl font-bold text-white">{integrityScore}%</span>
-          </div>
-        </div>
+        <SummaryCard
+          label="Total Outstanding"
+          value={formatUsd(String(outstandingAmount))}
+          icon={AlertTriangle}
+          badge={{ label: "Awaiting Payment", variant: "amber" }}
+        />
+        <SummaryCard
+          label="Total Collected"
+          value={formatUsd(String(collectedAmount))}
+          icon={CheckCircle2}
+          badge={{ label: "30-Day Velocity", variant: "emerald" }}
+        />
+        <SummaryCard
+          label="System Integrity"
+          value={`${integrityScore}%`}
+          icon={ShieldCheck}
+          badge={{ label: "Verified", variant: "cyan" }}
+        />
       </section>
 
       <section className="grid grid-cols-1 xl:grid-cols-[18rem_minmax(0,1fr)] gap-6 items-start">
@@ -360,19 +324,15 @@ function InvoicesPageContent() {
               isOpen={openSections.search}
               onToggle={() => toggleSection("search")}
             >
-              <label className="relative block">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500" />
-                <input
-                  type="text"
-                  placeholder="Find invoice, tx hash, project..."
-                  value={keyword}
-                  onChange={(event) => {
-                    setKeyword(event.target.value);
-                    setPage(0);
-                  }}
-                  className="h-9 w-full rounded-md border border-slate-700 bg-slate-950/70 pl-10 pr-3 text-sm text-white placeholder:text-slate-500 focus:border-emerald-500/50 focus:outline-none focus:ring-1 focus:ring-emerald-500/50"
-                />
-              </label>
+              <SearchInput
+                placeholder="Find invoice, tx hash, project..."
+                value={keyword}
+                onChange={(event) => {
+                  setKeyword(event.target.value);
+                  setPage(0);
+                }}
+                className="h-9 rounded-md border-slate-700 bg-slate-950/70 focus:border-emerald-500/50 focus:ring-emerald-500/50"
+              />
             </FilterSection>
 
             <FilterSection
@@ -562,7 +522,11 @@ function InvoicesPageContent() {
                         </td>
                       )}
                       {visibleColumns.amount && <td className="px-6 py-5 text-sm font-semibold text-white">{formatUsd(invoice.amount)}</td>}
-                      {visibleColumns.dueDate && <td className="px-6 py-5 text-xs text-slate-300">{formatDate(invoice.dueDate)}</td>}
+                      {visibleColumns.dueDate && (
+                        <td className="px-6 py-5 text-xs text-slate-300">
+                          {formatDate(invoice.dueDate, { day: "2-digit", month: "short", year: "numeric" })}
+                        </td>
+                      )}
                       {visibleColumns.status && (
                         <td className="px-6 py-5">
                           <InvoiceStatusPill status={invoice.status} />
