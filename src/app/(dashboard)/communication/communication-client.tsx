@@ -489,114 +489,117 @@ export default function CommunicationClient() {
           <>
             {(() => {
               const project = selectedConversation.data as Project;
-              return null;
+              return (
+                <div className="pb-5 border-b border-white/5 relative z-10">
+                  <p className="text-[10px] font-bold text-emerald-400 uppercase tracking-widest mb-2 flex items-center gap-1.5 px-2.5 py-1 bg-emerald-500/10 rounded-full w-fit ring-1 ring-emerald-500/20"><FolderOpen className="w-3 h-3" /> Project Evidence</p>
+                  <h3 className="text-lg font-space-grotesk font-bold text-white break-words max-w-full leading-tight">{project.title}</h3>
+                  <p className="text-[11px] text-slate-500 mt-2 font-mono">Project</p>
+                  <div className="bg-slate-800/40 rounded-2xl p-4 ring-1 ring-white/5 flex flex-col hover:bg-slate-800/60 transition-colors cursor-default">
+                    <p className="text-[10px] text-slate-500 uppercase tracking-widest font-bold mb-2">Stage</p>
+                    <span className={cn(
+                      "text-xs font-bold px-3 py-1.5 rounded-lg w-fit ring-1 ring-inset shadow-inner",
+                      project.status === ProjectStatus.IN_PROGRESS ? "bg-emerald-500/10 text-emerald-400 ring-emerald-500/20 shadow-emerald-500/10" :
+                      project.status === ProjectStatus.ON_HOLD ? "bg-amber-500/10 text-amber-400 ring-amber-500/20 shadow-amber-500/10" :
+                      "bg-slate-700/50 text-slate-300 ring-slate-600/50 shadow-black/20"
+                    )}>{project.status}</span>
+                  </div>
+
+                  <div className="bg-slate-800/40 rounded-2xl p-4 ring-1 ring-white/5 flex items-start gap-3 hover:bg-slate-800/60 transition-colors cursor-default">
+                    <div className="p-2.5 bg-indigo-500/10 rounded-xl text-indigo-400 shrink-0 ring-1 ring-indigo-500/20"><CreditCard className="w-5 h-5" /></div>
+                    <div className="min-w-0">
+                      <p className="text-[10px] text-slate-500 uppercase tracking-widest font-bold mb-0.5">Total Budget</p>
+                      <p className="text-xl font-space-grotesk font-bold text-slate-200 truncate">{formatCurrency(project.budget)}</p>
+                    </div>
+                  </div>
+
+                  <div className="bg-slate-800/40 rounded-2xl p-4 ring-1 ring-white/5 flex items-start gap-3 hover:bg-slate-800/60 transition-colors cursor-default">
+                    <div className="p-2.5 bg-rose-500/10 rounded-xl text-rose-400 shrink-0 ring-1 ring-rose-500/20"><Clock className="w-5 h-5" /></div>
+                    <div className="min-w-0">
+                      <p className="text-[10px] text-slate-500 uppercase tracking-widest font-bold mb-0.5">Deadline</p>
+                      <p className="text-sm font-medium text-slate-300 pt-1 tracking-wide">{formatDate(project.deadline)}</p>
+                    </div>
+                  </div>
+
+                  <div className="bg-slate-800/40 rounded-2xl p-4 ring-1 ring-white/5 hover:bg-slate-800/60 transition-colors cursor-default">
+                    <p className="text-[10px] text-slate-500 uppercase tracking-widest font-bold mb-3 flex items-center gap-2">Assignee Core</p>
+                    <div className="flex items-center gap-1 -space-x-2">
+                      <div className="w-8 h-8 rounded-full bg-slate-900 flex items-center justify-center font-bold text-[10px] ring-2 ring-slate-800 text-indigo-300 shadow-md">FR</div>
+                      <div className="w-8 h-8 rounded-full bg-slate-900 flex items-center justify-center font-bold text-[10px] ring-2 ring-slate-800 text-emerald-300 shadow-md">CL</div>
+                      <div className="w-8 h-8 rounded-full bg-slate-800/50 flex items-center justify-center p-1 border border-dashed border-slate-600 text-slate-500 hover:text-white hover:border-white/20 transition-colors cursor-pointer"><User className="w-3.5 h-3.5" /></div>
+                    </div>
+                  </div>
+                </div>
+              );
             })()}
-            <div className="pb-5 border-b border-white/5 relative z-10">
-              <p className="text-[10px] font-bold text-emerald-400 uppercase tracking-widest mb-2 flex items-center gap-1.5 px-2.5 py-1 bg-emerald-500/10 rounded-full w-fit ring-1 ring-emerald-500/20"><FolderOpen className="w-3 h-3" /> Project Evidence</p>
-              <h3 className="text-lg font-space-grotesk font-bold text-white break-words max-w-full leading-tight">{(selectedConversation.data as Project).title}</h3>
-              <p className="text-[11px] text-slate-500 mt-2 font-mono">Project</p>
-              <div className="bg-slate-800/40 rounded-2xl p-4 ring-1 ring-white/5 flex flex-col hover:bg-slate-800/60 transition-colors cursor-default">
-                <p className="text-[10px] text-slate-500 uppercase tracking-widest font-bold mb-2">Stage</p>
-                <span className={cn(
-                  "text-xs font-bold px-3 py-1.5 rounded-lg w-fit ring-1 ring-inset shadow-inner",
-                  (selectedConversation.data as Project).status === ProjectStatus.IN_PROGRESS ? "bg-emerald-500/10 text-emerald-400 ring-emerald-500/20 shadow-emerald-500/10" :
-                  (selectedConversation.data as Project).status === ProjectStatus.ON_HOLD ? "bg-amber-500/10 text-amber-400 ring-amber-500/20 shadow-amber-500/10" :
-                  "bg-slate-700/50 text-slate-300 ring-slate-600/50 shadow-black/20"
-                )}>{(selectedConversation.data as Project).status}</span>
-              </div>
-
-              <div className="bg-slate-800/40 rounded-2xl p-4 ring-1 ring-white/5 flex items-start gap-3 hover:bg-slate-800/60 transition-colors cursor-default">
-                <div className="p-2.5 bg-indigo-500/10 rounded-xl text-indigo-400 shrink-0 ring-1 ring-indigo-500/20"><CreditCard className="w-5 h-5" /></div>
-                <div className="min-w-0">
-                  <p className="text-[10px] text-slate-500 uppercase tracking-widest font-bold mb-0.5">Total Budget</p>
-                  <p className="text-xl font-space-grotesk font-bold text-slate-200 truncate">{formatCurrency((selectedConversation.data as Project).budget)}</p>
-                </div>
-              </div>
-
-              <div className="bg-slate-800/40 rounded-2xl p-4 ring-1 ring-white/5 flex items-start gap-3 hover:bg-slate-800/60 transition-colors cursor-default">
-                <div className="p-2.5 bg-rose-500/10 rounded-xl text-rose-400 shrink-0 ring-1 ring-rose-500/20"><Clock className="w-5 h-5" /></div>
-                <div className="min-w-0">
-                  <p className="text-[10px] text-slate-500 uppercase tracking-widest font-bold mb-0.5">Deadline</p>
-                  <p className="text-sm font-medium text-slate-300 pt-1 tracking-wide">{formatDate((selectedConversation.data as Project).deadline)}</p>
-                </div>
-              </div>
-
-              <div className="bg-slate-800/40 rounded-2xl p-4 ring-1 ring-white/5 hover:bg-slate-800/60 transition-colors cursor-default">
-                <p className="text-[10px] text-slate-500 uppercase tracking-widest font-bold mb-3 flex items-center gap-2">Assignee Core</p>
-                <div className="flex items-center gap-1 -space-x-2">
-                  <div className="w-8 h-8 rounded-full bg-slate-900 flex items-center justify-center font-bold text-[10px] ring-2 ring-slate-800 text-indigo-300 shadow-md">FR</div>
-                  <div className="w-8 h-8 rounded-full bg-slate-900 flex items-center justify-center font-bold text-[10px] ring-2 ring-slate-800 text-emerald-300 shadow-md">CL</div>
-                  <div className="w-8 h-8 rounded-full bg-slate-800/50 flex items-center justify-center p-1 border border-dashed border-slate-600 text-slate-500 hover:text-white hover:border-white/20 transition-colors cursor-pointer"><User className="w-3.5 h-3.5" /></div>
-                </div>
-              </div>
-            </div>
           </>
         ) : selectedConversation.category === "TASK" ? (
           <>
             {(() => {
               const task = selectedConversation.data as Task;
-              return null;
-            })()}
-            <div className="pb-5 border-b border-white/5 relative z-10">
-              <p className="text-[10px] font-bold text-rose-400 uppercase tracking-widest mb-2 flex items-center gap-1.5 px-2.5 py-1 bg-rose-500/10 rounded-full w-fit ring-1 ring-rose-500/20"><Pin className="w-3 h-3" /> Task Evidence</p>
-              <h3 className="text-lg font-space-grotesk font-bold text-white break-words max-w-full leading-tight">{(selectedConversation.data as Task).title}</h3>
-              <p className="text-[11px] text-slate-500 mt-2 font-mono">Belongs to: {selectedConversation.parentName}</p>
-              <div className="bg-slate-800/40 rounded-2xl p-4 ring-1 ring-white/5 flex flex-col hover:bg-slate-800/60 transition-colors cursor-default">
-                <p className="text-[10px] text-slate-500 uppercase tracking-widest font-bold mb-2">Task Status</p>
-                <span className={cn(
-                  "text-xs font-bold px-3 py-1.5 rounded-lg w-fit ring-1 ring-inset shadow-inner",
-                  (selectedConversation.data as Task).status === TaskStatus.TODO ? "bg-slate-500/10 text-slate-400 ring-slate-500/20 shadow-slate-500/10" :
-                  (selectedConversation.data as Task).status === TaskStatus.IN_PROGRESS ? "bg-amber-500/10 text-amber-400 ring-amber-500/20 shadow-amber-500/10" :
-                    (selectedConversation.data as Task).status === TaskStatus.DONE ? "bg-emerald-500/10 text-emerald-400 ring-emerald-500/20 shadow-emerald-500/10" :
-                    "bg-rose-500/10 text-rose-400 ring-rose-500/20 shadow-rose-500/10"
-                )}>{(selectedConversation.data as Task).status}</span>
-              </div>
+              return (
+                <div className="pb-5 border-b border-white/5 relative z-10">
+                  <p className="text-[10px] font-bold text-rose-400 uppercase tracking-widest mb-2 flex items-center gap-1.5 px-2.5 py-1 bg-rose-500/10 rounded-full w-fit ring-1 ring-rose-500/20"><Pin className="w-3 h-3" /> Task Evidence</p>
+                  <h3 className="text-lg font-space-grotesk font-bold text-white break-words max-w-full leading-tight">{task.title}</h3>
+                  <p className="text-[11px] text-slate-500 mt-2 font-mono">Belongs to: {selectedConversation.parentName}</p>
+                  <div className="bg-slate-800/40 rounded-2xl p-4 ring-1 ring-white/5 flex flex-col hover:bg-slate-800/60 transition-colors cursor-default">
+                    <p className="text-[10px] text-slate-500 uppercase tracking-widest font-bold mb-2">Task Status</p>
+                    <span className={cn(
+                      "text-xs font-bold px-3 py-1.5 rounded-lg w-fit ring-1 ring-inset shadow-inner",
+                      task.status === TaskStatus.TODO ? "bg-slate-500/10 text-slate-400 ring-slate-500/20 shadow-slate-500/10" :
+                      task.status === TaskStatus.IN_PROGRESS ? "bg-amber-500/10 text-amber-400 ring-amber-500/20 shadow-amber-500/10" :
+                        task.status === TaskStatus.DONE ? "bg-emerald-500/10 text-emerald-400 ring-emerald-500/20 shadow-emerald-500/10" :
+                        "bg-rose-500/10 text-rose-400 ring-rose-500/20 shadow-rose-500/10"
+                    )}>{task.status}</span>
+                  </div>
 
-              <div className="bg-slate-800/40 rounded-2xl ring-1 ring-white/5 divide-y divide-white/5">
-                <div className="flex justify-between items-center p-4">
-                  <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Priority</span>
-                  <span className="text-xs font-bold uppercase tracking-widest text-slate-300">{(selectedConversation.data as Task).priority}</span>
+                  <div className="bg-slate-800/40 rounded-2xl ring-1 ring-white/5 divide-y divide-white/5">
+                    <div className="flex justify-between items-center p-4">
+                      <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Priority</span>
+                      <span className="text-xs font-bold uppercase tracking-widest text-slate-300">{task.priority}</span>
+                    </div>
+                    <div className="flex justify-between items-center p-4">
+                      <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Due Date</span>
+                      <span className="text-sm font-medium text-slate-300">{formatDate(task.dueDate)}</span>
+                    </div>
+                  </div>
                 </div>
-                <div className="flex justify-between items-center p-4">
-                  <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Due Date</span>
-                  <span className="text-sm font-medium text-slate-300">{formatDate((selectedConversation.data as Task).dueDate)}</span>
-                </div>
-              </div>
-            </div>
+              );
+            })()}
           </>
         ) : (
           <>
             {(() => {
               const invoice = selectedConversation.data as Invoice;
-              return null;
+              return (
+                <div className="pb-5 border-b border-white/5 relative z-10">
+                  <p className="text-[10px] font-bold text-amber-400 uppercase tracking-widest mb-2 flex items-center gap-1.5 px-2.5 py-1 bg-amber-500/10 rounded-full w-fit ring-1 ring-amber-500/20"><Receipt className="w-3 h-3" /> Invoice Receipt</p>
+                  <h3 className="text-lg font-space-grotesk font-bold text-white max-w-full truncate leading-tight">{invoice.title}</h3>
+                  <p className="text-[11px] text-slate-500 mt-2 font-mono">Belongs to: {selectedConversation.parentName}</p>
+                  <div className="bg-slate-800/40 rounded-2xl p-4 ring-1 ring-white/5 text-center py-6 shadow-inner">
+                    <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2">Total Amount</p>
+                    <span className="text-3xl font-space-grotesk tracking-tight text-white font-bold">{formatCurrency(invoice.amount)}</span>
+                  </div>
+
+                  <div className="bg-slate-800/40 rounded-2xl ring-1 ring-white/5 divide-y divide-white/5">
+                    <div className="flex justify-between items-center p-4">
+                      <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Status</span>
+                      <InvoiceStatusPill status={invoice.status} />
+                    </div>
+                    <div className="flex justify-between items-center p-4">
+                      <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Due Date</span>
+                      <span className="text-sm text-slate-300 font-medium tracking-wide">{formatDate(invoice.dueDate)}</span>
+                    </div>
+                  </div>
+
+                  <div className="bg-indigo-500/5 ring-1 ring-indigo-500/20 rounded-2xl p-5 mt-6 text-center shadow-[inset_0_2px_15px_rgba(99,102,241,0.05)] border-t border-indigo-500/20">
+                    <Receipt className="w-7 h-7 text-indigo-400/50 mx-auto mb-3" />
+                    <p className="text-xs text-indigo-200/60 font-medium leading-relaxed">
+                      Conversations attached to invoices are for dispute resolution or payment proof evidence.
+                    </p>
+                  </div>
+                </div>
+              );
             })()}
-            <div className="pb-5 border-b border-white/5 relative z-10">
-              <p className="text-[10px] font-bold text-amber-400 uppercase tracking-widest mb-2 flex items-center gap-1.5 px-2.5 py-1 bg-amber-500/10 rounded-full w-fit ring-1 ring-amber-500/20"><Receipt className="w-3 h-3" /> Invoice Receipt</p>
-              <h3 className="text-lg font-space-grotesk font-bold text-white max-w-full truncate leading-tight">{(selectedConversation.data as Invoice).title}</h3>
-              <p className="text-[11px] text-slate-500 mt-2 font-mono">Belongs to: {selectedConversation.parentName}</p>
-              <div className="bg-slate-800/40 rounded-2xl p-4 ring-1 ring-white/5 text-center py-6 shadow-inner">
-                <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2">Total Amount</p>
-                <span className="text-3xl font-space-grotesk tracking-tight text-white font-bold">{formatCurrency((selectedConversation.data as Invoice).amount)}</span>
-              </div>
-
-              <div className="bg-slate-800/40 rounded-2xl ring-1 ring-white/5 divide-y divide-white/5">
-                <div className="flex justify-between items-center p-4">
-                  <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Status</span>
-                  <InvoiceStatusPill status={(selectedConversation.data as Invoice).status} />
-                </div>
-                <div className="flex justify-between items-center p-4">
-                  <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Due Date</span>
-                  <span className="text-sm text-slate-300 font-medium tracking-wide">{formatDate((selectedConversation.data as Invoice).dueDate)}</span>
-                </div>
-              </div>
-
-              <div className="bg-indigo-500/5 ring-1 ring-indigo-500/20 rounded-2xl p-5 mt-6 text-center shadow-[inset_0_2px_15px_rgba(99,102,241,0.05)] border-t border-indigo-500/20">
-                <Receipt className="w-7 h-7 text-indigo-400/50 mx-auto mb-3" />
-                <p className="text-xs text-indigo-200/60 font-medium leading-relaxed">
-                  Conversations attached to invoices are for dispute resolution or payment proof evidence.
-                </p>
-              </div>
-            </div>
           </>
         )}
       </div>

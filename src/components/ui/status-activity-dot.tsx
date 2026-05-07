@@ -1,6 +1,6 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
-import { ProjectStatus, TaskStatus, InvoiceStatus } from "@/lib/type";
+import { ProjectStatus, TaskStatus } from "@/lib/type";
 
 export type ActivityCategory = "PROJECT" | "TASK" | "INVOICE";
 
@@ -11,33 +11,23 @@ interface StatusActivityDotProps {
 }
 
 export function StatusActivityDot({ category, status, className }: StatusActivityDotProps) {
-  const isVisible = React.useMemo(() => {
-    if (category === "PROJECT") return status === ProjectStatus.IN_PROGRESS;
-    if (category === "TASK") return status === TaskStatus.IN_PROGRESS;
-    // Invoices are visible for most active states
-    return ["SENT", "PENDING", "OVERDUE", "PAID"].includes(status);
-  }, [category, status]);
+  const isVisible =
+    category === "PROJECT"
+      ? status === ProjectStatus.IN_PROGRESS
+      : category === "TASK"
+        ? status === TaskStatus.IN_PROGRESS
+        : ["SENT", "PENDING", "OVERDUE", "PAID"].includes(status);
 
   if (!isVisible) return null;
 
-  const dotClass = React.useMemo(() => {
-    if (category === "INVOICE") {
-      switch (status) {
-        case "PAID":
-          return "bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)]";
-        case "OVERDUE":
-          return "bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.8)]";
-        case "PENDING":
-        case "SENT":
-          return "bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.8)]";
-        default:
-          return "bg-slate-500 shadow-[0_0_8px_rgba(100,116,139,0.8)]";
-      }
-    }
-    
-    // Default for Project/Task IN_PROGRESS
-    return "bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)]";
-  }, [category, status]);
+  const dotClass =
+    category === "INVOICE"
+      ? status === "PAID"
+        ? "bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)]"
+        : status === "OVERDUE"
+          ? "bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.8)]"
+          : "bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.8)]"
+      : "bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)]";
 
   return (
     <span
