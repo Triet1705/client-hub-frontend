@@ -3,6 +3,8 @@ import { formatDistanceToNow, isPast } from "date-fns";
 import { cn } from "@/lib/utils";
 import { Task, TaskStatus } from "../types/task.types";
 import { TaskPriorityBadge } from "./task-priority-badge";
+import { TaskStatusBadge } from "./task-status-badge";
+import { UserAvatar } from "@/components/ui/user-avatar";
 
 interface TaskListProps {
   tasks: Task[];
@@ -10,36 +12,7 @@ interface TaskListProps {
 }
 
 export function TaskList({ tasks, onTaskClick }: TaskListProps) {
-  const getStatusDisplay = (status: TaskStatus) => {
-    switch (status) {
-      case TaskStatus.IN_PROGRESS:
-        return (
-          <span className="inline-flex items-center gap-2 px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider border bg-emerald-500/10 border-emerald-500/20 text-emerald-400">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_10px_rgba(16,185,129,0.5)]"></span>
-            Active
-          </span>
-        );
-      case TaskStatus.DONE:
-        return (
-          <span className="inline-flex items-center gap-2 px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider border bg-blue-500/10 border-blue-500/30 text-blue-400">
-            Completed
-          </span>
-        );
-      case TaskStatus.CANCELED:
-        return (
-          <span className="inline-flex items-center gap-2 px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider border bg-rose-500/10 border-rose-500/30 text-rose-300">
-            Cancelled
-          </span>
-        );
-      case TaskStatus.TODO:
-      default:
-        return (
-          <span className="inline-flex items-center gap-2 px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider border bg-[#161616] border-[#333333] text-slate-400">
-            To Do
-          </span>
-        );
-    }
-  };
+
 
   if (!tasks.length) {
     return (
@@ -75,7 +48,7 @@ export function TaskList({ tasks, onTaskClick }: TaskListProps) {
                 dateText = isOverdue ? "Overdue" : `Due ${formatDistanceToNow(dateObj, { addSuffix: true })}`;
               }
 
-              const avatarInitials = task.assignedTo?.email?.substring(0, 2).toUpperCase() ?? "?";
+
 
               return (
                 <tr
@@ -102,18 +75,21 @@ export function TaskList({ tasks, onTaskClick }: TaskListProps) {
                     </div>
                   </td>
                   <td className="px-6 py-5">
-                    {getStatusDisplay(task.status)}
+                    <TaskStatusBadge status={task.status} />
                   </td>
                   <td className="px-6 py-5">
                     <TaskPriorityBadge priority={task.priority} />
                   </td>
                   <td className="px-6 py-5">
-                    <div 
-                      className="w-8 h-8 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-[10px] font-bold text-slate-300"
-                      title={task.assignedTo?.email || "Unassigned"}
-                    >
-                      {task.assignedTo ? avatarInitials : "—"}
-                    </div>
+                    {task.assignedTo ? (
+                      <UserAvatar 
+                        name={task.assignedTo.fullName || task.assignedTo.email} 
+                        sizeClass="w-8 h-8 text-[10px]"
+                        className="bg-slate-800 border border-slate-700 text-slate-300"
+                      />
+                    ) : (
+                      <span className="text-xs text-slate-600">—</span>
+                    )}
                   </td>
                   <td className="px-6 py-5">
                     {(isDone || isCancelled) ? (

@@ -25,10 +25,21 @@ import {
   type TaskStatusFilterValue,
   type TasksViewMode,
 } from "@/features/tasks/query/tasks-query.schema";
+import {
+  AdvancedFilters,
+  DEFAULT_ADVANCED_FILTERS,
+  isTaskMatchingDueFilter,
+  isTaskMatchingAdvancedFilters,
+} from "@/features/tasks/utils/task-filter";
+import { TaskAdvancedFilters } from "@/features/tasks/components/task-advanced-filters";
+import { FilterDropdown, type FilterDropdownOption } from "@/components/ui/filter-dropdown";
+import { PROJECT_STATUS_BADGE, PROJECT_STATUS_LABEL } from "@/features/projects/constants/project-ui.constants";
+import { Button } from "@/components/ui/button";
+
 
 const TASKS_VIEW_STORAGE_KEY = "clienthub.tasks.view-mode";
 
-const TASK_STATUS_FILTER_OPTIONS: Array<{ value: TaskStatusFilterValue; label: string }> = [
+const TASK_STATUS_FILTER_OPTIONS: FilterDropdownOption<TaskStatusFilterValue>[] = [
   { value: "ALL", label: "All Statuses" },
   { value: TaskStatus.TODO, label: "To Do" },
   { value: TaskStatus.IN_PROGRESS, label: "In Progress" },
@@ -36,7 +47,7 @@ const TASK_STATUS_FILTER_OPTIONS: Array<{ value: TaskStatusFilterValue; label: s
   { value: TaskStatus.CANCELED, label: "Cancelled" },
 ];
 
-const TASK_DUE_FILTER_OPTIONS: Array<{ value: TaskDueFilterValue; label: string }> = [
+const TASK_DUE_FILTER_OPTIONS: FilterDropdownOption<TaskDueFilterValue>[] = [
   { value: "ALL", label: "All Due Dates" },
   { value: "OVERDUE", label: "Overdue" },
   { value: "TODAY", label: "Due Today" },
@@ -44,115 +55,7 @@ const TASK_DUE_FILTER_OPTIONS: Array<{ value: TaskDueFilterValue; label: string 
   { value: "NO_DUE_DATE", label: "No Due Date" },
 ];
 
-type AdvancedFilters = {
-  keyword: string;
-  statuses: TaskStatus[];
-  minEstimate: string;
-  maxEstimate: string;
-};
 
-const DEFAULT_ADVANCED_FILTERS: AdvancedFilters = {
-  keyword: "",
-  statuses: [],
-  minEstimate: "",
-  maxEstimate: "",
-};
-
-function isTaskMatchingDueFilter(task: Task, dueFilter: TaskDueFilterValue): boolean {
-  if (dueFilter === "ALL") {
-    return true;
-  }
-
-  if (!task.dueDate) {
-    return dueFilter === "NO_DUE_DATE";
-  }
-
-  const dueDate = new Date(task.dueDate);
-  if (Number.isNaN(dueDate.getTime())) {
-    return false;
-  }
-
-  const now = new Date();
-  const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  const startOfTomorrow = new Date(startOfToday);
-  startOfTomorrow.setDate(startOfTomorrow.getDate() + 1);
-  const endOfThisWeek = new Date(startOfToday);
-  endOfThisWeek.setDate(endOfThisWeek.getDate() + 7);
-
-  if (dueFilter === "OVERDUE") {
-    return dueDate < startOfToday && task.status !== TaskStatus.DONE && task.status !== TaskStatus.CANCELED;
-  }
-
-  if (dueFilter === "TODAY") {
-    return dueDate >= startOfToday && dueDate < startOfTomorrow;
-  }
-
-  if (dueFilter === "THIS_WEEK") {
-    return dueDate >= startOfToday && dueDate < endOfThisWeek;
-  }
-
-  return false;
-}
-
-function isTaskMatchingAdvancedFilters(task: Task, filters: AdvancedFilters): boolean {
-  const keyword = filters.keyword.trim().toLowerCase();
-  if (keyword) {
-    const searchable = [
-      task.title,
-      task.description ?? "",
-      task.projectTitle,
-      task.assignedTo?.fullName ?? "",
-      task.assignedTo?.email ?? "",
-    ]
-      .join(" ")
-      .toLowerCase();
-
-    if (!searchable.includes(keyword)) {
-      return false;
-    }
-  }
-
-  if (filters.statuses.length > 0 && !filters.statuses.includes(task.status)) {
-    return false;
-  }
-
-  const minEstimate = filters.minEstimate.trim() === "" ? undefined : Number(filters.minEstimate);
-  const maxEstimate = filters.maxEstimate.trim() === "" ? undefined : Number(filters.maxEstimate);
-
-  if ((minEstimate !== undefined && Number.isNaN(minEstimate)) || (maxEstimate !== undefined && Number.isNaN(maxEstimate))) {
-    return false;
-  }
-
-  if (minEstimate !== undefined || maxEstimate !== undefined) {
-    if (typeof task.estimatedHours !== "number") {
-      return false;
-    }
-    if (minEstimate !== undefined && task.estimatedHours < minEstimate) {
-      return false;
-    }
-    if (maxEstimate !== undefined && task.estimatedHours > maxEstimate) {
-      return false;
-    }
-  }
-
-  return true;
-}
-
-const PROJECT_STATUS_BADGE: Record<ProjectStatus, string> = {
-  [ProjectStatus.PLANNING]:   "text-slate-300 bg-slate-700/50 border-slate-600/40",
-  [ProjectStatus.IN_PROGRESS]:"text-emerald-400 bg-emerald-400/10 border-emerald-400/30",
-  [ProjectStatus.ON_HOLD]:    "text-amber-400 bg-amber-400/10 border-amber-400/20",
-  [ProjectStatus.COMPLETED]:  "text-blue-400 bg-blue-400/10 border-blue-400/20",
-  [ProjectStatus.CANCELLED]:  "text-rose-400 bg-rose-400/10 border-rose-400/20",
-};
-
-const PROJECT_STATUS_LABEL: Record<ProjectStatus, string> = {
-  [ProjectStatus.PLANNING]:   "Planning",
-  [ProjectStatus.IN_PROGRESS]:"Active",
-  [ProjectStatus.ON_HOLD]:    "On Hold",
-  [ProjectStatus.COMPLETED]:  "Completed",
-  [ProjectStatus.CANCELLED]:  "Cancelled",
-};
 
 export default function TasksPage() {
   return (
@@ -176,27 +79,15 @@ function TasksPageContent() {
     initialQueryState.projectId,
   );
   const [isCreateModalOpen, setIsCreateModalOpen] = React.useState(false);
+  const [projectDropdownOpen, setProjectDropdownOpen] = React.useState(false);
   const [isNewTaskDropdownOpen, setIsNewTaskDropdownOpen] = React.useState(false);
   const [isSmartUploadOpen, setIsSmartUploadOpen] = React.useState(false);
   const [defaultStatus, setDefaultStatus] = React.useState<TaskStatus>(TaskStatus.TODO);
   const [viewMode, setViewMode] = React.useState<TasksViewMode>(initialQueryState.viewMode);
-  const [priorityFilter, setPriorityFilter] = React.useState<TaskPriorityFilterValue>(
-    initialQueryState.priorityFilter,
-  );
-  const [statusFilter, setStatusFilter] = React.useState<TaskStatusFilterValue>(
-    initialQueryState.statusFilter,
-  );
-  const [dueFilter, setDueFilter] = React.useState<TaskDueFilterValue>(
-    initialQueryState.dueFilter,
-  );
-  const [selectedAssigneeId, setSelectedAssigneeId] = React.useState<string | undefined>(
-    initialQueryState.assigneeId,
-  );
-  const [projectDropdownOpen, setProjectDropdownOpen] = React.useState(false);
-  const [priorityDropdownOpen, setPriorityDropdownOpen] = React.useState(false);
-  const [statusDropdownOpen, setStatusDropdownOpen] = React.useState(false);
-  const [dueDropdownOpen, setDueDropdownOpen] = React.useState(false);
-  const [assigneeDropdownOpen, setAssigneeDropdownOpen] = React.useState(false);
+  const [priorityFilter, setPriorityFilter] = React.useState<TaskPriorityFilterValue>(initialQueryState.priorityFilter);
+  const [statusFilter, setStatusFilter] = React.useState<TaskStatusFilterValue>(initialQueryState.statusFilter);
+  const [dueFilter, setDueFilter] = React.useState<TaskDueFilterValue>(initialQueryState.dueFilter);
+  const [selectedAssigneeId, setSelectedAssigneeId] = React.useState<string | undefined>(initialQueryState.assigneeId);
   const [isAdvancedFiltersOpen, setIsAdvancedFiltersOpen] = React.useState(false);
   const [advancedFilters, setAdvancedFilters] = React.useState<AdvancedFilters>({
     keyword: initialQueryState.keyword,
@@ -204,18 +95,8 @@ function TasksPageContent() {
     minEstimate: initialQueryState.estimateMin,
     maxEstimate: initialQueryState.estimateMax,
   });
-  const [draftAdvancedFilters, setDraftAdvancedFilters] = React.useState<AdvancedFilters>({
-    keyword: initialQueryState.keyword,
-    statuses: initialQueryState.advancedStatuses,
-    minEstimate: initialQueryState.estimateMin,
-    maxEstimate: initialQueryState.estimateMax,
-  });
   const [selectedTask, setSelectedTask] = React.useState<Task | null>(null);
   const dropdownRef = React.useRef<HTMLDivElement>(null);
-  const priorityDropdownRef = React.useRef<HTMLDivElement>(null);
-  const statusDropdownRef = React.useRef<HTMLDivElement>(null);
-  const dueDropdownRef = React.useRef<HTMLDivElement>(null);
-  const assigneeDropdownRef = React.useRef<HTMLDivElement>(null);
 
   const { data: projectsData } = useProjectsQuery(0, 50);
   const projects = React.useMemo(() => projectsData?.content ?? [], [projectsData]);
@@ -323,29 +204,10 @@ function TasksPageContent() {
   const inProgressCount = filteredTasks.filter((t) => t.status === TaskStatus.IN_PROGRESS).length;
   const doneCount       = filteredTasks.filter((t) => t.status === TaskStatus.DONE).length;
 
-  const assigneeLabel = React.useMemo(() => {
-    if (!selectedAssigneeId) return "Assignee";
-    const member = projectMembers.find((item) => item.userId === selectedAssigneeId);
-    return member?.fullName || member?.email || "Assignee";
-  }, [projectMembers, selectedAssigneeId]);
-
-  const priorityLabel = React.useMemo(() => {
-    if (priorityFilter === "ALL") return "Priority";
-    const option = TASK_PRIORITY_OPTIONS.find((item) => item.value === priorityFilter as TaskPriority);
-    return option?.label || "Priority";
-  }, [priorityFilter]);
-
-  const statusLabel = React.useMemo(() => {
-    if (statusFilter === "ALL") return "Status";
-    const option = TASK_STATUS_FILTER_OPTIONS.find((item) => item.value === statusFilter);
-    return option?.label || "Status";
-  }, [statusFilter]);
-
-  const dueLabel = React.useMemo(() => {
-    if (dueFilter === "ALL") return "Due";
-    const option = TASK_DUE_FILTER_OPTIONS.find((item) => item.value === dueFilter);
-    return option?.label || "Due";
-  }, [dueFilter]);
+  const assigneeOptions = React.useMemo(() => [
+    { value: "ALL", label: "All Assignees" },
+    ...projectMembers.map(m => ({ value: m.userId, label: m.fullName || m.email }))
+  ], [projectMembers]);
 
   const [isMounted, setIsMounted] = React.useState(false);
   React.useEffect(() => { setIsMounted(true); }, []);
@@ -354,18 +216,6 @@ function TasksPageContent() {
     const handler = (e: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
         setProjectDropdownOpen(false);
-      }
-      if (priorityDropdownRef.current && !priorityDropdownRef.current.contains(e.target as Node)) {
-        setPriorityDropdownOpen(false);
-      }
-      if (statusDropdownRef.current && !statusDropdownRef.current.contains(e.target as Node)) {
-        setStatusDropdownOpen(false);
-      }
-      if (dueDropdownRef.current && !dueDropdownRef.current.contains(e.target as Node)) {
-        setDueDropdownOpen(false);
-      }
-      if (assigneeDropdownRef.current && !assigneeDropdownRef.current.contains(e.target as Node)) {
-        setAssigneeDropdownOpen(false);
       }
     };
     document.addEventListener("mousedown", handler);
@@ -376,37 +226,11 @@ function TasksPageContent() {
     setSelectedTask(null);
   }, [selectedProjectId]);
 
-  React.useEffect(() => {
-    if (isAdvancedFiltersOpen) {
-      setDraftAdvancedFilters(advancedFilters);
-    }
-  }, [advancedFilters, isAdvancedFiltersOpen]);
-
   if (!isMounted) return null;
 
   const handleAddTask = (status: TaskStatus) => {
     setDefaultStatus(status);
     setIsCreateModalOpen(true);
-  };
-
-  const handleToggleDraftStatus = (status: TaskStatus) => {
-    setDraftAdvancedFilters((prev) => {
-      const exists = prev.statuses.includes(status);
-      return {
-        ...prev,
-        statuses: exists ? prev.statuses.filter((item) => item !== status) : [...prev.statuses, status],
-      };
-    });
-  };
-
-  const handleApplyAdvancedFilters = () => {
-    setAdvancedFilters(draftAdvancedFilters);
-    setIsAdvancedFiltersOpen(false);
-  };
-
-  const handleResetAdvancedFilters = () => {
-    setDraftAdvancedFilters(DEFAULT_ADVANCED_FILTERS);
-    setAdvancedFilters(DEFAULT_ADVANCED_FILTERS);
   };
 
   return (
@@ -511,153 +335,37 @@ function TasksPageContent() {
           </div>
 
           <div className="ml-auto flex items-center gap-2">
-            <div className="relative" ref={priorityDropdownRef}>
-              <button
-                onClick={() => setPriorityDropdownOpen((current) => !current)}
-                className="flex items-center gap-1.5 px-3 py-1.5 bg-white/4 border border-white/8 rounded-full text-xs text-slate-400 hover:border-white/20 hover:text-slate-200 transition-colors"
-              >
-                <Flag size={12} className="text-slate-500" />
-                {priorityLabel}
-                <ChevronDown size={11} className={cn("text-slate-500 transition-transform", priorityDropdownOpen && "rotate-180")} />
-              </button>
+            <FilterDropdown
+              icon={Flag}
+              label="Priority"
+              options={[{ value: "ALL" as const, label: "All Priorities" }, ...TASK_PRIORITY_OPTIONS]}
+              value={priorityFilter}
+              onChange={(val) => setPriorityFilter(val)}
+            />
 
-              {priorityDropdownOpen ? (
-                <div className="absolute right-0 mt-2 w-48 bg-[#111111] border border-white/10 rounded-xl shadow-2xl z-50 overflow-hidden py-1">
-                  <button
-                    onClick={() => {
-                      setPriorityFilter("ALL");
-                      setPriorityDropdownOpen(false);
-                    }}
-                    className={cn(
-                      "w-full px-3 py-2 text-left text-xs hover:bg-white/5 transition-colors",
-                      priorityFilter === "ALL" ? "text-emerald-400" : "text-slate-300",
-                    )}
-                  >
-                    All Priorities
-                  </button>
-                  {TASK_PRIORITY_OPTIONS.map((option) => (
-                    <button
-                      key={option.value}
-                      onClick={() => {
-                        setPriorityFilter(option.value);
-                        setPriorityDropdownOpen(false);
-                      }}
-                      className={cn(
-                        "w-full px-3 py-2 text-left text-xs hover:bg-white/5 transition-colors",
-                        priorityFilter === option.value ? "text-emerald-400" : "text-slate-300",
-                      )}
-                    >
-                      {option.label}
-                    </button>
-                  ))}
-                </div>
-              ) : null}
-            </div>
+            <FilterDropdown
+              icon={User}
+              label="Assignee"
+              options={assigneeOptions}
+              value={selectedAssigneeId ?? "ALL"}
+              onChange={(val) => setSelectedAssigneeId(val === "ALL" ? undefined : val)}
+            />
 
-            <div className="relative" ref={assigneeDropdownRef}>
-              <button
-                onClick={() => setAssigneeDropdownOpen((current) => !current)}
-                className="flex items-center gap-1.5 px-3 py-1.5 bg-white/4 border border-white/8 rounded-full text-xs text-slate-400 hover:border-white/20 hover:text-slate-200 transition-colors"
-              >
-                <User size={13} className="text-slate-500" />
-                <span className="max-w-28 truncate">{assigneeLabel}</span>
-                <ChevronDown size={11} className={cn("text-slate-500 transition-transform", assigneeDropdownOpen && "rotate-180")} />
-              </button>
+            <FilterDropdown
+              icon={Check}
+              label="Status"
+              options={TASK_STATUS_FILTER_OPTIONS}
+              value={statusFilter}
+              onChange={(val) => setStatusFilter(val)}
+            />
 
-              {assigneeDropdownOpen ? (
-                <div className="absolute right-0 mt-2 w-56 bg-[#111111] border border-white/10 rounded-xl shadow-2xl z-50 overflow-hidden py-1 max-h-72 overflow-y-auto no-scrollbar">
-                  <button
-                    onClick={() => {
-                      setSelectedAssigneeId(undefined);
-                      setAssigneeDropdownOpen(false);
-                    }}
-                    className={cn(
-                      "w-full px-3 py-2 text-left text-xs hover:bg-white/5 transition-colors",
-                      !selectedAssigneeId ? "text-emerald-400" : "text-slate-300",
-                    )}
-                  >
-                    All Assignees
-                  </button>
-                  {projectMembers.map((member) => (
-                    <button
-                      key={member.userId}
-                      onClick={() => {
-                        setSelectedAssigneeId(member.userId);
-                        setAssigneeDropdownOpen(false);
-                      }}
-                      className={cn(
-                        "w-full px-3 py-2 text-left text-xs hover:bg-white/5 transition-colors",
-                        selectedAssigneeId === member.userId ? "text-emerald-400" : "text-slate-300",
-                      )}
-                    >
-                      {member.fullName || member.email}
-                    </button>
-                  ))}
-                </div>
-              ) : null}
-            </div>
-
-            <div className="relative" ref={statusDropdownRef}>
-              <button
-                onClick={() => setStatusDropdownOpen((current) => !current)}
-                className="flex items-center gap-1.5 px-3 py-1.5 bg-white/4 border border-white/8 rounded-full text-xs text-slate-400 hover:border-white/20 hover:text-slate-200 transition-colors"
-              >
-                <Check size={12} className="text-slate-500" />
-                {statusLabel}
-                <ChevronDown size={11} className={cn("text-slate-500 transition-transform", statusDropdownOpen && "rotate-180")} />
-              </button>
-
-              {statusDropdownOpen ? (
-                <div className="absolute right-0 mt-2 w-48 bg-[#111111] border border-white/10 rounded-xl shadow-2xl z-50 overflow-hidden py-1">
-                  {TASK_STATUS_FILTER_OPTIONS.map((option) => (
-                    <button
-                      key={option.value}
-                      onClick={() => {
-                        setStatusFilter(option.value);
-                        setStatusDropdownOpen(false);
-                      }}
-                      className={cn(
-                        "w-full px-3 py-2 text-left text-xs hover:bg-white/5 transition-colors",
-                        statusFilter === option.value ? "text-emerald-400" : "text-slate-300",
-                      )}
-                    >
-                      {option.label}
-                    </button>
-                  ))}
-                </div>
-              ) : null}
-            </div>
-
-            <div className="relative" ref={dueDropdownRef}>
-              <button
-                onClick={() => setDueDropdownOpen((current) => !current)}
-                className="flex items-center gap-1.5 px-3 py-1.5 bg-white/4 border border-white/8 rounded-full text-xs text-slate-400 hover:border-white/20 hover:text-slate-200 transition-colors"
-              >
-                <TimerReset size={12} className="text-slate-500" />
-                {dueLabel}
-                <ChevronDown size={11} className={cn("text-slate-500 transition-transform", dueDropdownOpen && "rotate-180")} />
-              </button>
-
-              {dueDropdownOpen ? (
-                <div className="absolute right-0 mt-2 w-52 bg-[#111111] border border-white/10 rounded-xl shadow-2xl z-50 overflow-hidden py-1">
-                  {TASK_DUE_FILTER_OPTIONS.map((option) => (
-                    <button
-                      key={option.value}
-                      onClick={() => {
-                        setDueFilter(option.value);
-                        setDueDropdownOpen(false);
-                      }}
-                      className={cn(
-                        "w-full px-3 py-2 text-left text-xs hover:bg-white/5 transition-colors",
-                        dueFilter === option.value ? "text-emerald-400" : "text-slate-300",
-                      )}
-                    >
-                      {option.label}
-                    </button>
-                  ))}
-                </div>
-              ) : null}
-            </div>
+            <FilterDropdown
+              icon={TimerReset}
+              label="Due"
+              options={TASK_DUE_FILTER_OPTIONS}
+              value={dueFilter}
+              onChange={(val) => setDueFilter(val)}
+            />
 
             <button
               onClick={() => setIsAdvancedFiltersOpen(true)}
@@ -757,125 +465,13 @@ function TasksPageContent() {
         />
       )}
 
-      {isAdvancedFiltersOpen ? (
-        <>
-          <button
-            aria-label="Close advanced filters"
-            onClick={() => setIsAdvancedFiltersOpen(false)}
-            className="fixed inset-0 z-40 bg-black/50 backdrop-blur-[1px]"
-          />
-          <aside className="fixed right-0 top-0 z-50 h-full w-full max-w-md border-l border-white/10 bg-[#0c0c0c] shadow-2xl">
-            <div className="flex h-full flex-col">
-              <div className="flex items-center justify-between border-b border-white/10 px-5 py-4">
-                <div>
-                  <h3 className="text-sm font-semibold text-white">Advanced Filters</h3>
-                  <p className="mt-1 text-xs text-slate-400">Refine tasks by keyword, statuses, and estimate range.</p>
-                </div>
-                <button
-                  onClick={() => setIsAdvancedFiltersOpen(false)}
-                  className="rounded-md border border-white/10 p-1.5 text-slate-400 transition-colors hover:border-white/20 hover:text-slate-200"
-                >
-                  <X size={14} />
-                </button>
-              </div>
-
-              <div className="flex-1 space-y-6 overflow-y-auto px-5 py-5">
-                <div className="space-y-2">
-                  <label className="text-xs font-semibold uppercase tracking-wide text-slate-400">Keyword</label>
-                  <input
-                    value={draftAdvancedFilters.keyword}
-                    onChange={(event) =>
-                      setDraftAdvancedFilters((prev) => ({
-                        ...prev,
-                        keyword: event.target.value,
-                      }))
-                    }
-                    placeholder="Title, description, project, assignee..."
-                    className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-slate-200 placeholder:text-slate-500 focus:border-emerald-400/40 focus:outline-none"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <label className="text-xs font-semibold uppercase tracking-wide text-slate-400">Statuses</label>
-                  <div className="grid grid-cols-2 gap-2">
-                    {[
-                      { label: "To Do", value: TaskStatus.TODO },
-                      { label: "In Progress", value: TaskStatus.IN_PROGRESS },
-                      { label: "Done", value: TaskStatus.DONE },
-                      { label: "Cancelled", value: TaskStatus.CANCELED },
-                    ].map((option) => {
-                      const selected = draftAdvancedFilters.statuses.includes(option.value);
-                      return (
-                        <button
-                          key={option.value}
-                          onClick={() => handleToggleDraftStatus(option.value)}
-                          className={cn(
-                            "rounded-lg border px-3 py-2 text-left text-xs font-medium transition-colors",
-                            selected
-                              ? "border-emerald-500/40 bg-emerald-500/10 text-emerald-300"
-                              : "border-white/10 bg-white/5 text-slate-300 hover:border-white/20",
-                          )}
-                        >
-                          {option.label}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <label className="text-xs font-semibold uppercase tracking-wide text-slate-400">Estimated Hours</label>
-                  <div className="grid grid-cols-2 gap-2">
-                    <input
-                      type="number"
-                      min={0}
-                      step={0.5}
-                      value={draftAdvancedFilters.minEstimate}
-                      onChange={(event) =>
-                        setDraftAdvancedFilters((prev) => ({
-                          ...prev,
-                          minEstimate: event.target.value,
-                        }))
-                      }
-                      placeholder="Min"
-                      className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-slate-200 placeholder:text-slate-500 focus:border-emerald-400/40 focus:outline-none"
-                    />
-                    <input
-                      type="number"
-                      min={0}
-                      step={0.5}
-                      value={draftAdvancedFilters.maxEstimate}
-                      onChange={(event) =>
-                        setDraftAdvancedFilters((prev) => ({
-                          ...prev,
-                          maxEstimate: event.target.value,
-                        }))
-                      }
-                      placeholder="Max"
-                      className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-slate-200 placeholder:text-slate-500 focus:border-emerald-400/40 focus:outline-none"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex items-center justify-between gap-2 border-t border-white/10 px-5 py-4">
-                <button
-                  onClick={handleResetAdvancedFilters}
-                  className="rounded-lg border border-white/10 px-3 py-2 text-xs font-medium text-slate-300 transition-colors hover:border-white/20"
-                >
-                  Reset
-                </button>
-                <button
-                  onClick={handleApplyAdvancedFilters}
-                  className="rounded-lg bg-emerald-600 px-3 py-2 text-xs font-semibold text-white transition-colors hover:bg-emerald-500"
-                >
-                  Apply Filters
-                </button>
-              </div>
-            </div>
-          </aside>
-        </>
-      ) : null}
+      <TaskAdvancedFilters
+        isOpen={isAdvancedFiltersOpen}
+        onClose={() => setIsAdvancedFiltersOpen(false)}
+        filters={advancedFilters}
+        onApply={setAdvancedFilters}
+        onReset={() => setAdvancedFilters(DEFAULT_ADVANCED_FILTERS)}
+      />
 
       <CreateTaskModal
         isOpen={isCreateModalOpen}
