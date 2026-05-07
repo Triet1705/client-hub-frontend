@@ -14,21 +14,11 @@ import { Project, ProjectStatus } from "@/features/projects/types/project.types"
 import { useDashboardStatsQuery, useTaskSummaryQuery } from "@/features/dashboard/hooks/use-dashboard";
 import type { TaskSummary } from "@/features/dashboard/types/dashboard.types";
 import { useAuthStore } from "@/features/auth/store/auth.store";
-import { cn } from "@/lib/utils";
+import { cn, formatFiat as formatCurrency } from "@/lib/utils";
+import { SummaryCard } from "@/components/ui/summary-card";
+import { PROJECT_STATUS_BADGE, PROJECT_STATUS_LABEL } from "@/features/projects/constants/project-ui.constants";
 
-// ─── Utilities ────────────────────────────────────────────────────────────────
 
-function formatCurrency(value: string | number | null | undefined): string {
-  if (value == null) return "—";
-  const num = typeof value === "string" ? parseFloat(value) : value;
-  if (isNaN(num)) return "—";
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  }).format(num);
-}
 
 function daysUntil(deadline: string | null): number | null {
   if (!deadline) return null;
@@ -59,28 +49,7 @@ function DeadlineBadge({ deadline }: { deadline: string | null }) {
   );
 }
 
-const STATUS_STYLES: Record<ProjectStatus, { label: string; className: string }> = {
-  [ProjectStatus.PLANNING]: {
-    label: "Planning",
-    className: "text-slate-300 bg-slate-800/80 ring-1 ring-inset ring-slate-700/50 shadow-sm",
-  },
-  [ProjectStatus.IN_PROGRESS]: {
-    label: "In Progress",
-    className: "text-blue-400 bg-blue-500/10 ring-1 ring-inset ring-blue-500/20 shadow-sm shadow-blue-500/10",
-  },
-  [ProjectStatus.ON_HOLD]: {
-    label: "On Hold",
-    className: "text-amber-400 bg-amber-500/10 ring-1 ring-inset ring-amber-500/20 shadow-sm shadow-amber-500/10",
-  },
-  [ProjectStatus.COMPLETED]: {
-    label: "Completed",
-    className: "text-emerald-400 bg-emerald-500/10 ring-1 ring-inset ring-emerald-500/20 shadow-sm shadow-emerald-500/10",
-  },
-  [ProjectStatus.CANCELLED]: {
-    label: "Cancelled",
-    className: "text-rose-400 bg-rose-500/10 ring-1 ring-inset ring-rose-500/20 shadow-sm shadow-rose-500/10",
-  },
-};
+
 
 // ─── Task Overview Chart ───────────────────────────────────────────────────────
 
@@ -208,7 +177,7 @@ function buildActivityFeed(
       id: `project-${p.id}-${i}`,
       icon: "🗂️",
       title: p.title,
-      subtitle: `Project · ${STATUS_STYLES[p.status].label}`,
+      subtitle: `Project · ${PROJECT_STATUS_LABEL[p.status]}`,
       time: p.deadline ? `Deadline: ${new Date(p.deadline).toLocaleDateString("en-US", { month: "short", day: "numeric" })}` : "No deadline",
       dot: isOverdue ? "bg-rose-500 ring-rose-500/30 shadow-[0_0_12px_rgba(244,63,94,0.6)]" 
            : isDueSoon ? "bg-amber-500 ring-amber-500/30 shadow-[0_0_12px_rgba(245,158,11,0.6)]" 
@@ -424,7 +393,6 @@ function TodayFocusBlock({
 // ─── #4: Project Row with Insight Line ────────────────────────────────────────
 
 function ProjectRow({ project }: { project: Project }) {
-  const statusStyle = STATUS_STYLES[project.status];
   const days        = daysUntil(project.deadline);
   const isOverdue   = days !== null && days < 0;
   const isDueSoon   = days !== null && days >= 0 && days <= 3;
@@ -467,10 +435,10 @@ function ProjectRow({ project }: { project: Project }) {
           <span
             className={cn(
               "text-[10px] font-bold px-2.5 py-1 rounded-md uppercase tracking-widest hidden sm:block",
-              statusStyle.className,
+              PROJECT_STATUS_BADGE[project.status],
             )}
           >
-            {statusStyle.label}
+            {PROJECT_STATUS_LABEL[project.status]}
           </span>
           <div className="text-right">
             <p className="text-sm font-mono text-slate-200 font-medium">
@@ -600,80 +568,38 @@ export function DashboardClient() {
 
         {/* Secondary compact cards – 3 across the remaining 8 cols */}
         <div className="md:col-span-8 grid grid-cols-1 sm:grid-cols-3 gap-6">
-          {/* Active Projects */}
-          <div className="bg-slate-900/60 backdrop-blur-xl ring-1 ring-white/5 p-6 rounded-3xl flex flex-col justify-between group hover:bg-slate-900/80 hover:ring-white/10 transition-all hover:shadow-xl hover:-translate-y-1 duration-300 relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/5 blur-2xl rounded-full pointer-events-none group-hover:bg-blue-500/10 transition-colors" />
-            <div className="flex justify-between items-start mb-4 relative z-10">
-              <div className="p-2.5 bg-blue-500/10 ring-1 ring-blue-500/20 rounded-xl text-blue-400 group-hover:scale-110 transition-transform duration-300">
-                <NavProjectsIcon className="w-6 h-6" />
-              </div>
-              {!statsLoading && (
-                <span className="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 ring-1 ring-emerald-500/20 px-2.5 py-1 rounded-full uppercase tracking-wider">
-                  Active
-                </span>
-              )}
-            </div>
-            <div className="relative z-10 mt-4">
-              <h3 className="text-slate-400 text-xs font-semibold uppercase tracking-wider">Active Projects</h3>
-              <p className="text-3xl font-bold text-white mt-1 font-space-grotesk tracking-tight">
-                {statsLoading ? (
-                  <span className="inline-block w-8 h-8 rounded bg-slate-800 animate-pulse" />
-                ) : (
-                  statsData?.activeProjects ?? "—"
-                )}
-              </p>
-            </div>
-          </div>
+          <SummaryCard
+            label="Active Projects"
+            value={statsData?.activeProjects ?? "—"}
+            icon={NavProjectsIcon}
+            iconClassName="text-blue-400"
+            badge={{ label: "Active", variant: "emerald" }}
+            isLoading={statsLoading}
+          />
 
-          {/* Pending Tasks */}
-          <div className="bg-slate-900/60 backdrop-blur-xl ring-1 ring-white/5 p-6 rounded-3xl flex flex-col justify-between group hover:bg-slate-900/80 hover:ring-white/10 transition-all hover:shadow-xl hover:-translate-y-1 duration-300 relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/5 blur-2xl rounded-full pointer-events-none group-hover:bg-amber-500/10 transition-colors" />
-            <div className="flex justify-between items-start mb-4 relative z-10">
-              <div className="p-2.5 bg-amber-500/10 ring-1 ring-amber-500/20 rounded-xl text-amber-400 group-hover:scale-110 transition-transform duration-300">
-                <NavTasksIcon className="w-6 h-6" />
-              </div>
-              {!statsLoading && (
-                <span className="text-[10px] font-bold text-amber-400 bg-amber-500/10 ring-1 ring-amber-500/20 px-2.5 py-1 rounded-full uppercase tracking-wider">
-                  {pendingTasks === 0 ? "All clear" : `${pendingTasks} open`}
-                </span>
-              )}
-            </div>
-            <div className="relative z-10 mt-4">
-              <h3 className="text-slate-400 text-xs font-semibold uppercase tracking-wider">Pending Tasks</h3>
-              <p className="text-3xl font-bold text-white mt-1 font-space-grotesk tracking-tight">
-                {statsLoading ? (
-                  <span className="inline-block w-8 h-8 rounded bg-slate-800 animate-pulse" />
-                ) : (
-                  pendingTasks
-                )}
-              </p>
-            </div>
-          </div>
+          <SummaryCard
+            label="Pending Tasks"
+            value={pendingTasks}
+            icon={NavTasksIcon}
+            iconClassName="text-amber-400"
+            badge={{ 
+              label: pendingTasks === 0 ? "All clear" : `${pendingTasks} open`, 
+              variant: "amber" 
+            }}
+            isLoading={statsLoading}
+          />
 
-          {/* Awaiting Payment */}
-          <div className="bg-slate-900/60 backdrop-blur-xl ring-1 ring-white/5 p-6 rounded-3xl flex flex-col justify-between group hover:bg-slate-900/80 hover:ring-white/10 transition-all hover:shadow-xl hover:-translate-y-1 duration-300 relative overflow-hidden">
-             <div className="absolute top-0 right-0 w-32 h-32 bg-rose-500/5 blur-2xl rounded-full pointer-events-none group-hover:bg-rose-500/10 transition-colors" />
-            <div className="flex justify-between items-start mb-4 relative z-10">
-              <div className="p-2.5 bg-rose-500/10 ring-1 ring-rose-500/20 rounded-xl text-rose-400 group-hover:scale-110 transition-transform duration-300">
-                <NavInvoicesIcon className="w-6 h-6" />
-              </div>
-              {!statsLoading && (
-                <span className="text-[10px] font-bold text-rose-400 bg-rose-500/10 ring-1 ring-rose-500/20 px-2.5 py-1 rounded-full uppercase tracking-wider">
-                  {parseFloat(awaitingPayment) > 0 ? "Action needed" : "All clear"}
-                </span>
-              )}
-            </div>
-            <div className="relative z-10 mt-4">
-              <h3 className="text-slate-400 text-xs font-semibold uppercase tracking-wider">Awaiting Payment</h3>
-              <p className="text-2xl font-bold text-white mt-1 font-mono tracking-tight">
-                {statsLoading ? (
-                  <span className="inline-block w-24 h-8 rounded bg-slate-800 animate-pulse" />
-                ) : (
-                  formatCurrency(awaitingPayment)
-                )}
-              </p>
-            </div>
-          </div>
+          <SummaryCard
+            label="Awaiting Payment"
+            value={formatCurrency(awaitingPayment)}
+            icon={NavInvoicesIcon}
+            iconClassName="text-rose-400"
+            badge={{ 
+              label: parseFloat(awaitingPayment) > 0 ? "Action needed" : "All clear", 
+              variant: "rose" 
+            }}
+            isLoading={statsLoading}
+          />
         </div>
       </div>
 

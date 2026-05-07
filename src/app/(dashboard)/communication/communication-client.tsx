@@ -16,37 +16,14 @@ import type { Invoice } from "@/features/invoices/types/invoice.types";
 import type { CommentTargetType } from "@/features/communication/types/comment.types";
 import type { Project } from "@/features/projects/types/project.types";
 import type { Task } from "@/features/tasks/types/task.types";
-import { cn } from "@/lib/utils";
+import { cn, formatFiat as formatCurrency, formatDate } from "@/lib/utils";
 import { InvoiceStatusPill } from "@/features/invoices/components/invoice-status-pill";
-import { ProjectStatus } from "@/features/projects/types/project.types";
-import { TaskStatus } from "@/features/tasks/types/task.types";
-import { InvoiceStatus } from "@/lib/type";
+import { StatusActivityDot, type ActivityCategory } from "@/components/ui/status-activity-dot";
+import { SearchInput } from "@/components/ui/search-input";
+import { PROJECT_STATUS_BADGE, PROJECT_STATUS_LABEL } from "@/features/projects/constants/project-ui.constants";
+import { TASK_STATUS_BADGE, TASK_STATUS_LABEL } from "@/features/tasks/constants/task-ui.constants";
 
-function formatCurrency(value: string | number | null | undefined): string {
-  if (value == null) return "—";
-  const num = typeof value === "string" ? parseFloat(value) : value;
-  if (isNaN(num)) return "—";
-  return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(num);
-}
 
-function formatDate(val: string | null | undefined) {
-  if (!val) return "—";
-  return new Date(val).toLocaleDateString("en-US", { month: "short", day: "numeric" });
-}
-
-function shouldShowActivityDot(target: ConversationTarget): boolean {
-  if (target.category === "PROJECT") return target.data.status === "IN_PROGRESS";
-  if (target.category === "TASK") return target.data.status === "IN_PROGRESS";
-  const invoiceStatus = (target.data as Invoice).status;
-  return [InvoiceStatus.SENT, InvoiceStatus.OVERDUE, InvoiceStatus.PAID].includes(invoiceStatus);
-}
-
-function getInvoiceActivityDotClass(status: InvoiceStatus): string {
-  if (status === InvoiceStatus.PAID) return "bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)]";
-  if (status === InvoiceStatus.SENT) return "bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.8)]";
-  if (status === InvoiceStatus.OVERDUE) return "bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.8)]";
-  return "bg-slate-500 shadow-[0_0_8px_rgba(100,116,139,0.8)]";
-}
 
 type TabType = "ALL" | "PROJECT" | "TASK" | "INVOICE";
 
@@ -257,16 +234,13 @@ export default function CommunicationClient() {
             ))}
           </div>
 
-          <div className="relative z-10">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-500" />
-            <input
-              type="text"
-              placeholder="Search..."
-              value={keyword}
-              onChange={(e) => setKeyword(e.target.value)}
-              className="w-full bg-slate-950/60 border border-white/10 rounded-xl pl-9 pr-3 py-2.5 text-xs text-slate-200 placeholder:text-slate-600 focus:outline-none focus:ring-1 focus:ring-indigo-500/50 transition-all font-body"
-            />
-          </div>
+          <SearchInput
+            placeholder="Search..."
+            value={keyword}
+            onChange={(e) => setKeyword(e.target.value)}
+            className="bg-slate-950/60 pl-9 py-2.5 text-xs focus:ring-indigo-500/50"
+            iconClassName="w-3.5 h-3.5"
+          />
         </div>
 
         <div className="flex-1 overflow-y-auto custom-scrollbar bg-slate-900/40 backdrop-blur-md ring-1 ring-white/5 rounded-3xl p-3 shadow-inner">
@@ -307,14 +281,10 @@ export default function CommunicationClient() {
                           : isTask ? <Pin className={cn("w-4 h-4", isActive ? "text-indigo-400" : "text-rose-400")} />
                           : <Receipt className={cn("w-4 h-4", isActive ? "text-indigo-400" : "text-amber-400")} />}
                       </div>
-                      {shouldShowActivityDot(conv) && !isActive && (
-                        <span
-                          className={cn(
-                            "absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full border-2 border-[#0A0E17]",
-                            conv.category === "INVOICE"
-                              ? getInvoiceActivityDotClass((conv.data as Invoice).status)
-                              : "bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)]",
-                          )}
+                      {!isActive && (
+                        <StatusActivityDot
+                          category={conv.category === "ALL" ? "PROJECT" : (conv.category as ActivityCategory)}
+                          status={conv.data.status}
                         />
                       )}
                     </div>
@@ -498,10 +468,10 @@ export default function CommunicationClient() {
                     <p className="text-[10px] text-slate-500 uppercase tracking-widest font-bold mb-2">Stage</p>
                     <span className={cn(
                       "text-xs font-bold px-3 py-1.5 rounded-lg w-fit ring-1 ring-inset shadow-inner",
-                      project.status === ProjectStatus.IN_PROGRESS ? "bg-emerald-500/10 text-emerald-400 ring-emerald-500/20 shadow-emerald-500/10" :
-                      project.status === ProjectStatus.ON_HOLD ? "bg-amber-500/10 text-amber-400 ring-amber-500/20 shadow-amber-500/10" :
-                      "bg-slate-700/50 text-slate-300 ring-slate-600/50 shadow-black/20"
-                    )}>{project.status}</span>
+                      PROJECT_STATUS_BADGE[project.status]
+                    )}>
+                      {PROJECT_STATUS_LABEL[project.status]}
+                    </span>
                   </div>
 
                   <div className="bg-slate-800/40 rounded-2xl p-4 ring-1 ring-white/5 flex items-start gap-3 hover:bg-slate-800/60 transition-colors cursor-default">
@@ -545,11 +515,10 @@ export default function CommunicationClient() {
                     <p className="text-[10px] text-slate-500 uppercase tracking-widest font-bold mb-2">Task Status</p>
                     <span className={cn(
                       "text-xs font-bold px-3 py-1.5 rounded-lg w-fit ring-1 ring-inset shadow-inner",
-                      task.status === TaskStatus.TODO ? "bg-slate-500/10 text-slate-400 ring-slate-500/20 shadow-slate-500/10" :
-                      task.status === TaskStatus.IN_PROGRESS ? "bg-amber-500/10 text-amber-400 ring-amber-500/20 shadow-amber-500/10" :
-                        task.status === TaskStatus.DONE ? "bg-emerald-500/10 text-emerald-400 ring-emerald-500/20 shadow-emerald-500/10" :
-                        "bg-rose-500/10 text-rose-400 ring-rose-500/20 shadow-rose-500/10"
-                    )}>{task.status}</span>
+                      TASK_STATUS_BADGE[task.status]
+                    )}>
+                      {TASK_STATUS_LABEL[task.status]}
+                    </span>
                   </div>
 
                   <div className="bg-slate-800/40 rounded-2xl ring-1 ring-white/5 divide-y divide-white/5">

@@ -3,6 +3,8 @@ import { Project } from "../types/project.types";
 import { ProjectStatusBadge } from "./project-status-badge";
 import { ActionEditIcon, ActionDeleteIcon, NavProjectsIcon } from "@/components/icons";
 
+import { formatFiat } from "@/lib/utils";
+
 interface ProjectCardProps {
   project: Project;
   onEdit?: (project: Project) => void;
@@ -10,12 +12,6 @@ interface ProjectCardProps {
 }
 
 export function ProjectCard({ project, onEdit, onDelete }: ProjectCardProps) {
-  const formatBudget = (budgetStr?: string | null) => {
-    if (!budgetStr) return "N/A";
-    const num = parseFloat(budgetStr);
-    return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(num);
-  };
-
   const isOverdue = project.deadline && new Date(project.deadline) < new Date();
 
   return (
@@ -59,7 +55,7 @@ export function ProjectCard({ project, onEdit, onDelete }: ProjectCardProps) {
       <div className="pt-4 border-t border-slate-800/50 flex items-center justify-between mt-auto">
         <div className="flex flex-col gap-1">
           <span className="text-[10px] uppercase tracking-wider text-slate-500 font-bold">Budget</span>
-          <span className="text-sm font-medium text-white">{formatBudget(project.budget)}</span>
+          <span className="text-sm font-medium text-white">{formatFiat(project.budget)}</span>
         </div>
         
         <div className="flex flex-col items-end gap-1">

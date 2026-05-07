@@ -3,11 +3,13 @@
 import * as React from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { cn } from "@/lib/utils";
 
 import { ModalShell } from "@/components/ui/modal-shell";
 import { SelectDropdown, type SelectOption } from "@/components/ui/select-dropdown";
 import { FormField } from "@/components/ui/form-field";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { DatePicker } from "@/components/ui/date-picker";
 import { useCreateTaskMutation } from "../hooks/use-tasks";
 import {
   taskSchema,
@@ -16,12 +18,12 @@ import {
 } from "../validations/task.schema";
 import { TaskStatus, TaskPriority, type TaskRequestPayload } from "../types/task.types";
 import { TASK_PRIORITY_OPTIONS, TASK_STATUS_OPTIONS } from "../constants/task-ui.constants";
+import { Button } from "@/components/ui/button";
 import { useProjectsQuery } from "@/features/projects/hooks/use-projects";
 import { useProjectMembersQuery } from "@/features/projects/hooks/use-projects";
 import { useAuthStore } from "@/features/auth/store/auth.store";
 
-const INPUT_CLS =
-  "w-full bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all";
+
 
 interface CreateTaskModalProps {
   isOpen: boolean;
@@ -130,32 +132,22 @@ export function CreateTaskModal({
   // ── footer ───────────────────────────────────────────────────────────────
   const footer = (
     <>
-      <button
-        type="button"
+      <Button
+        variant="ghost"
         onClick={handleClose}
         disabled={isPending}
-        className="px-6 py-2.5 rounded-xl text-sm font-bold text-slate-400 hover:text-white hover:bg-white/5 transition-all disabled:opacity-50"
+        className="px-6 text-slate-400 hover:text-white"
       >
         Cancel
-      </button>
-      <button
+      </Button>
+      <Button
         type="submit"
         form="create-task-form"
-        disabled={isPending}
-        className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-2.5 rounded-xl text-sm font-bold transition-all shadow-lg shadow-emerald-500/20 disabled:opacity-70 disabled:cursor-not-allowed"
+        isLoading={isPending}
+        className="px-6 font-bold"
       >
-        {isPending ? (
-          <>
-            <svg className="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
-              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-            </svg>
-            Creating…
-          </>
-        ) : (
-          "Create Task"
-        )}
-      </button>
+        {isPending ? "Creating…" : "Create Task"}
+      </Button>
     </>
   );
 
@@ -185,21 +177,22 @@ export function CreateTaskModal({
 
         {/* Title */}
         <FormField label="Task Title" required error={errors.title?.message}>
-          <input
+          <Input
             {...register("title")}
             type="text"
             placeholder="e.g. Implement Web3 login"
-            className={cn(INPUT_CLS, errors.title ? "border-rose-500 focus:border-rose-500" : "")}
+            isError={!!errors.title}
+            disabled={isPending}
           />
         </FormField>
 
         {/* Description */}
         <FormField label="Description">
-          <textarea
+          <Textarea
             {...register("description")}
             rows={3}
             placeholder="What needs to be done?"
-            className={cn(INPUT_CLS, "resize-none")}
+            disabled={isPending}
           />
         </FormField>
 
@@ -242,21 +235,24 @@ export function CreateTaskModal({
 
         <div className="grid grid-cols-2 gap-4">
           <FormField label="Est. Hours">
-            <input
+            <Input
               {...register("estimatedHours", { valueAsNumber: true })}
               type="number"
               min="0"
               step="0.5"
               placeholder="0.0"
-              className={cn(INPUT_CLS, "font-mono")}
+              className="font-mono"
+              disabled={isPending}
             />
           </FormField>
           <FormField label="Due Date" error={errors.dueDate?.message}>
-            <input
-              {...register("dueDate")}
-              type="date"
-              className={cn(INPUT_CLS, "scheme-dark")}
+            <DatePicker
+              value={useWatch({ control, name: "dueDate" }) ?? ""}
+              onChange={(val) => setValue("dueDate", val, { shouldValidate: true })}
+              isError={!!errors.dueDate}
+              disabled={isPending}
             />
+            <input type="hidden" {...register("dueDate")} />
           </FormField>
         </div>
 
