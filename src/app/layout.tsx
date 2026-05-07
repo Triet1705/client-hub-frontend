@@ -1,24 +1,11 @@
 import type { Metadata } from "next";
-import { Inter, Space_Grotesk, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { Providers } from "@/components/providers";
-const inter = Inter({
-  subsets: ["latin"],
-  variable: "--font-inter",
-  display: "swap",
-});
 
-const spaceGrotesk = Space_Grotesk({
-  subsets: ["latin"],
-  variable: "--font-space-grotesk",
-  display: "swap",
-});
-
-const jetbrainsMono = JetBrains_Mono({
-  subsets: ["latin"],
-  variable: "--font-jetbrains-mono",
-  display: "swap",
-});
+// Network disabled mock for Google Fonts
+const inter = { variable: "font-inter", className: "font-inter" };
+const spaceGrotesk = { variable: "font-space-grotesk", className: "font-space-grotesk" };
+const jetbrainsMono = { variable: "font-jetbrains-mono", className: "font-jetbrains-mono" };
 
 export const metadata: Metadata = {
   title: "Client Hub | Web3 Freelance Platform",

@@ -5,10 +5,11 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export function formatFiat(amount: number | string, currency = "USD"): string {
+export function formatFiat(amount: number | string | null | undefined, currency = "USD"): string {
+  if (amount == null) return "—";
   const num = typeof amount === "string" ? parseFloat(amount) : amount;
 
-  if (isNaN(num)) return "0.00";
+  if (isNaN(num)) return "—";
 
   if (num < 0) {
     return `-${formatFiat(Math.abs(num), currency)}`;
@@ -18,6 +19,11 @@ export function formatFiat(amount: number | string, currency = "USD"): string {
     style: "currency",
     currency: currency,
   }).format(num);
+}
+
+export function formatDate(val: string | null | undefined, options: Intl.DateTimeFormatOptions = { month: "short", day: "numeric" }) {
+  if (!val) return "—";
+  return new Date(val).toLocaleDateString("en-US", options);
 }
 
 export function formatTokenDisplay(
