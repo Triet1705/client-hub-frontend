@@ -54,6 +54,10 @@ export default function CommunicationClient() {
   const { data: invoices, isLoading: isInvoiceLoading } = useInvoicesQuery({});
 
   const conversations = React.useMemo<ConversationTarget[]>(() => {
+    const projectTitleById = new Map(
+      (projects?.content ?? []).map((project: Project) => [project.id, project.title])
+    );
+
     const projectItems = (projects?.content ?? []).map((project: Project) => ({
       key: `PROJECT_${project.id}`,
       category: "PROJECT" as const,
@@ -75,8 +79,8 @@ export default function CommunicationClient() {
       key: `INVOICE_${invoice.id}`,
       category: "INVOICE" as const,
       title: invoice.title,
-      subtitle: invoice.projectId || invoice.title,
-      parentName: invoice.projectId,
+      subtitle: projectTitleById.get(invoice.projectId) || invoice.projectId || invoice.title,
+      parentName: projectTitleById.get(invoice.projectId) || invoice.projectId,
       data: invoice,
     }));
 

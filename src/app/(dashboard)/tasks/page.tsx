@@ -8,7 +8,7 @@ import { buildUpdatedQueryString } from "@/lib/url-query";
 import { TaskStatus, type Task } from "@/features/tasks/types/task.types";
 import { TASK_PRIORITY_OPTIONS } from "@/features/tasks/constants/task-ui.constants";
 import { useAuthStore } from "@/features/auth/store/auth.store";
-import { useTasksQuery } from "@/features/tasks/hooks/use-tasks";
+import { useTaskQuery, useTasksQuery } from "@/features/tasks/hooks/use-tasks";
 import { useProjectsQuery, useProjectMembersQuery } from "@/features/projects/hooks/use-projects";
 import { TaskBoard } from "@/features/tasks/components/task-board";
 import { TaskList } from "@/features/tasks/components/task-list";
@@ -69,6 +69,7 @@ function TasksPageContent() {
   const searchParams = useSearchParams();
   const initialQueryState = parseTasksQuery(searchParams);
   const queryString = searchParams.toString();
+  const targetTaskId = searchParams.get("taskId");
   const { user } = useAuthStore();
   const canManageTask = user?.role === "CLIENT" || user?.role === "ADMIN";
   const queryClient = useQueryClient();
@@ -180,6 +181,7 @@ function TasksPageContent() {
   );
 
   const { data, isLoading, isError } = useTasksQuery(params);
+  const { data: targetTask } = useTaskQuery(targetTaskId);
   const tasks = React.useMemo(() => data?.content ?? [], [data?.content]);
 
   const filteredTasks = React.useMemo(
@@ -221,10 +223,34 @@ function TasksPageContent() {
   }, []);
 
   React.useEffect(() => {
-    setSelectedTask(null);
-  }, [selectedProjectId]);
+    if (!targetTaskId) {
+      setSelectedTask(null);
+    }
+  }, [selectedProjectId, targetTaskId]);
+
+  React.useEffect(() => {
+    if (!targetTask) return;
+    setSelectedProjectId(targetTask.projectId);
+    setSelectedTask(targetTask);
+  }, [targetTask]);
 
   if (!isMounted) return null;
+
+  const handleSelectTask = (task: Task) => {
+    setSelectedTask(task);
+    const next = buildUpdatedQueryString(queryString, [
+      { key: "taskId", value: task.id },
+    ]);
+    router.replace(next ? `${pathname}?${next}` : pathname, { scroll: false });
+  };
+
+  const handleCloseTask = () => {
+    setSelectedTask(null);
+    const next = buildUpdatedQueryString(queryString, [
+      { key: "taskId", value: undefined },
+    ]);
+    router.replace(next ? `${pathname}?${next}` : pathname, { scroll: false });
+  };
 
   const handleAddTask = (status: TaskStatus) => {
     setDefaultStatus(status);
@@ -452,14 +478,14 @@ function TasksPageContent() {
         </div>
       ) : viewMode === "list" ? (
         <div className="px-6 flex-1 w-full max-w-7xl mx-auto overflow-y-auto">
-          <TaskList tasks={filteredTasks} onTaskClick={setSelectedTask} />
+          <TaskList tasks={filteredTasks} onTaskClick={handleSelectTask} />
         </div>
       ) : (
         <TaskBoard
           tasks={filteredTasks}
           currentParams={params}
           onAddTask={handleAddTask}
-          onTaskClick={setSelectedTask}
+          onTaskClick={handleSelectTask}
         />
       )}
 
@@ -483,7 +509,7 @@ function TasksPageContent() {
         projectMembers={projectMembers}
         projectParams={params}
         currentUserId={user?.id}
-        onClose={() => setSelectedTask(null)}
+        onClose={handleCloseTask}
       />
 
       <SmartUploadSlideover

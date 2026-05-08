@@ -3,6 +3,7 @@ import { toast } from "sonner";
 import { getApiErrorMessage } from "@/lib/api/error";
 import {
   fetchTasks,
+  fetchTaskById,
   createTask,
   updateTask,
   updateTaskStatus,
@@ -23,6 +24,14 @@ export function useTasksQuery(params: FetchTasksParams) {
     queryKey: taskKeys.list(params),
     queryFn: () => fetchTasks(params),
     placeholderData: keepPreviousData,
+  });
+}
+
+export function useTaskQuery(id?: string | null) {
+  return useQuery({
+    queryKey: taskKeys.detail(id ?? ""),
+    queryFn: () => fetchTaskById(id!),
+    enabled: Boolean(id),
   });
 }
 
