@@ -4,6 +4,7 @@ export interface ExtractedTask {
   description: string;
   estimatedHours: number | null;
   suggestedPriority: string;
+  confidenceScore: number;
 }
 
 export interface SmartTaskHistoryItem {
