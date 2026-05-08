@@ -29,8 +29,8 @@ export function Header() {
           >
             <NotificationBellIcon className="h-5 w-5" />
             {unreadCount > 0 && (
-              <span className="absolute top-0 right-0 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 ring-2 ring-[#020617] text-[10px] font-bold text-white">
-                {unreadCount > 9 ? "9+" : unreadCount}
+              <span className="absolute -top-1 -right-1 flex min-w-5 h-5 items-center justify-center rounded-full bg-red-500 px-1 ring-2 ring-[#020617] text-[10px] font-bold leading-none text-white">
+                {unreadCount}
               </span>
             )}
           </button>
