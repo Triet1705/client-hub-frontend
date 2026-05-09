@@ -1,12 +1,12 @@
 import { apiClient } from "@/lib/axios";
-import { ExtractTasksResponse } from "../types/smart-tasks.types";
+import { TaskExtractionResult } from "../types/smart-tasks.types";
 
 export const smartTasksApi = {
-  extractTasks: async (file: File): Promise<ExtractTasksResponse> => {
+  extractTasks: async (file: File): Promise<TaskExtractionResult> => {
     const formData = new FormData();
     formData.append("file", file);
 
-    const response = await apiClient.post<ExtractTasksResponse>(
+    const response = await apiClient.post<TaskExtractionResult>(
       "/ai/extract-task",
       formData,
       {

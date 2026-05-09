@@ -4,6 +4,7 @@ export interface ExtractedTask {
   description: string;
   estimatedHours: number | null;
   suggestedPriority: string;
+  confidenceScore?: number;
 }
 
 export interface SmartTaskHistoryItem {
@@ -15,6 +16,22 @@ export interface SmartTaskHistoryItem {
   error?: string;
 }
 
+// Matches backend TaskExtractionResult
+export interface TaskExtractionResult {
+  documentSummary: string;
+  overallConfidence: number;
+  reviewPassTriggered: boolean;
+  processingTimeMs: number;
+  tasks: Array<{
+    title: string;
+    description: string;
+    priority: string;
+    estimatedHours: number | null;
+    confidenceScore: number;
+  }>;
+}
+
+// Legacy single-task response (kept for backward compat)
 export interface ExtractTasksResponse {
   title: string;
   description: string;
