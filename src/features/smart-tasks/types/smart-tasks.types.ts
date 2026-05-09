@@ -4,7 +4,6 @@ export interface ExtractedTask {
   description: string;
   estimatedHours: number | null;
   suggestedPriority: string;
-  confidenceScore: number;
 }
 
 export interface SmartTaskHistoryItem {
@@ -17,15 +16,9 @@ export interface SmartTaskHistoryItem {
 }
 
 export interface ExtractTasksResponse {
-  documentSummary: string;
-  overallConfidence: number;
-  reviewPassTriggered: boolean;
-  processingTimeMs: number;
-  tasks: Array<{
-    title: string;
-    description: string;
-    priority: string;
-    estimatedHours: number | null;
-    confidenceScore: number;
-  }>;
+  title: string;
+  description: string;
+  priority: string;
+  estimatedHours: number | null;
+  confidenceScore: number;
 }

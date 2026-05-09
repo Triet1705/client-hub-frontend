@@ -31,7 +31,6 @@ export function SmartUploadSlideover({
   const [extractedTasks, setExtractedTasks] = useState<ExtractedTask[]>([]);
   const [fileName, setFileName] = useState("");
   const [error, setError] = useState<string | null>(null);
-  const [documentMetadata, setDocumentMetadata] = useState<{ summary: string; confidence: number; reviewed: boolean; time?: number } | null>(null);
   
   const [isApprovingAll, setIsApprovingAll] = useState(false);
   const [approvingCount, setApprovingCount] = useState(0);
@@ -48,7 +47,6 @@ export function SmartUploadSlideover({
       setExtractedTasks([]);
       setFileName("");
       setError(null);
-      setDocumentMetadata(null);
       setFadedTaskIds(new Set());
     }
   }, [isOpen]);
@@ -60,21 +58,15 @@ export function SmartUploadSlideover({
 
     extractTasks(file, {
       onSuccess: (data) => {
-        const mappedTasks = data.tasks.map((task, index) => ({
-          id: `temp-${Date.now()}-${index}`,
-          title: task.title,
-          description: task.description,
-          estimatedHours: task.estimatedHours,
-          suggestedPriority: task.priority,
-          confidenceScore: task.confidenceScore,
-        }));
-        setExtractedTasks(mappedTasks);
-        setDocumentMetadata({
-          summary: data.documentSummary,
-          confidence: data.overallConfidence,
-          reviewed: data.reviewPassTriggered,
-          time: data.processingTimeMs
-        });
+        setExtractedTasks([
+          {
+            id: `temp-${Date.now()}`,
+            title: data.title,
+            description: data.description,
+            estimatedHours: data.estimatedHours,
+            suggestedPriority: data.priority,
+          }
+        ]);
         setPhase("review");
       },
       onError: (err) => {
@@ -292,35 +284,6 @@ export function SmartUploadSlideover({
                 )}
               </div>
 
-              {documentMetadata && (
-                <div className="mb-2 p-4 rounded-xl bg-slate-900 border border-slate-800">
-                  <div className="flex items-center justify-between mb-2">
-                    <h4 className="text-sm font-bold text-slate-300">Document Summary</h4>
-                    <div className="flex items-center gap-2">
-                      {documentMetadata.time && (
-                        <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-slate-800 text-slate-400 border border-slate-700">
-                          {documentMetadata.time / 1000}s
-                        </span>
-                      )}
-                      {documentMetadata.reviewed && (
-                        <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-blue-500/10 text-blue-400 border border-blue-500/20">
-                          Review Pass Applied
-                        </span>
-                      )}
-                      <span className={cn(
-                        "text-xs font-bold px-2 py-0.5 rounded",
-                        documentMetadata.confidence >= 0.8 ? "bg-emerald-500/10 text-emerald-400" :
-                        documentMetadata.confidence >= 0.65 ? "bg-yellow-500/10 text-yellow-400" :
-                        "bg-red-500/10 text-red-400"
-                      )}>
-                        {Math.round(documentMetadata.confidence * 100)}% Match
-                      </span>
-                    </div>
-                  </div>
-                  <p className="text-xs text-slate-400 leading-relaxed">{documentMetadata.summary}</p>
-                </div>
-              )}
-
               {extractedTasks.length === 0 ? (
                 <div className="text-center py-20">
                   <div className="w-16 h-16 bg-emerald-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -349,14 +312,6 @@ export function SmartUploadSlideover({
                         )}
                       >
                         <div className="absolute top-4 right-4 flex items-center gap-2">
-                          <span className={cn(
-                            "text-[9px] font-bold tracking-widest uppercase px-2 py-0.5 rounded border",
-                            task.confidenceScore >= 0.7 ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-300" :
-                            task.confidenceScore >= 0.4 ? "border-amber-500/30 bg-amber-500/10 text-amber-300" :
-                            "border-red-500/30 bg-red-500/10 text-red-300"
-                          )}>
-                            {Math.round((task.confidenceScore || 0) * 100)}%
-                          </span>
                           <span className="text-[9px] font-bold tracking-widest uppercase px-2 py-0.5 rounded border border-indigo-500/30 bg-indigo-500/10 text-indigo-300">
                             AI DRAFT
                           </span>
