@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { X, Sparkles, Loader2, Check, AlertCircle } from "lucide-react";
+import { X, Sparkles, Loader2, Check, AlertCircle, ShieldCheck, Clock } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { UploadDropzone } from "./upload-dropzone";
 import { useExtractTasksMutation } from "../hooks/use-smart-tasks";
@@ -11,6 +11,8 @@ import { toast } from "sonner";
 import { SelectDropdown } from "@/components/ui/select-dropdown";
 import { TASK_PRIORITY_OPTIONS } from "@/features/tasks/constants/task-ui.constants";
 import { createTask } from "@/features/tasks/api/task.api";
+import { useQueryClient } from "@tanstack/react-query";
+import { useAuthStore } from "@/features/auth/store/auth.store";
 
 interface SmartUploadSlideoverProps {
   isOpen: boolean;
@@ -20,6 +22,13 @@ interface SmartUploadSlideoverProps {
 }
 
 type Phase = "upload" | "extracting" | "review";
+
+interface DocumentMeta {
+  summary: string;
+  overallConfidence: number;
+  reviewPassTriggered: boolean;
+  processingTimeMs: number;
+}
 
 export function SmartUploadSlideover({
   isOpen,
@@ -31,6 +40,7 @@ export function SmartUploadSlideover({
   const [extractedTasks, setExtractedTasks] = useState<ExtractedTask[]>([]);
   const [fileName, setFileName] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [documentMeta, setDocumentMeta] = useState<DocumentMeta | null>(null);
   
   const [isApprovingAll, setIsApprovingAll] = useState(false);
   const [approvingCount, setApprovingCount] = useState(0);
@@ -39,6 +49,8 @@ export function SmartUploadSlideover({
   const [fadedTaskIds, setFadedTaskIds] = useState<Set<string>>(new Set());
 
   const { mutate: extractTasks } = useExtractTasksMutation();
+  const queryClient = useQueryClient();
+  const { user } = useAuthStore();
 
   // Reset state when slideover opens
   useEffect(() => {
@@ -47,6 +59,7 @@ export function SmartUploadSlideover({
       setExtractedTasks([]);
       setFileName("");
       setError(null);
+      setDocumentMeta(null);
       setFadedTaskIds(new Set());
     }
   }, [isOpen]);
@@ -58,15 +71,23 @@ export function SmartUploadSlideover({
 
     extractTasks(file, {
       onSuccess: (data) => {
-        setExtractedTasks([
-          {
-            id: `temp-${Date.now()}`,
-            title: data.title,
-            description: data.description,
-            estimatedHours: data.estimatedHours,
-            suggestedPriority: data.priority,
-          }
-        ]);
+        // Map multi-task results to ExtractedTask[]
+        const tasks: ExtractedTask[] = (data.tasks || []).map((t, idx) => ({
+          id: `temp-${Date.now()}-${idx}`,
+          title: t.title,
+          description: t.description,
+          estimatedHours: t.estimatedHours,
+          suggestedPriority: t.priority,
+          confidenceScore: t.confidenceScore,
+        }));
+
+        setExtractedTasks(tasks);
+        setDocumentMeta({
+          summary: data.documentSummary,
+          overallConfidence: data.overallConfidence,
+          reviewPassTriggered: data.reviewPassTriggered,
+          processingTimeMs: data.processingTimeMs,
+        });
         setPhase("review");
       },
       onError: (err) => {
@@ -99,6 +120,7 @@ export function SmartUploadSlideover({
       priority: (task.suggestedPriority as TaskPriority) || TaskPriority.MEDIUM,
       status: TaskStatus.TODO,
       estimatedHours: task.estimatedHours || undefined,
+      assignedToId: user?.role === "FREELANCER" ? user.id : undefined,
     };
     await createTask(payload);
   };
@@ -110,6 +132,9 @@ export function SmartUploadSlideover({
     try {
       await createTaskApi(task);
       toast.success("Task created ✓");
+      
+      // Invalidate directly — don't rely on parent callback
+      await queryClient.invalidateQueries({ queryKey: ["tasks", "list"] });
       onTasksCreated?.();
       
       // Remove from list after animation
@@ -171,10 +196,17 @@ export function SmartUploadSlideover({
         setExtractedTasks((prev) => prev.filter((t) => t.id !== task.id));
       }
       toast.success(`${successCount} tasks created successfully!`);
+      
+      // Await invalidation so refetch is guaranteed to be in-flight before close
+      await queryClient.invalidateQueries({ queryKey: ["tasks", "list"] });
       onTasksCreated?.();
       onClose();
     } catch {
       toast.error(`Created ${successCount} tasks. Some failed.`);
+      if (successCount > 0) {
+        await queryClient.invalidateQueries({ queryKey: ["tasks", "list"] });
+        onTasksCreated?.();
+      }
     } finally {
       setIsApprovingAll(false);
     }
@@ -262,26 +294,45 @@ export function SmartUploadSlideover({
 
           {phase === "review" && (
             <div className="space-y-6 animate-in fade-in duration-500 pb-20">
-              <div className="flex items-center justify-between sticky top-0 z-10 bg-[#0c0c0c]/90 backdrop-blur-md py-2 -mt-2">
-                <div>
-                  <h3 className="text-sm font-bold text-slate-300">Review Drafts</h3>
-                  <p className="text-xs text-slate-500 mt-0.5">
-                    {extractedTasks.length} task{extractedTasks.length !== 1 ? 's' : ''} remaining
-                  </p>
+              {/* Document Metadata Panel */}
+              {documentMeta && (
+                <div className="rounded-2xl border border-slate-700/50 bg-gradient-to-br from-slate-800/60 to-slate-900/60 p-4 space-y-3">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex-1 min-w-0">
+                      <h4 className="text-sm font-bold text-slate-200">Document Summary</h4>
+                      <p className="text-xs text-slate-400 mt-1 line-clamp-2">{documentMeta.summary}</p>
+                    </div>
+                    <div className="flex items-center gap-2 shrink-0">
+                      <span className="text-[10px] font-mono text-slate-500 flex items-center gap-1">
+                        <Clock className="w-3 h-3" />
+                        {(documentMeta.processingTimeMs / 1000).toFixed(1)}s
+                      </span>
+                      <span className={cn(
+                        "text-[10px] font-bold px-2 py-0.5 rounded-full",
+                        documentMeta.overallConfidence >= 0.7
+                          ? "bg-emerald-500/15 text-emerald-400 ring-1 ring-emerald-500/30"
+                          : documentMeta.overallConfidence >= 0.4
+                          ? "bg-amber-500/15 text-amber-400 ring-1 ring-amber-500/30"
+                          : "bg-red-500/15 text-red-400 ring-1 ring-red-500/30"
+                      )}>
+                        {Math.round(documentMeta.overallConfidence * 100)}% Match
+                      </span>
+                    </div>
+                  </div>
+                  {documentMeta.reviewPassTriggered && (
+                    <div className="flex items-center gap-1.5 text-[10px] text-indigo-400">
+                      <ShieldCheck className="w-3.5 h-3.5" />
+                      <span>AI review pass applied — results have been refined</span>
+                    </div>
+                  )}
                 </div>
-                {extractedTasks.length > 0 && (
-                  <button
-                    onClick={handleApproveAll}
-                    disabled={isApprovingAll}
-                    className="flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-lg transition-colors disabled:opacity-50"
-                  >
-                    {isApprovingAll ? (
-                      <><Loader2 className="w-3.5 h-3.5 animate-spin" /> Creating {approvingCount}...</>
-                    ) : (
-                      <><Check className="w-3.5 h-3.5" /> Approve All</>
-                    )}
-                  </button>
-                )}
+              )}
+
+              <div>
+                <h3 className="text-sm font-bold text-slate-300">Review Drafts</h3>
+                <p className="text-xs text-slate-500 mt-0.5">
+                  {extractedTasks.length} task{extractedTasks.length !== 1 ? 's' : ''} remaining
+                </p>
               </div>
 
               {extractedTasks.length === 0 ? (
@@ -311,13 +362,29 @@ export function SmartUploadSlideover({
                           isFaded ? "opacity-0 translate-x-8 pointer-events-none" : "opacity-100 hover:bg-slate-800/60 hover:border-slate-600"
                         )}
                       >
-                        <div className="absolute top-4 right-4 flex items-center gap-2">
-                          <span className="text-[9px] font-bold tracking-widest uppercase px-2 py-0.5 rounded border border-indigo-500/30 bg-indigo-500/10 text-indigo-300">
-                            AI DRAFT
-                          </span>
+                        <div className="space-y-3">
+                        {/* Title row */}
+                        <div>
+                          <div className="flex items-center gap-2 mb-2">
+                            {task.confidenceScore !== undefined && (
+                              <span className={cn(
+                                "text-[9px] font-bold px-2 py-0.5 rounded-full shrink-0",
+                                task.confidenceScore >= 0.7
+                                  ? "bg-emerald-500/15 text-emerald-400"
+                                  : task.confidenceScore >= 0.4
+                                  ? "bg-amber-500/15 text-amber-400"
+                                  : "bg-red-500/15 text-red-400"
+                              )}>
+                                {Math.round(task.confidenceScore * 100)}%
+                              </span>
+                            )}
+                            <span className="text-[9px] font-bold tracking-widest uppercase px-2 py-0.5 rounded border border-indigo-500/30 bg-indigo-500/10 text-indigo-300 shrink-0">
+                              AI DRAFT
+                            </span>
+                          </div>
                         </div>
                         
-                        <div className="pr-20">
+                        <div className="pr-12">
                           <input
                             type="text"
                             value={task.title}
@@ -360,6 +427,7 @@ export function SmartUploadSlideover({
                             </div>
                           </div>
                         </div>
+                        </div>
 
                         {/* Action Buttons — right edge, no overlay */}
                         <div className="absolute top-1/2 -translate-y-1/2 right-4 flex flex-col gap-2 opacity-0 group-hover/card:opacity-100 transition-opacity duration-200 z-10">
@@ -386,6 +454,26 @@ export function SmartUploadSlideover({
             </div>
           )}
         </div>
+
+        {/* Fixed Footer Bar — Approve All */}
+        {phase === "review" && extractedTasks.length > 0 && (
+          <div className="px-6 py-4 border-t border-white/10 bg-slate-900/80 backdrop-blur-xl shrink-0 flex items-center justify-between gap-4">
+            <p className="text-xs text-slate-500">
+              {extractedTasks.length} task{extractedTasks.length !== 1 ? 's' : ''} ready to approve
+            </p>
+            <button
+              onClick={handleApproveAll}
+              disabled={isApprovingAll}
+              className="flex items-center gap-2 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-bold rounded-xl transition-all disabled:opacity-50 shadow-lg shadow-emerald-900/30"
+            >
+              {isApprovingAll ? (
+                <><Loader2 className="w-4 h-4 animate-spin" /> Creating {approvingCount}...</>
+              ) : (
+                <><Check className="w-4 h-4" /> Approve All</>
+              )}
+            </button>
+          </div>
+        )}
       </div>
     </>
   );
