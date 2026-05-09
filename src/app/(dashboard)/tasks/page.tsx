@@ -517,11 +517,7 @@ function TasksPageContent() {
         projectId={selectedProjectId || ""}
         onClose={() => setIsSmartUploadOpen(false)}
         onTasksCreated={() => {
-          if (selectedProjectId) {
-            queryClient.invalidateQueries({ queryKey: ["tasks", { projectId: selectedProjectId }] });
-          } else {
-            queryClient.invalidateQueries({ queryKey: ["tasks"] });
-          }
+          queryClient.invalidateQueries({ queryKey: ["tasks", "list"] });
         }}
       />
     </div>

@@ -310,7 +310,7 @@ export default function ProjectDetailPage() {
         projectId={projectId}
         onClose={() => setIsSmartUploadOpen(false)}
         onTasksCreated={() => {
-          queryClient.invalidateQueries({ queryKey: ["tasks", { projectId }] });
+          queryClient.invalidateQueries({ queryKey: ["tasks", "list"] });
         }}
       />
     </div>
