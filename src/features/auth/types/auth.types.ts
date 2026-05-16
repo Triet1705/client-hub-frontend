@@ -3,11 +3,13 @@ export interface LoginRequest {
   password: string;
 }
 
+export type Role = "ADMIN" | "CLIENT" | "FREELANCER";
+
 export interface RegisterRequest {
   fullName: string;
   email: string;
   password: string;
-  role: "CLIENT" | "FREELANCER";
+  role: Role;
 }
 
 export interface RegisterResponse {
@@ -28,7 +30,7 @@ export interface JwtResponse {
   expires_in: number; // seconds
   id: string;
   email: string;
-  role: "ADMIN" | "CLIENT" | "FREELANCER";
+  role: Role;
   tenant_id: string;
 }
 
@@ -41,7 +43,7 @@ export interface ErrorResponse {
 export interface UserPayload {
   id: string;
   email: string;
-  role: "ADMIN" | "CLIENT" | "FREELANCER";
+  role: Role;
   tenantId: string;
   walletAddress?: string;
 }
