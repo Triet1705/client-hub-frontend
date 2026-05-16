@@ -12,16 +12,14 @@ import { FilterSection } from "@/components/ui/filter-section";
 import { Pagination } from "@/components/ui/pagination";
 import { RowActionMenu } from "@/components/ui/row-action-menu";
 import { ProjectStatusBadge } from "./project-status-badge";
-import { Project, ProjectStatus, PaymentMethod } from "../types/project.types";
+import { Project, ProjectStatus } from "../types/project.types";
 import { parseProjectsQuery } from "../query/projects-query.schema";
 import {
   DEFAULT_PROJECT_VISIBLE_COLUMNS,
   DEFAULT_PROJECT_VISIBLE_COLUMNS_QUERY,
   PROJECT_COLUMN_OPTIONS,
-  PROJECT_PAYMENT_OPTIONS,
   PROJECT_STATUS_LABEL_MAP,
   PROJECT_STATUS_OPTIONS,
-  type ProjectPaymentFilterValue,
   type ProjectStatusFilterValue,
 } from "../constants/project-table.constants";
 
@@ -45,14 +43,10 @@ export function ProjectTable({ projects, isLoading, page, totalPages, totalEleme
   const [activeFilter, setActiveFilter] = React.useState<ProjectStatusFilterValue>(
     initialQueryState.statusFilter,
   );
-  const [paymentFilter, setPaymentFilter] = React.useState<ProjectPaymentFilterValue>(
-    initialQueryState.paymentFilter,
-  );
   const [keyword, setKeyword] = React.useState(initialQueryState.keyword);
   const [openSections, setOpenSections] = React.useState({
     search: true,
     status: true,
-    payment: true,
   });
   const [visibleColumns, setVisibleColumns] = React.useState<Record<string, boolean>>(
     initialQueryState.visibleColumns,
@@ -64,9 +58,6 @@ export function ProjectTable({ projects, isLoading, page, totalPages, totalEleme
     return projects.filter((project) => {
       const matchesStatus = activeFilter === "ALL" || project.status === activeFilter;
       if (!matchesStatus) return false;
-
-      const matchesPayment = paymentFilter === "ALL" || project.paymentMethod === paymentFilter;
-      if (!matchesPayment) return false;
 
       if (!normalizedKeyword) return true;
 
@@ -83,19 +74,11 @@ export function ProjectTable({ projects, isLoading, page, totalPages, totalEleme
 
       return searchable.includes(normalizedKeyword);
     });
-  }, [activeFilter, keyword, paymentFilter, projects]);
+  }, [activeFilter, keyword, projects]);
 
   const statusCounts = React.useMemo(() => {
     return projects.reduce<Partial<Record<ProjectStatus, number>>>((acc, project) => {
       acc[project.status] = (acc[project.status] ?? 0) + 1;
-      return acc;
-    }, {});
-  }, [projects]);
-
-  const paymentCounts = React.useMemo(() => {
-    return projects.reduce<Partial<Record<ProjectPaymentFilterValue, number>>>((acc, project) => {
-      if (!project.paymentMethod) return acc;
-      acc[project.paymentMethod] = (acc[project.paymentMethod] ?? 0) + 1;
       return acc;
     }, {});
   }, [projects]);
@@ -109,21 +92,11 @@ export function ProjectTable({ projects, isLoading, page, totalPages, totalEleme
     [projects.length, statusCounts],
   );
 
-  const paymentSectionOptions = React.useMemo(
-    () =>
-      PROJECT_PAYMENT_OPTIONS.map((option) => {
-        const count = option.value === "ALL" ? projects.length : (paymentCounts[option.value] ?? 0);
-        return { ...option, count };
-      }),
-    [projects.length, paymentCounts],
-  );
-
   const hasAppliedFilters =
-    activeFilter !== "ALL" || paymentFilter !== "ALL" || keyword.trim().length > 0;
+    activeFilter !== "ALL" || keyword.trim().length > 0;
 
   const clearFilters = React.useCallback(() => {
     setActiveFilter("ALL");
-    setPaymentFilter("ALL");
     setKeyword("");
   }, []);
 
@@ -134,7 +107,6 @@ export function ProjectTable({ projects, isLoading, page, totalPages, totalEleme
 
     const next = buildUpdatedQueryString(queryString, [
       { key: "status", value: activeFilter, defaultValue: "ALL" },
-      { key: "payment", value: paymentFilter, defaultValue: "ALL" },
       { key: "q", value: keyword.trim() },
       { key: "cols", value: selectedCols, defaultValue: DEFAULT_PROJECT_VISIBLE_COLUMNS_QUERY },
     ]);
@@ -142,7 +114,7 @@ export function ProjectTable({ projects, isLoading, page, totalPages, totalEleme
     if (queryString !== next) {
       router.replace(next ? `${pathname}?${next}` : pathname, { scroll: false });
     }
-  }, [activeFilter, keyword, pathname, paymentFilter, queryString, router, visibleColumns]);
+  }, [activeFilter, keyword, pathname, queryString, router, visibleColumns]);
 
   React.useEffect(() => {
     if (searchParams.get("cols")) return;
@@ -185,20 +157,6 @@ export function ProjectTable({ projects, isLoading, page, totalPages, totalEleme
     [visibleColumns],
   );
 
-  const renderPayment = (method?: PaymentMethod) => {
-    if (!method) return <span className="text-xs text-slate-600">—</span>;
-    const config: Record<PaymentMethod, { label: string; cls: string }> = {
-      FIAT:           { label: "FIAT",          cls: "bg-slate-800 text-slate-400 border-slate-700" },
-      CRYPTO_ESCROW:  { label: "ESCROW",        cls: "bg-violet-500/10 text-violet-400 border-violet-400/20" },
-      CRYPTO_DIRECT:  { label: "CRYPTO",        cls: "bg-blue-500/10 text-blue-400 border-blue-400/20" },
-    };
-    const c = config[method];
-    return (
-      <span className={cn("inline-flex items-center px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider border", c.cls)}>
-        {c.label}
-      </span>
-    );
-  };
 
   const formatBudget = (val?: string | null) =>
     val ? `$${parseFloat(val).toLocaleString("en-US", { minimumFractionDigits: 2 })}` : "N/A";
@@ -270,31 +228,7 @@ export function ProjectTable({ projects, isLoading, page, totalPages, totalEleme
             </div>
           </FilterSection>
 
-          <FilterSection title="Payment" isOpen={openSections.payment} onToggle={() => toggleSection("payment")}>
-            <div className="space-y-1">
-              {paymentSectionOptions.map((option) => {
-                const isActive = paymentFilter === option.value;
-                return (
-                  <button
-                    key={option.value}
-                    type="button"
-                    onClick={() => setPaymentFilter(option.value)}
-                    className={`w-full flex items-center justify-between rounded-md border px-3 py-2 text-left text-xs transition-colors ${
-                      isActive
-                        ? "border-cyan-500/40 bg-cyan-500/10 text-cyan-200"
-                        : "border-slate-800 bg-slate-900/60 text-slate-300 hover:border-slate-700"
-                    }`}
-                  >
-                    <span className="inline-flex items-center gap-2">
-                      <CircleDot className={`h-3.5 w-3.5 ${isActive ? "text-cyan-300" : "text-slate-600"}`} />
-                      {option.label}
-                    </span>
-                    <span className="text-[11px] text-slate-500">{option.count}</span>
-                  </button>
-                );
-              })}
-            </div>
-          </FilterSection>
+
         </div>
       </aside>
 
@@ -317,11 +251,6 @@ export function ProjectTable({ projects, isLoading, page, totalPages, totalEleme
               {activeFilter !== "ALL" && (
                 <span className="px-2 py-1 rounded-md border border-emerald-500/30 bg-emerald-500/10 text-emerald-300">
                   Status: {PROJECT_STATUS_LABEL_MAP[activeFilter]}
-                </span>
-              )}
-              {paymentFilter !== "ALL" && (
-                <span className="px-2 py-1 rounded-md border border-cyan-500/30 bg-cyan-500/10 text-cyan-300">
-                  Payment: {paymentFilter}
                 </span>
               )}
               {keyword.trim().length > 0 && (
@@ -347,7 +276,6 @@ export function ProjectTable({ projects, isLoading, page, totalPages, totalEleme
               {visibleColumns.project && <th className="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest">Project & Owner</th>}
               {visibleColumns.budget && <th className="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest">Budget</th>}
               {visibleColumns.status && <th className="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest">Status</th>}
-              {visibleColumns.payment && <th className="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest">Payment</th>}
               {visibleColumns.deadline && <th className="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest">Deadline</th>}
               {visibleColumns.actions && <th className="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest text-right">Actions</th>}
             </tr>
@@ -375,7 +303,6 @@ export function ProjectTable({ projects, isLoading, page, totalPages, totalEleme
                   </td>}
                   {visibleColumns.budget && <td className="px-6 py-5"><span className="text-sm font-mono font-bold text-white">{formatBudget(project.budget)}</span></td>}
                   {visibleColumns.status && <td className="px-6 py-5"><ProjectStatusBadge status={project.status} /></td>}
-                  {visibleColumns.payment && <td className="px-6 py-5">{renderPayment(project.paymentMethod)}</td>}
                   {visibleColumns.deadline && <td className="px-6 py-5"><span className="text-xs text-slate-500">{formatDeadline(project.deadline)}</span></td>}
                   {visibleColumns.actions && <td className="px-6 py-5 text-right whitespace-nowrap">
                     <div className="flex items-center justify-end gap-3">
