@@ -21,7 +21,6 @@ export interface Project {
     ownerId: string;            // UUID serialized as string
     ownerEmail: string;
     ownerName: string;
-    paymentMethod?: PaymentMethod;
 }
 
 export interface PageResponse<T> {

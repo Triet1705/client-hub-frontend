@@ -75,7 +75,8 @@ export function LoginForm() {
         description: `Welcome back, ${response.email}`,
       });
 
-      const callbackUrl = searchParams.get("callbackUrl") ?? "/dashboard";
+      const defaultPath = response.role === "ADMIN" ? "/admin" : "/dashboard";
+      const callbackUrl = searchParams.get("callbackUrl") ?? defaultPath;
       router.push(callbackUrl);
     } catch (error: unknown) {
       const err = error as {

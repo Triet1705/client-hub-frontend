@@ -8,6 +8,7 @@ import {
   setAuthCookies,
   clearAuthCookies,
 } from "./cookies";
+import { useAuthStore } from "@/features/auth/store/auth.store";
 
 const JSONBig = JSONBigInt({ storeAsString: true });
 
@@ -43,8 +44,11 @@ apiClient.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
     const token = getAuthToken();
     const tenantId = getTenantId();
+    const { isImpersonating, impersonationToken } = useAuthStore.getState();
 
-    if (token) {
+    if (isImpersonating && impersonationToken) {
+      config.headers.Authorization = `Bearer ${impersonationToken}`;
+    } else if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
 

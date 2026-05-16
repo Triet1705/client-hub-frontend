@@ -1,8 +1,7 @@
 import type { ColumnOption } from "@/components/ui/change-column-table-popup";
-import { ProjectStatus, type PaymentMethod } from "../types/project.types";
+import { ProjectStatus } from "../types/project.types";
 
 export type ProjectStatusFilterValue = ProjectStatus | "ALL";
-export type ProjectPaymentFilterValue = PaymentMethod | "ALL";
 
 export const PROJECT_STATUS_OPTIONS: Array<{ label: string; value: ProjectStatusFilterValue }> = [
   { label: "All", value: "ALL" },
@@ -12,18 +11,7 @@ export const PROJECT_STATUS_OPTIONS: Array<{ label: string; value: ProjectStatus
   { label: "Completed", value: ProjectStatus.COMPLETED },
 ];
 
-export const PROJECT_PAYMENT_OPTIONS: Array<{ label: string; value: ProjectPaymentFilterValue }> = [
-  { label: "All", value: "ALL" },
-  { label: "Fiat", value: "FIAT" },
-  { label: "Crypto Escrow", value: "CRYPTO_ESCROW" },
-  { label: "Crypto Direct", value: "CRYPTO_DIRECT" },
-];
-
 export const PROJECT_STATUS_FILTER_VALUES: ProjectStatusFilterValue[] = PROJECT_STATUS_OPTIONS.map(
-  (option) => option.value,
-);
-
-export const PROJECT_PAYMENT_FILTER_VALUES: ProjectPaymentFilterValue[] = PROJECT_PAYMENT_OPTIONS.map(
   (option) => option.value,
 );
 
@@ -39,7 +27,6 @@ export const PROJECT_COLUMN_OPTIONS: ColumnOption[] = [
   { key: "project", label: "Project", locked: true },
   { key: "budget", label: "Budget" },
   { key: "status", label: "Status" },
-  { key: "payment", label: "Payment" },
   { key: "deadline", label: "Deadline" },
   { key: "actions", label: "Actions", locked: true },
 ];
@@ -48,7 +35,6 @@ export const DEFAULT_PROJECT_VISIBLE_COLUMNS: Record<string, boolean> = {
   project: true,
   budget: true,
   status: true,
-  payment: true,
   deadline: true,
   actions: true,
 };

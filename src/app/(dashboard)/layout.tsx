@@ -1,6 +1,7 @@
 import * as React from "react";
 import { Sidebar } from "@/components/layout/sidebar";
 import { Header } from "@/components/layout/header";
+import { ImpersonationBanner } from "@/features/admin/components/impersonation-banner";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -21,6 +22,7 @@ export default function DashboardLayout({
         className="flex flex-col min-h-screen transition-[padding] duration-300"
         style={{ paddingLeft: "var(--dashboard-sidebar-width,16rem)" }}
       >
+        <ImpersonationBanner />
         <Header />
 
         <main className="flex-1 p-8 overflow-y-auto">

@@ -57,13 +57,13 @@ function ProjectsPageContent() {
 
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-white">Projects</h1>
-          <p className="text-slate-400 text-sm">Manage your active engagements</p>
+          <h1 className="text-2xl font-space-grotesk font-bold text-slate-100">Projects</h1>
+          <p className="text-slate-400 text-sm mt-1">Manage your active engagements</p>
         </div>
         {canCreate && (
           <button
             onClick={() => setIsCreateModalOpen(true)}
-            className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white px-5 py-2.5 rounded-xl text-sm font-bold transition-all shadow-lg shadow-emerald-900/20"
+            className="flex items-center gap-2 bg-emerald-500 hover:bg-emerald-400 text-emerald-950 px-5 py-2.5 rounded-xl text-sm font-bold transition-all shadow-[0_0_20px_rgba(16,185,129,0.2)] hover:shadow-[0_0_25px_rgba(16,185,129,0.4)]"
           >
             <Plus className="w-5 h-5" />
             Create Project
