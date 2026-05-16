@@ -38,6 +38,26 @@
   --color-surface-dark: var(--surface-dark);
   --color-pitch-black: var(--pitch-black);
 
+  /* Theme Surface Colors */
+  --color-surface-base: var(--bg-base);
+  --color-surface: var(--bg-surface);
+  --color-surface-elevated: var(--bg-elevated);
+  --color-surface-sunken: var(--bg-sunken);
+
+  /* Theme Border Colors */
+  --color-theme-border: var(--border-default);
+  --color-theme-border-subtle: var(--border-subtle);
+
+  /* Theme Text Content */
+  --color-content-primary: var(--text-primary);
+  --color-content-secondary: var(--text-secondary);
+  --color-content-muted: var(--text-muted);
+
+  /* Theme Accent */
+  --color-theme-accent: var(--theme-accent);
+  --color-theme-accent-hover: var(--theme-accent-hover);
+  --color-theme-accent-surface: var(--theme-accent-surface);
+
   /* Animations */
   --animate-accordion-down: accordion-down 0.2s ease-out;
   --animate-accordion-up: accordion-up 0.2s ease-out;
@@ -98,6 +118,35 @@
 
     --surface-dark: #1e293b;
     --pitch-black: #020617;
+
+    /* Base theme (Light by default) */
+    --bg-base: #f8fafc;        /* slate-50 */
+    --bg-surface: #ffffff;      /* white */
+    --bg-elevated: #f1f5f9;    /* slate-100 */
+    --bg-sunken: #e2e8f0;      /* slate-200 */
+    --border-default: #e2e8f0; /* slate-200 */
+    --border-subtle: #f1f5f9;  /* slate-100 */
+    --text-primary: #0f172a;   /* slate-900 */
+    --text-secondary: #475569; /* slate-600 */
+    --text-muted: #94a3b8;     /* slate-400 */
+    --theme-accent: #059669;         /* emerald-600 */
+    --theme-accent-hover: #047857;   /* emerald-700 */
+    --theme-accent-surface: rgba(16, 185, 129, 0.1);
+  }
+
+  [data-theme="dark"] {
+    --bg-base: #020617;        /* slate-950 */
+    --bg-surface: #0f172a;     /* slate-900 */
+    --bg-elevated: #1e293b;    /* slate-800 */
+    --bg-sunken: #0f172a;      /* slate-900 */
+    --border-default: #1e293b; /* slate-800 */
+    --border-subtle: #334155;  /* slate-700 */
+    --text-primary: #ffffff;
+    --text-secondary: #94a3b8; /* slate-400 */
+    --text-muted: #64748b;     /* slate-500 */
+    --theme-accent: #10b981;         /* emerald-500 */
+    --theme-accent-hover: #34d399;   /* emerald-400 */
+    --theme-accent-surface: rgba(16, 185, 129, 0.1);
   }
 }
 
@@ -106,9 +155,9 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground font-sans antialiased;
-    background-color: var(--background-hex);
-    color: var(--foreground-hex);
+    @apply bg-surface-base text-content-primary font-sans antialiased;
+    background-color: var(--bg-base);
+    color: var(--text-primary);
   }
 }
 

@@ -7,6 +7,7 @@ import { WagmiProvider } from "wagmi";
 import { Toaster } from "sonner";
 import { queryClient } from "@/lib/query-client";
 import { web3Config } from "@/lib/web3-config";
+import { ThemeProvider } from "@/providers/theme-provider";
 import "@rainbow-me/rainbowkit/styles.css";
 
 export function Providers({ children }: { children: React.ReactNode }) {
@@ -22,7 +23,9 @@ export function Providers({ children }: { children: React.ReactNode }) {
           })}
           initialChain={80002}
         >
-          {children}
+          <ThemeProvider>
+            {children}
+          </ThemeProvider>
           <Toaster
             position="top-right"
             richColors

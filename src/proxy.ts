@@ -20,8 +20,19 @@ export function proxy(request: NextRequest) {
     pathname.startsWith(prefix),
   );
 
+  let userRole = null;
+  if (accessToken) {
+    try {
+      const payload = JSON.parse(atob(accessToken.split('.')[1]));
+      userRole = payload.role;
+    } catch {
+      // Ignore
+    }
+  }
+
   if (accessToken && isPublicRoute && pathname !== "/") {
-    return NextResponse.redirect(new URL("/dashboard", request.url));
+    const defaultRoute = userRole === "ADMIN" ? "/admin" : "/dashboard";
+    return NextResponse.redirect(new URL(defaultRoute, request.url));
   }
 
   if (!accessToken && isProtectedRoute) {
@@ -30,6 +41,16 @@ export function proxy(request: NextRequest) {
     loginUrl.searchParams.set("callbackUrl", pathname);
 
     return NextResponse.redirect(loginUrl);
+  }
+
+  if (accessToken && isProtectedRoute && userRole === "ADMIN" && !pathname.startsWith("/admin")) {
+    // If admin tries to access user dashboard, redirect to admin portal
+    return NextResponse.redirect(new URL("/admin", request.url));
+  }
+
+  // Also protect /admin route for non-admins
+  if (accessToken && pathname.startsWith("/admin") && userRole !== "ADMIN") {
+    return NextResponse.redirect(new URL("/dashboard", request.url));
   }
 
   return NextResponse.next();

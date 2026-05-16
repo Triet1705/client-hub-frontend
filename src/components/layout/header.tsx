@@ -6,26 +6,29 @@ import { NetworkStatusBadge } from "../shared/network-status-badge";
 import { NotificationBellIcon } from "@/components/icons";
 import { NotificationPanel } from "@/features/notifications/components/notification-panel";
 import { useUnreadCountQuery } from "@/features/notifications/hooks/use-notifications";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 
 export function Header() {
   const [isNotificationPanelOpen, setIsNotificationPanelOpen] = React.useState(false);
   const { data: unreadData } = useUnreadCountQuery();
   const unreadCount = unreadData?.unreadCount || 0;
   return (
-    <header className="sticky top-0 z-40 flex h-16 shrink-0 items-center justify-between border-b border-slate-800 bg-[#020617]/80 px-8 backdrop-blur-md">
+    <header className="sticky top-0 z-40 flex h-16 shrink-0 items-center justify-between border-b border-theme-border bg-surface-base/80 px-8 backdrop-blur-md">
       <div className="flex-1" />
 
       <div className="flex items-center gap-5">
+        <ThemeToggle />
+
         <div className="hidden md:block">
-          <NetworkStatusBadge className="py-1.5 px-3 bg-slate-900/50 shadow-none border-slate-800" />
+          <NetworkStatusBadge className="py-1.5 px-3 bg-surface-elevated/50 shadow-none border-theme-border text-content-primary" />
         </div>
 
-        <div className="h-6 w-px bg-slate-800 hidden md:block"></div>
+        <div className="h-6 w-px bg-theme-border hidden md:block"></div>
 
         <div className="relative flex items-center">
           <button 
             onClick={() => setIsNotificationPanelOpen(!isNotificationPanelOpen)}
-            className="relative rounded-full p-2 text-slate-400 hover:bg-slate-800 hover:text-white transition-colors"
+            className="relative rounded-full p-2 text-content-secondary hover:bg-surface-elevated hover:text-content-primary transition-colors"
           >
             <NotificationBellIcon className="h-5 w-5" />
             {unreadCount > 0 && (

@@ -14,7 +14,6 @@ import {
   NavTasksIcon,
   NavInvoicesIcon,
   NavCommunicationIcon,
-  NavAdminIcon,
 } from "@/components/icons";
 
 const SIDEBAR_STORAGE_KEY = "clienthub.sidebar.collapsed";
@@ -51,12 +50,6 @@ const NAV_ITEMS = [
     href: "/communication",
     icon: NavCommunicationIcon,
     roles: ["ADMIN", "CLIENT", "FREELANCER"],
-  },
-  {
-    name: "Admin Portal",
-    href: "/admin",
-    icon: NavAdminIcon,
-    roles: ["ADMIN"],
   },
 ];
 
