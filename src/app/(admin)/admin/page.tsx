@@ -11,11 +11,7 @@ import { ACTION_ICON_MAP, ACTION_COLOR_MAP } from "@/features/admin/constants/ad
 import { RoleBadge } from "@/features/admin/components/role-badge";
 
 
-const StatusColors: Record<string, string> = {
-  UP: "border-emerald-500 text-emerald-500",
-  DEGRADED: "border-amber-500 text-amber-500",
-  DOWN: "border-red-500 text-red-500",
-};
+
 
 export default function AdminOverviewPage() {
   const { data: stats, isLoading: isStatsLoading } = usePlatformStatsQuery();

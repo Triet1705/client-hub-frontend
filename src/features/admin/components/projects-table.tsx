@@ -25,7 +25,7 @@ export function ProjectsTable({ status }: ProjectsTableProps) {
     if (!data?.content) return [];
     if (status === "ALL") return data.content;
     return data.content.filter((p) => p.status === status);
-  }, [data?.content, status]);
+  }, [data, status]);
 
   return (
     <>

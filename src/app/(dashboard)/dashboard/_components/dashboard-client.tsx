@@ -10,13 +10,10 @@ import {
   ActionPlusIcon,
 } from "@/components/icons";
 import { useProjectsQuery } from "@/features/projects/hooks/use-projects";
-import { Project, ProjectStatus } from "@/features/projects/types/project.types";
 import { useDashboardStatsQuery, useTaskSummaryQuery } from "@/features/dashboard/hooks/use-dashboard";
-import type { TaskSummary } from "@/features/dashboard/types/dashboard.types";
 import { useAuthStore } from "@/features/auth/store/auth.store";
-import { cn, formatFiat as formatCurrency } from "@/lib/utils";
+import { formatFiat as formatCurrency } from "@/lib/utils";
 import { SummaryCard } from "@/components/ui/summary-card";
-import { PROJECT_STATUS_BADGE, PROJECT_STATUS_LABEL } from "@/features/projects/constants/project-ui.constants";
 import { TodayFocusBlock } from "./today-focus-block";
 import { TaskOverviewChart } from "./task-overview-chart";
 import { ActivityFeed } from "./activity-feed";

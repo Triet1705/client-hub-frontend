@@ -1,5 +1,5 @@
 import type { ColumnOption } from "@/components/ui/change-column-table-popup";
-import { ProjectStatus, type PaymentMethod } from "../types/project.types";
+import { ProjectStatus } from "../types/project.types";
 
 export type ProjectStatusFilterValue = ProjectStatus | "ALL";
 

@@ -29,7 +29,7 @@ export function AdminInvoicesTable({ status }: AdminInvoicesTableProps) {
     if (!data?.content) return [];
     if (status === "ALL") return data.content;
     return data.content.filter((inv) => inv.status === status);
-  }, [data?.content, status]);
+  }, [data, status]);
 
   return (
     <>

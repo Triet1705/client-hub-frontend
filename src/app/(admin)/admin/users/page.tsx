@@ -11,7 +11,6 @@ import {
   type AdminUserRoleFilterValue,
   type AdminUserStatusFilterValue,
 } from "@/features/admin/constants/admin-table.constants";
-import { cn } from "@/lib/utils";
 
 export default function AdminUsersPage() {
   const [keyword, setKeyword] = React.useState("");

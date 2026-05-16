@@ -3,7 +3,6 @@ import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { formatDistanceToNow } from "date-fns";
 import { CircleDot, Search } from "lucide-react";
-import { cn } from "@/lib/utils";
 import { buildUpdatedQueryString } from "@/lib/url-query";
 import { readTableVisibleColumns, writeTableVisibleColumns } from "@/lib/table-preferences";
 import { NavProjectsIcon } from "@/components/icons";
