@@ -13,6 +13,7 @@ export const smartTasksApi = {
         headers: {
           "Content-Type": "multipart/form-data",
         },
+        timeout: 180_000, // Override global 15s timeout for long-running AI extraction
       }
     );
     return response.data;
