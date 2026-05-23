@@ -49,7 +49,7 @@ export const DEFAULT_INVOICE_VISIBLE_COLUMNS: Record<string, boolean> = {
   dueDate: true,
   status: true,
   payment: true,
-  reference: true,
+  reference: false,
   action: true,
 };
 
