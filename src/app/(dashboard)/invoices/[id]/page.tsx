@@ -8,6 +8,8 @@ import { ArrowLeft, Copy, Receipt, ShieldCheck, Wallet } from "lucide-react";
 import { toast } from "sonner";
 import { OperationsDetailLayout } from "@/components/layout/operations-detail-layout";
 import { InvoiceStatusPill } from "@/features/invoices/components/invoice-status-pill";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { INVOICE_STATUS_LABELS } from "@/features/invoices/constants/invoice.constants";
 import { useAuthStore } from "@/features/auth/store/auth.store";
 import {
   useInvoiceDetailQuery,
@@ -26,12 +28,23 @@ function formatDateTime(value?: string) {
   if (!value) return "-";
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return value;
-  return format(date, "MMM d, yyyy HH:mm");
+  return format(date, "dd/MM/yyyy HH:mm");
 }
 
 function getTransitionOptions(current: InvoiceStatus): InvoiceStatus[] {
   const statuses = Object.values(InvoiceStatus);
   return statuses.filter((nextStatus) => canTransitionTo(current, nextStatus));
+}
+
+function getPrimaryTransition(status: InvoiceStatus): InvoiceStatus | null {
+  switch (status) {
+    case InvoiceStatus.DRAFT: return InvoiceStatus.SENT;
+    case InvoiceStatus.SENT: return InvoiceStatus.PAID;
+    case InvoiceStatus.OVERDUE: return InvoiceStatus.PAID;
+    case InvoiceStatus.LOCKED: return InvoiceStatus.PAID;
+    case InvoiceStatus.DISPUTED: return InvoiceStatus.PAID;
+    default: return null;
+  }
 }
 
 export default function InvoiceDetailPage() {
@@ -52,6 +65,8 @@ export default function InvoiceDetailPage() {
     () => (invoice ? getTransitionOptions(invoice.status) : []),
     [invoice],
   );
+
+  const [confirmStatus, setConfirmStatus] = React.useState<InvoiceStatus | null>(null);
 
   const copyToClipboard = async (label: string, value?: string) => {
     if (!value) return;
@@ -108,26 +123,6 @@ export default function InvoiceDetailPage() {
 
         <div className="flex items-center gap-3">
           <span className="text-2xl font-bold font-mono text-white">{formatUsd(invoice.amount)}</span>
-          {canUpdateStatus && transitionOptions.length > 0 ? (
-            <select
-              className="h-10 rounded-lg border border-slate-700 bg-slate-950 px-3 text-sm text-slate-200 focus:border-emerald-500/50 focus:outline-none"
-              defaultValue=""
-              onChange={(event) => {
-                const nextStatus = event.target.value as InvoiceStatus;
-                if (!nextStatus) return;
-                updateStatusMutation.mutate({ id: invoice.id, status: nextStatus });
-                event.target.value = "";
-              }}
-              disabled={updateStatusMutation.isPending}
-            >
-              <option value="">Update status...</option>
-              {transitionOptions.map((status) => (
-                <option key={status} value={status}>
-                  {status}
-                </option>
-              ))}
-            </select>
-          ) : null}
         </div>
       </div>
 
@@ -181,6 +176,49 @@ export default function InvoiceDetailPage() {
                     : "Client/Admin view includes status transition controls and settlement verification context."}
                 </p>
               </div>
+
+              {/* Action Bar */}
+              {canUpdateStatus && (
+                <div className="pt-4 border-t border-slate-800">
+                  {transitionOptions.length > 0 ? (
+                    <div className="flex flex-col sm:flex-row gap-3">
+                      {(() => {
+                        const primary = getPrimaryTransition(invoice.status);
+                        const actualPrimary = primary && transitionOptions.includes(primary) ? primary : transitionOptions[0];
+                        const secondary = transitionOptions.filter((t) => t !== actualPrimary);
+
+                        return (
+                          <>
+                            <button
+                              type="button"
+                              disabled={updateStatusMutation.isPending}
+                              onClick={() => setConfirmStatus(actualPrimary)}
+                              className="flex-1 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white px-5 py-3 text-sm font-bold transition-all shadow-lg shadow-emerald-900/20 hover:shadow-emerald-500/25 disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                              Mark as {INVOICE_STATUS_LABELS[actualPrimary]}
+                            </button>
+                            {secondary.map((opt) => (
+                              <button
+                                key={opt}
+                                type="button"
+                                disabled={updateStatusMutation.isPending}
+                                onClick={() => setConfirmStatus(opt)}
+                                className="flex-1 sm:flex-none rounded-xl border border-slate-700 bg-slate-800/50 hover:bg-slate-800 hover:border-slate-600 hover:text-white text-slate-300 px-5 py-3 text-sm font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                              >
+                                Mark as {INVOICE_STATUS_LABELS[opt]}
+                              </button>
+                            ))}
+                          </>
+                        );
+                      })()}
+                    </div>
+                  ) : (
+                    <div className="rounded-xl bg-slate-900/50 p-4 text-center border border-slate-800">
+                      <p className="text-sm text-slate-400">This invoice has reached a terminal state. No further actions can be taken.</p>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           </section>
         )}
@@ -269,6 +307,31 @@ export default function InvoiceDetailPage() {
             </section>
           </aside>
         )}
+      />
+
+      <ConfirmDialog
+        isOpen={confirmStatus !== null}
+        title="Confirm Status Change"
+        message={
+          <>
+            Change invoice status from <strong className="text-white">{INVOICE_STATUS_LABELS[invoice.status]}</strong> to{" "}
+            <strong className="text-white">{confirmStatus && INVOICE_STATUS_LABELS[confirmStatus]}</strong>?
+            <br />
+            <span className="text-slate-400 mt-2 block">
+              Depending on the status, this action may notify the other party and cannot be easily undone for terminal states.
+            </span>
+          </>
+        }
+        confirmText={updateStatusMutation.isPending ? "Updating..." : "Confirm Change"}
+        cancelText="Cancel"
+        onConfirm={() => {
+          if (confirmStatus) {
+            updateStatusMutation.mutate({ id: invoice.id, status: confirmStatus });
+          }
+          setConfirmStatus(null);
+        }}
+        onCancel={() => setConfirmStatus(null)}
+        isLoading={updateStatusMutation.isPending}
       />
     </div>
   );
