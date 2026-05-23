@@ -30,5 +30,6 @@ export interface CreateInvoicePayload {
   dueDate: string;
   projectId: string;
   paymentMethod: PaymentMethod;
+  walletAddress?: string;
   description?: string;
 }
