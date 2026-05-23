@@ -50,29 +50,39 @@ export function ChangeColumnTablePopup({
       </button>
 
       {isOpen ? (
-        <div className="absolute right-0 top-10 z-30 min-w-52 rounded-md border border-slate-700 bg-[#020617] p-2 shadow-xl">
-          <p className="px-2 pb-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+        <div className="absolute right-0 top-10 z-30 min-w-60 rounded-xl border border-slate-700 bg-slate-900/95 backdrop-blur-xl p-3 shadow-2xl">
+          <p className="pb-3 text-[10px] font-bold uppercase tracking-wider text-slate-500">
             Visible Columns
           </p>
 
-          <div className="space-y-1">
+          <div className="flex flex-wrap gap-2">
             {columns.map((column) => {
               const checked = visibleColumns[column.key] ?? false;
 
+              if (column.locked) {
+                return (
+                  <span
+                    key={column.key}
+                    className="inline-flex items-center rounded-full px-3 py-1.5 text-xs font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 opacity-80 cursor-default"
+                  >
+                    {column.label}
+                  </span>
+                );
+              }
+
               return (
-                <label
+                <button
                   key={column.key}
-                  className="flex items-center justify-between gap-3 rounded-sm px-2 py-1.5 text-xs text-slate-200 hover:bg-slate-800"
+                  type="button"
+                  onClick={() => onToggleColumn(column.key)}
+                  className={`inline-flex items-center rounded-full px-3 py-1.5 text-xs font-semibold border transition-colors ${
+                    checked
+                      ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/40"
+                      : "bg-slate-900/50 text-slate-400 border-slate-700 hover:border-slate-500 hover:text-slate-300"
+                  }`}
                 >
-                  <span>{column.label}</span>
-                  <input
-                    type="checkbox"
-                    checked={checked}
-                    disabled={column.locked}
-                    onChange={() => onToggleColumn(column.key)}
-                    className="h-3.5 w-3.5 rounded border-slate-600 bg-slate-950 text-emerald-500 focus:ring-emerald-500/30"
-                  />
-                </label>
+                  {column.label}
+                </button>
               );
             })}
           </div>
@@ -84,7 +94,7 @@ export function ChangeColumnTablePopup({
                 onResetColumns();
                 setIsOpen(false);
               }}
-              className="mt-2 w-full rounded-sm border border-slate-700 px-2 py-1.5 text-xs font-bold text-slate-300 transition-colors hover:border-slate-600 hover:text-white"
+              className="mt-4 w-full rounded-lg border border-slate-700 bg-slate-800/50 px-3 py-2 text-xs font-bold text-slate-300 transition-colors hover:border-slate-600 hover:bg-slate-800 hover:text-white"
             >
               Reset Columns
             </button>

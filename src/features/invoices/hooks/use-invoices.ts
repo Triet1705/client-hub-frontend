@@ -2,7 +2,7 @@ import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tansta
 import { toast } from "sonner";
 import { getApiErrorMessage } from "@/lib/api/error";
 import { InvoiceStatus } from "@/lib/type";
-import { fetchInvoiceById, fetchInvoices, updateInvoiceStatus } from "../api/invoice.api";
+import { fetchInvoiceById, fetchInvoices, updateInvoiceStatus, createInvoice } from "../api/invoice.api";
 import type { InvoiceQueryParams } from "../types/invoice.types";
 
 export const invoiceKeys = {
@@ -45,6 +45,24 @@ export function useUpdateInvoiceStatusMutation(currentParams: InvoiceQueryParams
     onError: (error: unknown) => {
       const message = getApiErrorMessage(error, "Failed to update invoice status.");
       toast.error("Update Failed", { description: message });
+    },
+  });
+}
+
+export function useCreateInvoiceMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (payload: import("../types/invoice.types").CreateInvoicePayload) => createInvoice(payload),
+    onSuccess: () => {
+      toast.success("Invoice Created", {
+        description: "New invoice has been created.",
+      });
+      queryClient.invalidateQueries({ queryKey: invoiceKeys.lists() });
+    },
+    onError: (error: unknown) => {
+      const message = getApiErrorMessage(error, "Failed to create invoice.");
+      toast.error("Creation Failed", { description: message });
     },
   });
 }

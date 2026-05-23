@@ -23,3 +23,12 @@ export interface InvoiceQueryParams {
   status?: InvoiceStatus;
   projectId?: string;
 }
+
+export interface CreateInvoicePayload {
+  title: string;
+  amount: string;
+  dueDate: string;
+  projectId: string;
+  paymentMethod: PaymentMethod;
+  description?: string;
+}

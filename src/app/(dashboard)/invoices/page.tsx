@@ -3,6 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { format } from "date-fns";
 import { AlertTriangle, CheckCircle2, CircleDot, ShieldCheck } from "lucide-react";
 import { DataTableToolbar } from "@/components/ui/data-table-toolbar";
 import { Pagination } from "@/components/ui/pagination";
@@ -11,12 +12,13 @@ import { RowActionMenu } from "@/components/ui/row-action-menu";
 import { buildUpdatedQueryString } from "@/lib/url-query";
 import { readTableVisibleColumns, writeTableVisibleColumns } from "@/lib/table-preferences";
 import { useAuthStore } from "@/features/auth/store/auth.store";
-import { InvoiceStatusPill } from "@/features/invoices/components/invoice-status-pill";
+import { InvoiceStatusDropdown } from "@/features/invoices/components/invoice-status-dropdown";
+import { CreateInvoiceModal } from "@/features/invoices/components/create-invoice-modal";
 import { useInvoicesQuery, useUpdateInvoiceStatusMutation } from "@/features/invoices/hooks/use-invoices";
 import { parseInvoicesQuery } from "@/features/invoices/query/invoices-query.schema";
 import { SearchInput } from "@/components/ui/search-input";
 import { SummaryCard } from "@/components/ui/summary-card";
-import { formatFiat as formatUsd, formatDate } from "@/lib/utils";
+import { formatFiat as formatUsd } from "@/lib/utils";
 import { InvoiceStatus } from "@/lib/type";
 
 import {
@@ -29,28 +31,6 @@ import {
   type MethodFilterValue,
   type StatusFilterValue,
 } from "@/features/invoices/constants/invoice.constants";
-import { canTransitionTo } from "@/lib/invoice-status-mapper";
-
-function getTransitionOptions(current: InvoiceStatus): InvoiceStatus[] {
-  const allStatuses = Object.values(InvoiceStatus);
-  return allStatuses.filter((status) => canTransitionTo(current, status));
-}
-
-function getQuickActionLabel(status: InvoiceStatus): string {
-  switch (status) {
-    case InvoiceStatus.SENT:
-      return "Mark Paid";
-    case InvoiceStatus.OVERDUE:
-      return "Resolve";
-    case InvoiceStatus.LOCKED:
-      return "Release/Refund";
-    case InvoiceStatus.DRAFT:
-      return "Send";
-    default:
-      return "Update";
-  }
-}
-
 const INVOICES_TABLE_PREFERENCES_KEY = "invoices.list";
 
 export default function InvoicesPage() {
@@ -71,6 +51,7 @@ function InvoicesPageContent() {
   const [methodFilter, setMethodFilter] = React.useState<MethodFilterValue>(initialQueryState.methodFilter);
   const [keyword, setKeyword] = React.useState(initialQueryState.keyword);
   const [page, setPage] = React.useState(initialQueryState.page);
+  const [isCreateModalOpen, setIsCreateModalOpen] = React.useState(false);
   const [openSections, setOpenSections] = React.useState({
     status: true,
     payment: true,
@@ -159,7 +140,10 @@ function InvoicesPageContent() {
     setMethodFilter("ALL");
     setKeyword("");
     setPage(0);
-  }, []);
+    if (projectId) {
+      router.push("/invoices");
+    }
+  }, [projectId, router]);
 
   const outstandingAmount = React.useMemo(
     () =>
@@ -279,6 +263,14 @@ function InvoicesPageContent() {
             Filtered by project: {projectId}
           </p>
         ) : null}
+        <button
+          onClick={() => {
+            setIsCreateModalOpen(true);
+          }}
+          className="flex items-center gap-2 bg-emerald-500 hover:bg-emerald-400 text-white px-5 py-2.5 rounded-xl text-sm font-bold transition-all shadow-lg shadow-emerald-900/20 hover:shadow-emerald-500/25 hover:-translate-y-0.5 active:translate-y-0 ml-auto"
+        >
+          Create Invoice
+        </button>
       </div>
 
       <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -407,9 +399,18 @@ function InvoicesPageContent() {
               onToggle={() => toggleSection("scope")}
             >
               {projectId ? (
-                <p className="rounded-md border border-violet-500/30 bg-violet-500/10 px-3 py-2 text-xs text-violet-200">
-                  Scoped by project: <span className="font-mono">{projectId}</span>
-                </p>
+                <div className="space-y-2">
+                  <p className="rounded-md border border-violet-500/30 bg-violet-500/10 px-3 py-2 text-xs text-violet-200">
+                    Scoped by project: <span className="font-mono">{projectId}</span>
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => router.push("/invoices")}
+                    className="text-[11px] font-bold text-violet-400 hover:text-white transition-colors"
+                  >
+                    × Clear project scope
+                  </button>
+                </div>
               ) : (
                 <p className="rounded-md border border-slate-800 bg-slate-900/60 px-3 py-2 text-xs text-slate-400">
                   No project scope from query params.
@@ -504,7 +505,6 @@ function InvoicesPageContent() {
                 </tr>
               ) : (
                 visibleInvoices.map((invoice) => {
-                  const transitions = getTransitionOptions(invoice.status);
                   return (
                     <tr key={invoice.id} className="group bg-slate-800/20 hover:bg-slate-800/60 ring-1 ring-transparent hover:ring-white/10 hover:-translate-y-px transition-all duration-300 hover:shadow-xl hover:z-10 relative">
                       {visibleColumns.invoice && (
@@ -524,12 +524,18 @@ function InvoicesPageContent() {
                       {visibleColumns.amount && <td className="px-6 py-5 text-sm font-semibold text-white">{formatUsd(invoice.amount)}</td>}
                       {visibleColumns.dueDate && (
                         <td className="px-6 py-5 text-xs text-slate-300">
-                          {formatDate(invoice.dueDate, { day: "2-digit", month: "short", year: "numeric" })}
+                          {invoice.dueDate ? format(new Date(invoice.dueDate), "dd/MM/yy") : "-"}
                         </td>
                       )}
                       {visibleColumns.status && (
                         <td className="px-6 py-5">
-                          <InvoiceStatusPill status={invoice.status} />
+                          <InvoiceStatusDropdown
+                            invoiceId={invoice.id}
+                            status={invoice.status}
+                            canEdit={canUpdateStatus}
+                            onUpdate={(nextStatus) => handleStatusUpdate(invoice.id, nextStatus)}
+                            isPending={updateStatusMutation.isPending}
+                          />
                         </td>
                       )}
                       {visibleColumns.payment && <td className="px-6 py-5 text-xs text-slate-300">{invoice.paymentMethod}</td>}
@@ -559,28 +565,6 @@ function InvoicesPageContent() {
                               },
                             ]}
                           />
-                          {canUpdateStatus && transitions.length > 0 ? (
-                            <select
-                              className="h-8 rounded-md border border-slate-700 bg-slate-950 px-2 text-xs text-slate-200 focus:border-emerald-500/50 focus:outline-none"
-                              defaultValue=""
-                              onChange={(event) => {
-                                const nextStatus = event.target.value as InvoiceStatus;
-                                if (!nextStatus) return;
-                                handleStatusUpdate(invoice.id, nextStatus);
-                                event.target.value = "";
-                              }}
-                              disabled={updateStatusMutation.isPending}
-                            >
-                              <option value="">{getQuickActionLabel(invoice.status)}...</option>
-                              {transitions.map((status) => (
-                                <option key={status} value={status}>
-                                  {status}
-                                </option>
-                              ))}
-                            </select>
-                          ) : (
-                            <span className="text-xs text-slate-500">-</span>
-                          )}
                         </div>
                       </td>}
                     </tr>
@@ -600,6 +584,11 @@ function InvoicesPageContent() {
         />
         </div>
       </section>
+      <CreateInvoiceModal
+        isOpen={isCreateModalOpen}
+        onClose={() => setIsCreateModalOpen(false)}
+        defaultProjectId={projectId || undefined}
+      />
     </div>
   );
 }
