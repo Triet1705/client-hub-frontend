@@ -8,6 +8,7 @@ import { useExtractTasksMutation } from "../hooks/use-smart-tasks";
 import { ExtractedTask } from "../types/smart-tasks.types";
 import { TaskRequestPayload, TaskStatus, TaskPriority } from "@/features/tasks/types/task.types";
 import { toast } from "sonner";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { SelectDropdown } from "@/components/ui/select-dropdown";
 import { TASK_PRIORITY_OPTIONS } from "@/features/tasks/constants/task-ui.constants";
 import { createTask } from "@/features/tasks/api/task.api";
@@ -47,6 +48,7 @@ export function SmartUploadSlideover({
   
   // Track faded/dismissed cards for unmounting after animation
   const [fadedTaskIds, setFadedTaskIds] = useState<Set<string>>(new Set());
+  const [showDiscardDialog, setShowDiscardDialog] = useState(false);
 
   const { mutate: extractTasks } = useExtractTasksMutation();
   const queryClient = useQueryClient();
@@ -98,9 +100,7 @@ export function SmartUploadSlideover({
 
   const handleClose = () => {
     if (phase === "review" && extractedTasks.length > 0) {
-      if (window.confirm(`You have ${extractedTasks.length} unreviewed tasks. Discard?`)) {
-        onClose();
-      }
+      setShowDiscardDialog(true);
     } else {
       onClose();
     }
@@ -475,6 +475,20 @@ export function SmartUploadSlideover({
           </div>
         )}
       </div>
+
+      <ConfirmDialog
+        isOpen={showDiscardDialog}
+        title="Discard Unreviewed Tasks?"
+        message={`You have ${extractedTasks.length} unreviewed tasks. They will be lost if you close now.`}
+        confirmText="Discard"
+        cancelText="Keep Reviewing"
+        isDestructive
+        onConfirm={() => {
+          setShowDiscardDialog(false);
+          onClose();
+        }}
+        onCancel={() => setShowDiscardDialog(false)}
+      />
     </>
   );
 }

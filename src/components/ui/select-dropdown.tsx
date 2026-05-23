@@ -19,6 +19,7 @@ interface SelectDropdownProps<T extends string = string> {
   disabled?: boolean;
   isError?: boolean;
   className?: string;
+  size?: "sm" | "md";
 }
 
 export function SelectDropdown<T extends string = string>({
@@ -30,6 +31,7 @@ export function SelectDropdown<T extends string = string>({
   disabled = false,
   isError = false,
   className,
+  size = "md",
 }: SelectDropdownProps<T>) {
   const [open, setOpen] = React.useState(false);
   const containerRef = React.useRef<HTMLDivElement>(null);
@@ -54,9 +56,8 @@ export function SelectDropdown<T extends string = string>({
         disabled={disabled || loading}
         onClick={() => setOpen((o) => !o)}
         className={cn(
-          "w-full bg-slate-900/50 border rounded-xl px-4 py-3 text-sm text-white",
-          "flex items-center justify-between transition-all focus:outline-none",
-          "disabled:opacity-60 disabled:cursor-not-allowed",
+          "w-full bg-slate-900/50 border text-white flex items-center justify-between transition-all focus:outline-none disabled:opacity-60 disabled:cursor-not-allowed",
+          size === "sm" ? "h-8 rounded-md px-2 text-xs" : "rounded-xl px-4 py-3 text-sm",
           open
             ? "border-emerald-500 ring-2 ring-emerald-500/20"
             : isError
@@ -90,7 +91,10 @@ export function SelectDropdown<T extends string = string>({
                   onChange(opt.value);
                   setOpen(false);
                 }}
-                className="w-full flex items-center justify-between px-4 py-3 text-sm transition-colors hover:bg-slate-800 first:rounded-t-xl last:rounded-b-xl"
+                className={cn(
+                  "w-full flex items-center justify-between px-4 transition-colors hover:bg-slate-800",
+                  size === "sm" ? "py-2 text-xs first:rounded-t-md last:rounded-b-md" : "py-3 text-sm first:rounded-t-xl last:rounded-b-xl"
+                )}
               >
                 <span className={opt.color ?? "text-white"}>{opt.label}</span>
                 {value === opt.value && <Check className="w-4 h-4 text-emerald-400 shrink-0" />}
