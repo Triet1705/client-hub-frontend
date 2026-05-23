@@ -9,7 +9,6 @@ import { DataTableToolbar } from "@/components/ui/data-table-toolbar";
 import { Pagination } from "@/components/ui/pagination";
 import { FilterSection } from "@/components/ui/filter-section";
 import { RowActionMenu } from "@/components/ui/row-action-menu";
-import { SelectDropdown } from "@/components/ui/select-dropdown";
 import { buildUpdatedQueryString } from "@/lib/url-query";
 import { readTableVisibleColumns, writeTableVisibleColumns } from "@/lib/table-preferences";
 import { useAuthStore } from "@/features/auth/store/auth.store";
