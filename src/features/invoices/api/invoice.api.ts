@@ -26,3 +26,8 @@ export async function updateInvoiceStatus(id: string, status: InvoiceStatus): Pr
   });
   return data;
 }
+
+export async function createInvoice(payload: import("../types/invoice.types").CreateInvoicePayload): Promise<Invoice> {
+  const { data } = await apiClient.post<Invoice>(INVOICES_BASE, payload);
+  return data;
+}
