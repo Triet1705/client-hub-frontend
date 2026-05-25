@@ -16,7 +16,10 @@ import {
   useUpdateInvoiceStatusMutation,
 } from "@/features/invoices/hooks/use-invoices";
 import { canTransitionTo } from "@/lib/invoice-status-mapper";
-import { InvoiceStatus } from "@/lib/type";
+import { InvoiceStatus, PaymentMethod } from "@/lib/type";
+import { useEscrowContract } from "@/features/wallet/hooks/useEscrowContract";
+import { ConnectButton } from "@rainbow-me/rainbowkit";
+import { useAccount } from "wagmi";
 
 function formatUsd(value: string) {
   const parsed = Number(value);
@@ -57,6 +60,19 @@ export default function InvoiceDetailPage() {
     status: undefined,
     projectId: invoice?.projectId,
   });
+
+  const { isConnected } = useAccount();
+  const { deposit, isDepositing, isDepositSuccess, depositError, release, isReleasing, isReleaseSuccess, releaseError } = useEscrowContract();
+
+  React.useEffect(() => {
+    if (isDepositSuccess) toast.success("Transaction submitted! 🚀", { description: "Deposit has been confirmed on-chain." });
+    if (depositError) toast.error("Deposit Failed", { description: depositError.message });
+  }, [isDepositSuccess, depositError]);
+
+  React.useEffect(() => {
+    if (isReleaseSuccess) toast.success("Funds Released! 🚀", { description: "Escrow funds have been successfully released." });
+    if (releaseError) toast.error("Release Failed", { description: releaseError.message });
+  }, [isReleaseSuccess, releaseError]);
 
   const canUpdateStatus = user?.role === "CLIENT" || user?.role === "ADMIN";
   const isFreelancerView = user?.role === "FREELANCER";
@@ -182,35 +198,69 @@ export default function InvoiceDetailPage() {
                 <div className="pt-4 border-t border-slate-800">
                   {transitionOptions.length > 0 ? (
                     <div className="flex flex-col sm:flex-row gap-3">
-                      {(() => {
-                        const primary = getPrimaryTransition(invoice.status);
-                        const actualPrimary = primary && transitionOptions.includes(primary) ? primary : transitionOptions[0];
-                        const secondary = transitionOptions.filter((t) => t !== actualPrimary);
+                      {invoice.paymentMethod === PaymentMethod.CRYPTO_ESCROW ? (
+                        <>
+                          {(!isConnected) ? (
+                            <ConnectButton />
+                          ) : (
+                            <>
+                              {invoice.status === InvoiceStatus.DRAFT || invoice.status === InvoiceStatus.SENT ? (
+                                <button
+                                  type="button"
+                                  disabled={isDepositing}
+                                  onClick={() => deposit(Number(invoice.id), "0x0000000000000000000000000000000000000000", invoice.amount)}
+                                  className="flex-1 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white px-5 py-3 text-sm font-bold transition-all shadow-lg shadow-emerald-900/20 hover:shadow-emerald-500/25 disabled:opacity-50 disabled:cursor-not-allowed"
+                                >
+                                  {isDepositing ? "Processing ⏳" : "Secure with Escrow"}
+                                </button>
+                              ) : invoice.status === InvoiceStatus.LOCKED ? (
+                                <button
+                                  type="button"
+                                  disabled={isReleasing}
+                                  onClick={() => release(Number(invoice.id))}
+                                  className="flex-1 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white px-5 py-3 text-sm font-bold transition-all shadow-lg shadow-emerald-900/20 hover:shadow-emerald-500/25 disabled:opacity-50 disabled:cursor-not-allowed"
+                                >
+                                  {isReleasing ? "Processing ⏳" : "Release Payment"}
+                                </button>
+                              ) : (
+                                <div className="rounded-xl bg-slate-900/50 p-4 text-center border border-slate-800 w-full">
+                                  <p className="text-sm text-slate-400">Escrow operations are handled automatically or terminal for this status.</p>
+                                </div>
+                              )}
+                            </>
+                          )}
+                        </>
+                      ) : (
+                        (() => {
+                          const primary = getPrimaryTransition(invoice.status);
+                          const actualPrimary = primary && transitionOptions.includes(primary) ? primary : transitionOptions[0];
+                          const secondary = transitionOptions.filter((t) => t !== actualPrimary);
 
-                        return (
-                          <>
-                            <button
-                              type="button"
-                              disabled={updateStatusMutation.isPending}
-                              onClick={() => setConfirmStatus(actualPrimary)}
-                              className="flex-1 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white px-5 py-3 text-sm font-bold transition-all shadow-lg shadow-emerald-900/20 hover:shadow-emerald-500/25 disabled:opacity-50 disabled:cursor-not-allowed"
-                            >
-                              Mark as {INVOICE_STATUS_LABELS[actualPrimary]}
-                            </button>
-                            {secondary.map((opt) => (
+                          return (
+                            <>
                               <button
-                                key={opt}
                                 type="button"
                                 disabled={updateStatusMutation.isPending}
-                                onClick={() => setConfirmStatus(opt)}
-                                className="flex-1 sm:flex-none rounded-xl border border-slate-700 bg-slate-800/50 hover:bg-slate-800 hover:border-slate-600 hover:text-white text-slate-300 px-5 py-3 text-sm font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                                onClick={() => setConfirmStatus(actualPrimary)}
+                                className="flex-1 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white px-5 py-3 text-sm font-bold transition-all shadow-lg shadow-emerald-900/20 hover:shadow-emerald-500/25 disabled:opacity-50 disabled:cursor-not-allowed"
                               >
-                                Mark as {INVOICE_STATUS_LABELS[opt]}
+                                Mark as {INVOICE_STATUS_LABELS[actualPrimary]}
                               </button>
-                            ))}
-                          </>
-                        );
-                      })()}
+                              {secondary.map((opt) => (
+                                <button
+                                  key={opt}
+                                  type="button"
+                                  disabled={updateStatusMutation.isPending}
+                                  onClick={() => setConfirmStatus(opt)}
+                                  className="flex-1 sm:flex-none rounded-xl border border-slate-700 bg-slate-800/50 hover:bg-slate-800 hover:border-slate-600 hover:text-white text-slate-300 px-5 py-3 text-sm font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                                >
+                                  Mark as {INVOICE_STATUS_LABELS[opt]}
+                                </button>
+                              ))}
+                            </>
+                          );
+                        })()
+                      )}
                     </div>
                   ) : (
                     <div className="rounded-xl bg-slate-900/50 p-4 text-center border border-slate-800">
