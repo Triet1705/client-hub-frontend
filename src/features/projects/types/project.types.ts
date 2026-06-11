@@ -6,8 +6,6 @@ export enum ProjectStatus {
     CANCELLED = "CANCELLED",
 }
 
-export type PaymentMethod = "FIAT" | "CRYPTO_ESCROW" | "CRYPTO_DIRECT";
-
 export interface Project {
     id: string;
     title: string;

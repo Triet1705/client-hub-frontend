@@ -1,40 +1,9 @@
 import { useWriteContract, useReadContract, useWaitForTransactionReceipt } from "wagmi";
-import { parseUnits } from "viem";
+import { isAddress, parseUnits } from "viem";
 
-// Placeholder ABI for compilation until Phase 1 is done
-export const ESCROW_ABI = [
-  {
-    "inputs": [
-      { "internalType": "uint256", "name": "invoiceId", "type": "uint256" },
-      { "internalType": "address", "name": "token", "type": "address" },
-      { "internalType": "uint256", "name": "amount", "type": "uint256" }
-    ],
-    "name": "deposit",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      { "internalType": "uint256", "name": "invoiceId", "type": "uint256" }
-    ],
-    "name": "release",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      { "internalType": "uint256", "name": "invoiceId", "type": "uint256" }
-    ],
-    "name": "getEscrowStatus",
-    "outputs": [
-      { "internalType": "uint8", "name": "", "type": "uint8" }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  }
-] as const;
+import contractAbis from "@/lib/contracts/abi.json";
+
+export const ESCROW_ABI = contractAbis.FreelanceEscrow;
 
 export const ERC20_ABI = [
   {
@@ -51,7 +20,14 @@ export const ERC20_ABI = [
   }
 ] as const;
 
-const ESCROW_ADDRESS = (process.env.NEXT_PUBLIC_ESCROW_CONTRACT_ADDRESS || "0x0000000000000000000000000000000000000000") as `0x${string}`;
+export const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
+export const ESCROW_ADDRESS = (process.env.NEXT_PUBLIC_ESCROW_CONTRACT_ADDRESS || ZERO_ADDRESS) as `0x${string}`;
+export const ESCROW_TOKEN_ADDRESS = (process.env.NEXT_PUBLIC_ESCROW_TOKEN_ADDRESS || ZERO_ADDRESS) as `0x${string}`;
+export const ESCROW_TOKEN_DECIMALS = Number(process.env.NEXT_PUBLIC_ESCROW_TOKEN_DECIMALS || "6");
+
+export function isConfiguredAddress(value: string | undefined | null): value is `0x${string}` {
+  return !!value && value !== ZERO_ADDRESS && isAddress(value);
+}
 
 export function useEscrowContract() {
   const depositMutation = useWriteContract();
@@ -62,33 +38,48 @@ export function useEscrowContract() {
   const releaseReceipt = useWaitForTransactionReceipt({ hash: releaseMutation.data });
   const approveReceipt = useWaitForTransactionReceipt({ hash: approveMutation.data });
 
-  const deposit = async (invoiceId: number, tokenAddress: string, amount: string, decimals: number = 6) => {
-    const parsedAmount = parseUnits(amount, decimals);
-    depositMutation.writeContract({
-      address: ESCROW_ADDRESS,
-      abi: ESCROW_ABI,
-      functionName: "deposit",
-      args: [BigInt(invoiceId), tokenAddress as `0x${string}`, parsedAmount],
-    });
+  const deposit = async (invoiceId: number, tokenAddress: string, amount: string | number, freelancer: string, decimals: number = 6) => {
+    try {
+      const parsedAmount = parseUnits(String(amount), decimals);
+      return await depositMutation.writeContractAsync({
+        address: ESCROW_ADDRESS,
+        abi: ESCROW_ABI,
+        functionName: "deposit",
+        args: [BigInt(invoiceId), tokenAddress as `0x${string}`, parsedAmount, freelancer as `0x${string}`],
+      });
+    } catch (error) {
+      console.error("Deposit error:", error);
+      throw error;
+    }
   };
 
   const release = async (invoiceId: number) => {
-    releaseMutation.writeContract({
-      address: ESCROW_ADDRESS,
-      abi: ESCROW_ABI,
-      functionName: "release",
-      args: [BigInt(invoiceId)],
-    });
+    try {
+      return await releaseMutation.writeContractAsync({
+        address: ESCROW_ADDRESS,
+        abi: ESCROW_ABI,
+        functionName: "release",
+        args: [BigInt(invoiceId)],
+      });
+    } catch (error) {
+      console.error("Release error:", error);
+      throw error;
+    }
   };
 
-  const approve = async (tokenAddress: string, amount: string, decimals: number = 6) => {
-    const parsedAmount = parseUnits(amount, decimals);
-    approveMutation.writeContract({
-      address: tokenAddress as `0x${string}`,
-      abi: ERC20_ABI,
-      functionName: "approve",
-      args: [ESCROW_ADDRESS, parsedAmount],
-    });
+  const approve = async (tokenAddress: string, amount: string | number, decimals: number = 6) => {
+    try {
+      const parsedAmount = parseUnits(String(amount), decimals);
+      return await approveMutation.writeContractAsync({
+        address: tokenAddress as `0x${string}`,
+        abi: ERC20_ABI,
+        functionName: "approve",
+        args: [ESCROW_ADDRESS, parsedAmount],
+      });
+    } catch (error) {
+      console.error("Approve error:", error);
+      throw error;
+    }
   };
 
   return {

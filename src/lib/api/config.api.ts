@@ -7,12 +7,12 @@ export interface SystemConfig {
 export async function fetchSystemConfig(): Promise<SystemConfig> {
   try {
     // Attempt to fetch from real backend
-    const { data } = await apiClient.get<SystemConfig>("/config");
+    const { data } = await apiClient.get<SystemConfig>("/system/config");
     return data;
-  } catch (err) {
+  } catch {
     // Fallback if endpoint doesn't exist yet
     return {
-      blockchainEnabled: process.env.NEXT_PUBLIC_BLOCKCHAIN_ENABLED === "true" || true,
+      blockchainEnabled: process.env.NEXT_PUBLIC_BLOCKCHAIN_ENABLED === "true",
     };
   }
 }

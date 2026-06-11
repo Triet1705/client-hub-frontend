@@ -46,6 +46,7 @@ export interface UserPayload {
   role: Role;
   tenantId: string;
   walletAddress?: string;
+  fullName?: string;
 }
 
 export interface AuthState {

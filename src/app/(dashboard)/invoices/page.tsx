@@ -18,7 +18,7 @@ import { useInvoicesQuery, useUpdateInvoiceStatusMutation } from "@/features/inv
 import { parseInvoicesQuery } from "@/features/invoices/query/invoices-query.schema";
 import { SearchInput } from "@/components/ui/search-input";
 import { SummaryCard } from "@/components/ui/summary-card";
-import { formatFiat as formatUsd } from "@/lib/utils";
+import { formatFiat as formatUsd, formatInvoiceId } from "@/lib/utils";
 import { InvoiceStatus } from "@/lib/type";
 
 import {
@@ -28,6 +28,7 @@ import {
   INVOICE_METHOD_FILTERS,
   INVOICE_PAGE_SIZE,
   INVOICE_STATUS_FILTERS,
+  PAYMENT_METHOD_LABELS,
   type MethodFilterValue,
   type StatusFilterValue,
 } from "@/features/invoices/constants/invoice.constants";
@@ -60,6 +61,7 @@ function InvoicesPageContent() {
   });
   const [visibleColumns, setVisibleColumns] = React.useState<Record<string, boolean>>(initialQueryState.visibleColumns);
   const { user } = useAuthStore();
+  const canCreateInvoice = user?.role === "CLIENT" || user?.role === "ADMIN";
 
   const projectId = searchParams.get("projectId") || undefined;
   const invoiceQueryParams = React.useMemo(
@@ -263,14 +265,16 @@ function InvoicesPageContent() {
             Filtered by project: {projectId}
           </p>
         ) : null}
-        <button
-          onClick={() => {
-            setIsCreateModalOpen(true);
-          }}
-          className="flex items-center gap-2 bg-emerald-500 hover:bg-emerald-400 text-white px-5 py-2.5 rounded-xl text-sm font-bold transition-all shadow-lg shadow-emerald-900/20 hover:shadow-emerald-500/25 hover:-translate-y-0.5 active:translate-y-0 ml-auto"
-        >
-          Create Invoice
-        </button>
+        {canCreateInvoice ? (
+          <button
+            onClick={() => {
+              setIsCreateModalOpen(true);
+            }}
+            className="flex items-center gap-2 bg-emerald-500 hover:bg-emerald-400 text-white px-5 py-2.5 rounded-xl text-sm font-bold transition-all shadow-lg shadow-emerald-900/20 hover:shadow-emerald-500/25 hover:-translate-y-0.5 active:translate-y-0 ml-auto"
+          >
+            Create Invoice
+          </button>
+        ) : null}
       </div>
 
       <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -510,7 +514,7 @@ function InvoicesPageContent() {
                       {visibleColumns.invoice && (
                         <td className="px-6 py-5 text-xs font-mono text-slate-200">
                           <Link href={`/invoices/${invoice.id}`} className="hover:text-emerald-300 transition-colors">
-                            #{invoice.id}
+                            {formatInvoiceId(invoice.id)}
                           </Link>
                         </td>
                       )}
@@ -538,7 +542,7 @@ function InvoicesPageContent() {
                           />
                         </td>
                       )}
-                      {visibleColumns.payment && <td className="px-6 py-5 text-xs text-slate-300">{invoice.paymentMethod}</td>}
+                      {visibleColumns.payment && <td className="px-6 py-5 text-xs text-slate-300">{PAYMENT_METHOD_LABELS[invoice.paymentMethod] ?? invoice.paymentMethod}</td>}
                       {visibleColumns.reference && (
                         <td className="px-6 py-5 text-xs font-mono text-slate-400">
                           {invoice.txHash || invoice.smartContractId || "-"}

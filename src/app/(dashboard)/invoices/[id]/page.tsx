@@ -17,9 +17,15 @@ import {
 } from "@/features/invoices/hooks/use-invoices";
 import { canTransitionTo } from "@/lib/invoice-status-mapper";
 import { InvoiceStatus, PaymentMethod } from "@/lib/type";
-import { useEscrowContract } from "@/features/wallet/hooks/useEscrowContract";
+import {
+  ESCROW_ADDRESS,
+  ESCROW_TOKEN_ADDRESS,
+  ESCROW_TOKEN_DECIMALS,
+  isConfiguredAddress,
+  useEscrowContract,
+} from "@/features/wallet/hooks/useEscrowContract";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
-import { useAccount } from "wagmi";
+import { useAccount, useChainId } from "wagmi";
 
 function formatUsd(value: string) {
   const parsed = Number(value);
@@ -62,12 +68,31 @@ export default function InvoiceDetailPage() {
   });
 
   const { isConnected } = useAccount();
-  const { deposit, isDepositing, isDepositSuccess, depositError, release, isReleasing, isReleaseSuccess, releaseError } = useEscrowContract();
+  const chainId = useChainId();
+  const {
+    approve,
+    isApproving,
+    isApproveSuccess,
+    approveError,
+    deposit,
+    isDepositing,
+    isDepositSuccess,
+    depositError,
+    release,
+    isReleasing,
+    isReleaseSuccess,
+    releaseError,
+  } = useEscrowContract();
 
   React.useEffect(() => {
     if (isDepositSuccess) toast.success("Transaction submitted! 🚀", { description: "Deposit has been confirmed on-chain." });
     if (depositError) toast.error("Deposit Failed", { description: depositError.message });
   }, [isDepositSuccess, depositError]);
+
+  React.useEffect(() => {
+    if (isApproveSuccess) toast.success("Token approval confirmed", { description: "You can now secure this invoice in escrow." });
+    if (approveError) toast.error("Approval Failed", { description: approveError.message });
+  }, [isApproveSuccess, approveError]);
 
   React.useEffect(() => {
     if (isReleaseSuccess) toast.success("Funds Released! 🚀", { description: "Escrow funds have been successfully released." });
@@ -76,6 +101,21 @@ export default function InvoiceDetailPage() {
 
   const canUpdateStatus = user?.role === "CLIENT" || user?.role === "ADMIN";
   const isFreelancerView = user?.role === "FREELANCER";
+  const escrowContractConfigured = isConfiguredAddress(ESCROW_ADDRESS);
+  const escrowTokenConfigured = isConfiguredAddress(ESCROW_TOKEN_ADDRESS);
+  const freelancerWalletConfigured = isConfiguredAddress(invoice?.walletAddress);
+  const expectedChainIds = [31337, 80002];
+  const isSupportedChain = expectedChainIds.includes(chainId);
+  const escrowConfigReady = escrowContractConfigured && escrowTokenConfigured && freelancerWalletConfigured && isSupportedChain;
+  const escrowConfigMessage = !escrowContractConfigured
+    ? "Escrow contract address is not configured."
+    : !escrowTokenConfigured
+      ? "Escrow token address is not configured."
+      : !freelancerWalletConfigured
+        ? "Freelancer wallet address is missing or invalid."
+        : !isSupportedChain
+          ? "Switch to Hardhat Local or Polygon Amoy."
+          : null;
 
   const transitionOptions = React.useMemo(
     () => (invoice ? getTransitionOptions(invoice.status) : []),
@@ -185,11 +225,9 @@ export default function InvoiceDetailPage() {
               </div>
 
               <div className="rounded-xl border border-slate-800 bg-slate-900/50 p-5">
-                <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400">Internal Notes</h3>
-                <p className="mt-3 text-sm leading-relaxed text-slate-300">
-                  {isFreelancerView
-                    ? "Freelancer view focuses on payment status, due date, and settlement references."
-                    : "Client/Admin view includes status transition controls and settlement verification context."}
+                <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400">Internal Notes / Description</h3>
+                <p className="mt-3 text-sm leading-relaxed text-slate-300 whitespace-pre-wrap">
+                  {invoice.description ? invoice.description : "-"}
                 </p>
               </div>
 
@@ -204,23 +242,78 @@ export default function InvoiceDetailPage() {
                             <ConnectButton />
                           ) : (
                             <>
-                              {invoice.status === InvoiceStatus.DRAFT || invoice.status === InvoiceStatus.SENT ? (
-                                <button
-                                  type="button"
-                                  disabled={isDepositing}
-                                  onClick={() => deposit(Number(invoice.id), "0x0000000000000000000000000000000000000000", invoice.amount)}
-                                  className="flex-1 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white px-5 py-3 text-sm font-bold transition-all shadow-lg shadow-emerald-900/20 hover:shadow-emerald-500/25 disabled:opacity-50 disabled:cursor-not-allowed"
-                                >
-                                  {isDepositing ? "Processing ⏳" : "Secure with Escrow"}
-                                </button>
+                              {invoice.status === InvoiceStatus.DRAFT || invoice.status === InvoiceStatus.SENT || invoice.status === InvoiceStatus.CRYPTO_ESCROW_WAITING ? (
+                                <div className="flex flex-col w-full gap-4">
+                                  <div className="rounded-xl bg-slate-900/50 p-4 border border-slate-800">
+                                    <h4 className="text-xs font-bold uppercase tracking-wider text-slate-300 mb-2">Escrow Process</h4>
+                                    <div className="space-y-2 text-xs text-slate-400">
+                                      <p className="flex items-center justify-between"><span className={!isApproveSuccess ? "text-emerald-400 font-bold" : ""}>1. Approve Token</span> <span>Gas fee only</span></p>
+                                      <p className="flex items-center justify-between"><span className={isApproveSuccess ? "text-emerald-400 font-bold" : ""}>2. Secure Deposit</span> <span>Gas fee + Invoice Amount</span></p>
+                                      <p className="flex items-center justify-between"><span>3. Release Payment</span> <span>Gas fee only</span></p>
+                                    </div>
+                                  </div>
+                                  <div className="flex w-full gap-3">
+                                    {!escrowConfigReady ? (
+                                      <div className="rounded-xl bg-slate-900/50 p-4 text-center border border-slate-800 w-full">
+                                        <p className="text-sm text-slate-400">{escrowConfigMessage}</p>
+                                      </div>
+                                    ) : !isApproveSuccess ? (
+                                      <button
+                                        type="button"
+                                        disabled={isApproving}
+                                        onClick={async () => { 
+                                          try { 
+                                            await approve(ESCROW_TOKEN_ADDRESS, invoice.amount, ESCROW_TOKEN_DECIMALS); 
+                                          } catch (err: any) { 
+                                            if (err?.message?.includes("User rejected") || err?.name === "UserRejectedRequestError") {
+                                              toast.error("Transaction cancelled by user");
+                                            } else {
+                                              toast.error("Approval failed", { description: err instanceof Error ? err.message : "Unknown error" }); 
+                                            }
+                                          } 
+                                        }}
+                                        className="flex-1 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white px-5 py-3 text-sm font-bold transition-all shadow-lg shadow-cyan-900/20 hover:shadow-cyan-500/25 disabled:opacity-50 disabled:cursor-not-allowed"
+                                      >
+                                        {isApproving ? "Approving..." : "Approve Escrow Token"}
+                                      </button>
+                                    ) : (
+                                      <button
+                                        type="button"
+                                        disabled={isDepositing}
+                                        onClick={async () => { 
+                                          try { 
+                                            await deposit(Number(invoice.id), ESCROW_TOKEN_ADDRESS, invoice.amount, invoice.walletAddress!, ESCROW_TOKEN_DECIMALS); 
+                                          } catch (err: any) { 
+                                            if (err?.message?.includes("User rejected") || err?.name === "UserRejectedRequestError") {
+                                              toast.error("Transaction cancelled by user");
+                                            } else {
+                                              toast.error("Deposit failed", { description: err instanceof Error ? err.message : "Unknown error" }); 
+                                            }
+                                          } 
+                                        }}
+                                        className="flex-1 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white px-5 py-3 text-sm font-bold transition-all shadow-lg shadow-emerald-900/20 hover:shadow-emerald-500/25 disabled:opacity-50 disabled:cursor-not-allowed"
+                                      >
+                                        {isDepositing ? "Processing..." : "Secure with Escrow"}
+                                      </button>
+                                    )}
+                                  </div>
+                                </div>
                               ) : invoice.status === InvoiceStatus.LOCKED ? (
                                 <button
                                   type="button"
-                                  disabled={isReleasing}
-                                  onClick={() => release(Number(invoice.id))}
+                                  disabled={isReleasing || !escrowContractConfigured || !isSupportedChain}
+                                  onClick={async () => {
+                                    try {
+                                      await release(Number(invoice.id));
+                                    } catch (err: any) {
+                                      if (err?.message?.includes("User rejected") || err?.name === "UserRejectedRequestError") {
+                                        toast.error("Transaction cancelled by user");
+                                      }
+                                    }
+                                  }}
                                   className="flex-1 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white px-5 py-3 text-sm font-bold transition-all shadow-lg shadow-emerald-900/20 hover:shadow-emerald-500/25 disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
-                                  {isReleasing ? "Processing ⏳" : "Release Payment"}
+                                  {isReleasing ? "Processing..." : "Release Payment"}
                                 </button>
                               ) : (
                                 <div className="rounded-xl bg-slate-900/50 p-4 text-center border border-slate-800 w-full">

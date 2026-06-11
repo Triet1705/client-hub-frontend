@@ -74,6 +74,7 @@ export enum ProjectStatus {
 export interface Invoice {
   id: string;
   title: string;
+  description?: string;
   amount: string;
   dueDate: string;
   status: InvoiceStatus;
@@ -86,6 +87,7 @@ export interface Invoice {
   walletAddress?: string;
   escrowStatus?: EscrowStatus;
   confirmations?: number;
+  paidAt?: string;
   createdAt?: string;
   updatedAt?: string;
 }
