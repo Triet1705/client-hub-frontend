@@ -5,9 +5,7 @@ import { NetworkStatusBadge } from "@/components/shared/network-status-badge";
 export default function AuthLayout({ children }: { children: ReactNode }) {
   return (
     <div className="flex min-h-screen w-full bg-background font-space-grotesk text-slate-100 antialiased overflow-hidden">
-      {/* TODO: NetworkStatusBadge currently uses hardcoded values.
-          Wire up to real wagmi hooks (useAccount, useNetwork) once
-          wallet provider is configured at app level. */}
+
       <NetworkStatusBadge className="fixed top-6 right-6 z-50" />
 
       <div className="hidden lg:flex flex-1 bg-slate-950 relative items-center justify-center overflow-hidden border-r border-slate-900">

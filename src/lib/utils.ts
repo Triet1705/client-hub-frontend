@@ -40,3 +40,8 @@ export function truncateAddress(address: string | undefined): string {
 
   return `${address.slice(0, 6)}...${address.slice(-4)}`;
 }
+
+export function formatInvoiceId(id: string | number | null | undefined): string {
+  if (id == null) return "—";
+  return `INV-${String(id).padStart(4, "0")}`;
+}

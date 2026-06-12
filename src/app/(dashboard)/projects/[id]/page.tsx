@@ -22,6 +22,7 @@ import { ProjectStatusBadge } from "@/features/projects/components/project-statu
 import { TaskDetailSlideover } from "@/features/projects/components/task-detail-slideover";
 import { AddMemberModal } from "@/features/projects/components/add-member-modal";
 import { SmartUploadSlideover } from "@/features/smart-tasks/components/smart-upload-slideover";
+import { CreateInvoiceModal } from "@/features/invoices/components/create-invoice-modal";
 import { useQueryClient } from "@tanstack/react-query";
 
 export default function ProjectDetailPage() {
@@ -49,6 +50,7 @@ export default function ProjectDetailPage() {
   const [selectedTask, setSelectedTask] = React.useState<Task | null>(null);
   const [isAddMemberOpen, setIsAddMemberOpen] = React.useState(false);
   const [isSmartUploadOpen, setIsSmartUploadOpen] = React.useState(false);
+  const [isCreateInvoiceOpen, setIsCreateInvoiceOpen] = React.useState(false);
 
   const { mutate: addMember, isPending: isAddingMember } = useAddMemberMutation(projectId);
   const { mutate: removeMember, isPending: isRemovingMember } = useRemoveMemberMutation(projectId);
@@ -241,9 +243,19 @@ export default function ProjectDetailPage() {
               <h3 className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-slate-300 relative z-10">
                 <Receipt size={14} className="text-amber-400" /> Operational Ledgers
               </h3>
-              <Link href={`/invoices?projectId=${projectId}`} className="text-[10px] font-bold text-amber-400 hover:text-amber-300 transition-colors uppercase tracking-widest relative z-10 bg-amber-500/10 px-2.5 py-1 rounded-lg ring-1 ring-amber-500/20 shadow-md">
-                View All
-              </Link>
+              <div className="flex gap-2 relative z-10">
+                {canManageProject && (
+                  <button
+                    onClick={() => setIsCreateInvoiceOpen(true)}
+                    className="text-[10px] font-bold text-emerald-400 hover:text-emerald-300 transition-colors uppercase tracking-widest bg-emerald-500/10 px-2.5 py-1 rounded-lg ring-1 ring-emerald-500/20 shadow-md"
+                  >
+                    + Ledger
+                  </button>
+                )}
+                <Link href={`/invoices?projectId=${projectId}`} className="text-[10px] font-bold text-amber-400 hover:text-amber-300 transition-colors uppercase tracking-widest bg-amber-500/10 px-2.5 py-1 rounded-lg ring-1 ring-amber-500/20 shadow-md">
+                  View All
+                </Link>
+              </div>
             </div>
             
             <div className="p-5 space-y-3 flex-1 overflow-y-auto custom-scrollbar">
@@ -312,6 +324,12 @@ export default function ProjectDetailPage() {
         onTasksCreated={() => {
           queryClient.invalidateQueries({ queryKey: ["tasks", "list"] });
         }}
+      />
+
+      <CreateInvoiceModal
+        isOpen={isCreateInvoiceOpen}
+        onClose={() => setIsCreateInvoiceOpen(false)}
+        defaultProjectId={projectId}
       />
     </div>
   );

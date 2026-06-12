@@ -3,6 +3,7 @@ import { EscrowStatus, InvoiceStatus, PaymentMethod } from "@/lib/type";
 export interface Invoice {
   id: string;
   title: string;
+  description?: string;
   amount: string;
   dueDate: string;
   status: InvoiceStatus;
@@ -15,6 +16,7 @@ export interface Invoice {
   walletAddress?: string;
   escrowStatus?: EscrowStatus;
   confirmations?: number;
+  paidAt?: string;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -29,6 +31,8 @@ export interface CreateInvoicePayload {
   amount: string;
   dueDate: string;
   projectId: string;
+  clientId?: string;
   paymentMethod: PaymentMethod;
+  freelancerWalletAddress?: string;
   description?: string;
 }

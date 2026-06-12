@@ -1,6 +1,6 @@
 import type { FilterPillOption } from "@/components/ui/filter-pills";
 import type { ColumnOption } from "@/components/ui/change-column-table-popup";
-import { InvoiceStatus, PaymentMethod } from "@/lib/type";
+import { InvoiceStatus, PaymentMethod, EscrowStatus } from "@/lib/type";
 
 export type StatusFilterValue = "ALL" | InvoiceStatus;
 export type MethodFilterValue = "ALL" | PaymentMethod;
@@ -95,4 +95,18 @@ export const INVOICE_STATUS_PILL_CLASS: Record<InvoiceStatus, string> = {
   [InvoiceStatus.REFUNDED]: "bg-fuchsia-500/10 text-fuchsia-300 border-fuchsia-500/30",
   [InvoiceStatus.OVERDUE]: "bg-red-500/10 text-red-300 border-red-500/30",
   [InvoiceStatus.EXPIRED]: "bg-orange-500/10 text-orange-300 border-orange-500/30",
+};
+
+export const PAYMENT_METHOD_LABELS: Record<PaymentMethod, string> = {
+  [PaymentMethod.FIAT]: "Bank Transfer",
+  [PaymentMethod.CRYPTO_ESCROW]: "Crypto Escrow",
+  [PaymentMethod.CRYPTO_DIRECT]: "Crypto Direct",
+};
+
+export const ESCROW_STATUS_LABELS: Record<EscrowStatus, string> = {
+  [EscrowStatus.NOT_STARTED]: "Not Started",
+  [EscrowStatus.DEPOSITED]: "Deposited",
+  [EscrowStatus.RELEASED]: "Released",
+  [EscrowStatus.REFUNDED]: "Refunded",
+  [EscrowStatus.DISPUTED]: "Disputed",
 };
