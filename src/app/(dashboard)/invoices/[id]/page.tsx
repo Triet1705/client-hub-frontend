@@ -100,7 +100,7 @@ export default function InvoiceDetailPage() {
   }, [isReleaseSuccess, releaseError]);
 
   const canUpdateStatus = user?.role === "CLIENT" || user?.role === "ADMIN";
-  const isFreelancerView = user?.role === "FREELANCER";
+  const _isFreelancerView = user?.role === "FREELANCER";
   const escrowContractConfigured = isConfiguredAddress(ESCROW_ADDRESS);
   const escrowTokenConfigured = isConfiguredAddress(ESCROW_TOKEN_ADDRESS);
   const freelancerWalletConfigured = isConfiguredAddress(invoice?.walletAddress);
@@ -264,8 +264,9 @@ export default function InvoiceDetailPage() {
                                         onClick={async () => { 
                                           try { 
                                             await approve(ESCROW_TOKEN_ADDRESS, invoice.amount, ESCROW_TOKEN_DECIMALS); 
-                                          } catch (err: any) { 
-                                            if (err?.message?.includes("User rejected") || err?.name === "UserRejectedRequestError") {
+                                          } catch (err) { 
+                                            const e = err as Error & { name?: string };
+                                            if (e?.message?.includes("User rejected") || e?.name === "UserRejectedRequestError") {
                                               toast.error("Transaction cancelled by user");
                                             } else {
                                               toast.error("Approval failed", { description: err instanceof Error ? err.message : "Unknown error" }); 
@@ -283,8 +284,9 @@ export default function InvoiceDetailPage() {
                                         onClick={async () => { 
                                           try { 
                                             await deposit(Number(invoice.id), ESCROW_TOKEN_ADDRESS, invoice.amount, invoice.walletAddress!, ESCROW_TOKEN_DECIMALS); 
-                                          } catch (err: any) { 
-                                            if (err?.message?.includes("User rejected") || err?.name === "UserRejectedRequestError") {
+                                          } catch (err) { 
+                                            const e = err as Error & { name?: string };
+                                            if (e?.message?.includes("User rejected") || e?.name === "UserRejectedRequestError") {
                                               toast.error("Transaction cancelled by user");
                                             } else {
                                               toast.error("Deposit failed", { description: err instanceof Error ? err.message : "Unknown error" }); 
@@ -305,8 +307,9 @@ export default function InvoiceDetailPage() {
                                   onClick={async () => {
                                     try {
                                       await release(Number(invoice.id));
-                                    } catch (err: any) {
-                                      if (err?.message?.includes("User rejected") || err?.name === "UserRejectedRequestError") {
+                                    } catch (err) {
+                                      const e = err as Error & { name?: string };
+                                      if (e?.message?.includes("User rejected") || e?.name === "UserRejectedRequestError") {
                                         toast.error("Transaction cancelled by user");
                                       }
                                     }
