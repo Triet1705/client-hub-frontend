@@ -5,6 +5,7 @@ import {
   QueryKey,
 } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { reportClientError } from "@/lib/monitoring";
 
 type AxiosLikeError = {
   isAxiosError?: boolean;
@@ -64,7 +65,10 @@ function handleError(error: unknown, context?: { queryKey?: QueryKey }) {
 
   toast.error(errorMessage);
 
-  // TODO: Send to monitoring service in production
+  reportClientError(error, {
+    queryKey: context?.queryKey,
+    message: errorMessage,
+  });
 }
 
 export const queryClient = new QueryClient({
