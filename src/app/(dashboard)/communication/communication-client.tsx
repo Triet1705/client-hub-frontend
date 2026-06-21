@@ -22,6 +22,7 @@ import { StatusActivityDot, type ActivityCategory } from "@/components/ui/status
 import { SearchInput } from "@/components/ui/search-input";
 import { PROJECT_STATUS_BADGE, PROJECT_STATUS_LABEL } from "@/features/projects/constants/project-ui.constants";
 import { TASK_STATUS_BADGE, TASK_STATUS_LABEL } from "@/features/tasks/constants/task-ui.constants";
+import { CommunicationSkeleton } from "@/components/skeletons/page-skeletons";
 
 
 
@@ -212,6 +213,10 @@ export default function CommunicationClient() {
     setUploadedUrls((current) => [...current, uploaded.fileUrl]);
     event.target.value = "";
   };
+
+  if ((isProjectLoading || isTasksLoading || isInvoiceLoading) && conversations.length === 0) {
+    return <CommunicationSkeleton />;
+  }
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 h-[calc(100vh-64px)] -m-8 p-6 bg-[#0A0E17] font-body text-slate-200 overflow-hidden">

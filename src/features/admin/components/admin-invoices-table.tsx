@@ -49,14 +49,13 @@ export function AdminInvoicesTable({ status }: AdminInvoicesTableProps) {
             </thead>
             <tbody className="divide-y divide-slate-800">
               {isLoading ? (
-                <tr>
-                  <td colSpan={7} className="px-6 py-8 text-center text-slate-500">
-                    <div className="flex justify-center items-center gap-2">
-                      <div className="h-4 w-4 rounded-full border-2 border-emerald-500 border-t-transparent animate-spin" />
-                      Loading invoices...
-                    </div>
-                  </td>
-                </tr>
+                Array.from({ length: 8 }).map((_, index) => (
+                  <tr key={index}>
+                    <td colSpan={7} className="px-6 py-4">
+                      <div className="h-6 w-full animate-pulse rounded bg-slate-800/50" />
+                    </td>
+                  </tr>
+                ))
               ) : isError ? (
                 <tr>
                   <td colSpan={7} className="px-6 py-12 text-center">

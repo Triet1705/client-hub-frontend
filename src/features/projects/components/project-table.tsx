@@ -281,7 +281,13 @@ export function ProjectTable({ projects, isLoading, page, totalPages, totalEleme
           </thead>
           <tbody className="divide-y divide-slate-800">
             {isLoading ? (
-              <tr><td colSpan={visibleColumnCount} className="px-6 py-8 text-center text-slate-500">Loading projects...</td></tr>
+              Array.from({ length: 6 }).map((_, index) => (
+                <tr key={index}>
+                  <td colSpan={visibleColumnCount} className="px-6 py-5">
+                    <div className="h-6 w-full animate-pulse rounded bg-slate-800/50" />
+                  </td>
+                </tr>
+              ))
             ) : filteredProjects.length === 0 ? (
               <tr><td colSpan={visibleColumnCount} className="px-6 py-8 text-center text-slate-500">{activeFilter === "ALL" ? "No projects found. Create one to get started." : `No ${activeFilter.replace("_", " ").toLowerCase()} projects.`}</td></tr>
             ) : (

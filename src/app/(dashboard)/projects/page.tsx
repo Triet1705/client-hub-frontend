@@ -4,6 +4,7 @@ import * as React from "react";
 import { Plus } from "lucide-react";
 import { ProjectStats } from "@/features/projects/components/project-stats";
 import { ProjectTable } from "@/features/projects/components/project-table";
+import { ProjectsSkeleton } from "@/components/skeletons/page-skeletons";
 import { useProjectsQuery } from "@/features/projects/hooks/use-projects";
 import { ProjectStatus } from "@/features/projects/types/project.types";
 import { useAuthStore } from "@/features/auth/store/auth.store";
@@ -12,7 +13,7 @@ import { CreateProjectModal } from "@/features/projects/components/create-projec
 
 export default function ProjectsPage() {
   return (
-    <React.Suspense fallback={<div className="p-6 text-sm text-slate-400">Loading projects...</div>}>
+    <React.Suspense fallback={<ProjectsSkeleton />}>
       <ProjectsPageContent />
     </React.Suspense>
   );
@@ -44,6 +45,10 @@ function ProjectsPageContent() {
     const d = new Date(p.deadline);
     return d >= now && d <= thirtyDaysFromNow;
   }).length;
+
+  if (isLoading && projects.length === 0) {
+    return <ProjectsSkeleton />;
+  }
 
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-[1400px]">

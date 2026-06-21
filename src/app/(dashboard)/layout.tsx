@@ -1,6 +1,7 @@
 import * as React from "react";
 import { Sidebar } from "@/components/layout/sidebar";
 import { Header } from "@/components/layout/header";
+import { OptimisticRouteShell } from "@/components/layout/optimistic-route-shell";
 import { ImpersonationBanner } from "@/features/admin/components/impersonation-banner";
 import { WalletBinder } from "@/features/wallet/components/wallet-binder";
 import { Metadata } from "next";
@@ -29,7 +30,9 @@ export default function DashboardLayout({
 
         <main className="flex-1 p-8 overflow-y-auto">
           <div className="mx-auto max-w-7xl animate-in fade-in slide-in-from-bottom-4 duration-500">
-            {children}
+            <OptimisticRouteShell scope="dashboard">
+              {children}
+            </OptimisticRouteShell>
           </div>
         </main>
       </div>

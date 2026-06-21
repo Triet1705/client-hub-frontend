@@ -5,6 +5,7 @@ export { NavInvoicesIcon } from "./Navigation/NavInvoicesIcon";
 export { NavCommunicationIcon } from "./Navigation/NavCommunicationIcon";
 export { NavAdminIcon } from "./Navigation/NavAdminIcon";
 export { NavUsersIcon } from "./Navigation/NavUsersIcon";
+export { NavSettingsIcon } from "./Navigation/NavSettingsIcon";
 export { ActionEditIcon } from "./Actions/ActionEditIcon";
 export { ActionDeleteIcon } from "./Actions/ActionDeleteIcon";
 export { ActionPlusIcon } from "./Actions/ActionPlusIcon";

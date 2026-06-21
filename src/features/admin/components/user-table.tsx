@@ -46,14 +46,13 @@ export function UserTable({ keyword, role, status }: UserTableProps) {
             </thead>
             <tbody className="divide-y divide-slate-800">
               {isLoading ? (
-                <tr>
-                  <td colSpan={6} className="px-6 py-8 text-center text-slate-500">
-                    <div className="flex justify-center items-center gap-2">
-                      <div className="h-4 w-4 rounded-full border-2 border-emerald-500 border-t-transparent animate-spin" />
-                      Loading users...
-                    </div>
-                  </td>
-                </tr>
+                Array.from({ length: 8 }).map((_, index) => (
+                  <tr key={index}>
+                    <td colSpan={6} className="px-6 py-4">
+                      <div className="h-6 w-full animate-pulse rounded bg-slate-800/50" />
+                    </td>
+                  </tr>
+                ))
               ) : data?.content.length === 0 ? (
                 <tr>
                   <td colSpan={6} className="px-6 py-8 text-center text-slate-500">

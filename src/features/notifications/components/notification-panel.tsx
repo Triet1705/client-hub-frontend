@@ -2,6 +2,7 @@
 
 import React, { useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useNavigationProgress } from "@/providers/navigation-progress-provider";
 import { X, CheckCircle, Bell } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
@@ -58,6 +59,7 @@ function getIconForType(type: string) {
 
 export function NotificationPanel({ isOpen, onClose }: NotificationPanelProps) {
   const router = useRouter();
+  const { startNavigation } = useNavigationProgress();
   const { data: pageData, isLoading } = useNotificationsQuery(false);
   const markRead = useMarkReadMutation();
   const markAllRead = useMarkAllReadMutation();
@@ -83,12 +85,15 @@ export function NotificationPanel({ isOpen, onClose }: NotificationPanelProps) {
     if (referenceType && referenceId) {
       switch (referenceType) {
         case "TASK":
+          startNavigation(`/tasks?taskId=${referenceId}`);
           router.push(`/tasks?taskId=${referenceId}`);
           break;
         case "PROJECT":
+          startNavigation(`/projects/${referenceId}`);
           router.push(`/projects/${referenceId}`);
           break;
         case "INVOICE":
+          startNavigation(`/invoices/${referenceId}`);
           router.push(`/invoices/${referenceId}`);
           break;
         default:

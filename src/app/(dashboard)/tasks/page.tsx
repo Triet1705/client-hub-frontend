@@ -33,6 +33,7 @@ import {
 import { TaskAdvancedFilters } from "@/features/tasks/components/task-advanced-filters";
 import { FilterDropdown, type FilterDropdownOption } from "@/components/ui/filter-dropdown";
 import { PROJECT_STATUS_BADGE, PROJECT_STATUS_LABEL } from "@/features/projects/constants/project-ui.constants";
+import { TasksSkeleton } from "@/components/skeletons/page-skeletons";
 
 
 const TASKS_VIEW_STORAGE_KEY = "clienthub.tasks.view-mode";
@@ -57,7 +58,7 @@ const TASK_DUE_FILTER_OPTIONS: FilterDropdownOption<TaskDueFilterValue>[] = [
 
 export default function TasksPage() {
   return (
-    <React.Suspense fallback={<div className="p-6 text-sm text-slate-400">Loading tasks...</div>}>
+    <React.Suspense fallback={<TasksSkeleton />}>
       <TasksPageContent />
     </React.Suspense>
   );
@@ -97,7 +98,7 @@ function TasksPageContent() {
   const [selectedTask, setSelectedTask] = React.useState<Task | null>(null);
   const dropdownRef = React.useRef<HTMLDivElement>(null);
 
-  const { data: projectsData } = useProjectsQuery(0, 50);
+  const { data: projectsData, isLoading: isProjectsLoading } = useProjectsQuery(0, 50);
   const projects = React.useMemo(() => projectsData?.content ?? [], [projectsData]);
 
   // Auto-select first project once loaded
@@ -234,7 +235,9 @@ function TasksPageContent() {
     setSelectedTask(targetTask);
   }, [targetTask]);
 
-  if (!isMounted) return null;
+  if (!isMounted || (isProjectsLoading && projects.length === 0) || (isLoading && !data)) {
+    return <TasksSkeleton />;
+  }
 
   const handleSelectTask = (task: Task) => {
     setSelectedTask(task);
