@@ -24,6 +24,7 @@ import { AddMemberModal } from "@/features/projects/components/add-member-modal"
 import { SmartUploadSlideover } from "@/features/smart-tasks/components/smart-upload-slideover";
 import { CreateInvoiceModal } from "@/features/invoices/components/create-invoice-modal";
 import { useQueryClient } from "@tanstack/react-query";
+import { ProjectDetailSkeleton } from "@/components/skeletons/page-skeletons";
 
 export default function ProjectDetailPage() {
   const params = useParams<{ id: string }>();
@@ -67,15 +68,7 @@ export default function ProjectDetailPage() {
   };
 
   if (isProjectLoading) {
-    return (
-      <div className="space-y-6 max-w-[1600px] w-full">
-        <div className="h-40 rounded-3xl bg-slate-900/60 ring-1 ring-white/5 animate-pulse" />
-        <div className="grid grid-cols-1 xl:grid-cols-12 gap-6">
-           <div className="xl:col-span-8 h-[600px] rounded-3xl bg-slate-900/60 ring-1 ring-white/5 animate-pulse" />
-           <div className="xl:col-span-4 h-[600px] rounded-3xl bg-slate-900/60 ring-1 ring-white/5 animate-pulse" />
-        </div>
-      </div>
-    );
+    return <ProjectDetailSkeleton />;
   }
 
   if (isProjectError || !project) {

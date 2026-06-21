@@ -1,4 +1,5 @@
 import * as React from "react";
+import { OptimisticRouteShell } from "@/components/layout/optimistic-route-shell";
 import { AdminSidebar } from "@/features/admin/components/admin-sidebar";
 import { AdminHeader } from "@/features/admin/components/admin-header";
 import { AdminProvider } from "@/features/admin/context/admin.context";
@@ -18,7 +19,9 @@ export default function AdminLayout({
           <AdminHeader />
           <main className="flex-1 overflow-y-auto overflow-x-hidden p-6 lg:p-8 relative scroll-smooth">
             <div className="mx-auto max-w-7xl">
-              {children}
+              <OptimisticRouteShell scope="admin">
+                {children}
+              </OptimisticRouteShell>
             </div>
           </main>
         </div>

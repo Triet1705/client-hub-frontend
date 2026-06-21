@@ -18,6 +18,7 @@ import { TodayFocusBlock } from "./today-focus-block";
 import { TaskOverviewChart } from "./task-overview-chart";
 import { ActivityFeed } from "./activity-feed";
 import { ProjectRow } from "./project-row";
+import { DashboardSkeleton } from "@/components/skeletons/page-skeletons";
 
 // ─── #3: Role-Specific Greeting ───────────────────────────────────────────────
 
@@ -60,6 +61,15 @@ export function DashboardClient() {
   const pendingTasks      = statsData?.pendingTasks ?? 0;
   const awaitingPayment   = statsData?.awaitingPaymentAmount ?? "0";
   const { greeting, subtitle } = getRoleContext(role);
+  const isColdLoading =
+    (projectsLoading || statsLoading || taskSummaryLoading) &&
+    !projectsData &&
+    !statsData &&
+    !taskSummary;
+
+  if (isColdLoading) {
+    return <DashboardSkeleton />;
+  }
 
   return (
     <div className="space-y-8 pb-12 pt-4">

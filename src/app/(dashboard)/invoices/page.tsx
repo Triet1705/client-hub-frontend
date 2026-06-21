@@ -20,6 +20,7 @@ import { SearchInput } from "@/components/ui/search-input";
 import { SummaryCard } from "@/components/ui/summary-card";
 import { formatFiat as formatUsd, formatInvoiceId } from "@/lib/utils";
 import { InvoiceStatus } from "@/lib/type";
+import { InvoicesSkeleton } from "@/components/skeletons/page-skeletons";
 
 import {
   DEFAULT_INVOICE_VISIBLE_COLUMNS,
@@ -36,7 +37,7 @@ const INVOICES_TABLE_PREFERENCES_KEY = "invoices.list";
 
 export default function InvoicesPage() {
   return (
-    <React.Suspense fallback={<div className="p-6 text-sm text-slate-400">Loading invoices...</div>}>
+    <React.Suspense fallback={<InvoicesSkeleton />}>
       <InvoicesPageContent />
     </React.Suspense>
   );
@@ -250,6 +251,10 @@ function InvoicesPageContent() {
     () => INVOICE_COLUMN_OPTIONS.filter((column) => visibleColumns[column.key]).length,
     [visibleColumns],
   );
+
+  if (isLoading && invoices.length === 0) {
+    return <InvoicesSkeleton />;
+  }
 
   return (
     <div className="space-y-6 max-w-350">

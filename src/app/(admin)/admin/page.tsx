@@ -9,6 +9,7 @@ import { cn } from "@/lib/utils";
 import { NavUsersIcon, NavInvoicesIcon, NavProjectsIcon, ChevronRightIcon } from "@/components/icons";
 import { ACTION_ICON_MAP, ACTION_COLOR_MAP } from "@/features/admin/constants/admin-ui.constants";
 import { RoleBadge } from "@/features/admin/components/role-badge";
+import { DashboardSkeleton } from "@/components/skeletons/page-skeletons";
 
 
 
@@ -17,6 +18,10 @@ export default function AdminOverviewPage() {
   const { data: stats, isLoading: isStatsLoading } = usePlatformStatsQuery();
   const { data: health, isLoading: isHealthLoading } = useSystemHealthQuery();
   const { data: auditLogs, isLoading: isAuditLoading } = useAdminAuditLogsQuery({ page: 0, size: 10 });
+
+  if ((isStatsLoading || isHealthLoading || isAuditLoading) && !stats && !health && !auditLogs) {
+    return <DashboardSkeleton />;
+  }
 
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">

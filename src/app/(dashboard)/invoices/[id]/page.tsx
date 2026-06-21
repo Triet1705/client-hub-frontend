@@ -26,6 +26,7 @@ import {
 } from "@/features/wallet/hooks/useEscrowContract";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { useAccount, useChainId } from "wagmi";
+import { InvoiceDetailSkeleton } from "@/components/skeletons/page-skeletons";
 
 function formatUsd(value: string) {
   const parsed = Number(value);
@@ -135,12 +136,7 @@ export default function InvoiceDetailPage() {
   };
 
   if (isLoading) {
-    return (
-      <div className="space-y-6 max-w-350">
-        <div className="h-8 w-72 rounded bg-slate-800/60 animate-pulse" />
-        <div className="h-140 rounded-2xl border border-slate-800 bg-slate-900/30 animate-pulse" />
-      </div>
-    );
+    return <InvoiceDetailSkeleton />;
   }
 
   if (isError || !invoice) {
