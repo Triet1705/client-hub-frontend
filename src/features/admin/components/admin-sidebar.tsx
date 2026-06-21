@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useAuthStore } from "@/features/auth/store/auth.store";
 import { useLogout } from "@/features/auth/hooks/use-logout";
+import { useNavigationProgress } from "@/providers/navigation-progress-provider";
 
 import {
   ClientHubLogo,
@@ -13,6 +14,7 @@ import {
   NavProjectsIcon,
   NavInvoicesIcon,
   NavUsersIcon,
+  NavSettingsIcon,
   AuditLoggingIcon,
 } from "@/components/icons";
 
@@ -47,12 +49,18 @@ const ADMIN_NAV_ITEMS = [
     href: "/admin/logs",
     icon: AuditLoggingIcon,
   },
+  {
+    name: "Settings",
+    href: "/admin/settings",
+    icon: NavSettingsIcon,
+  },
 ];
 
 export function AdminSidebar() {
   const pathname = usePathname();
   const { user } = useAuthStore();
   const { logout } = useLogout();
+  const { pendingHref } = useNavigationProgress();
 
   const [isMounted, setIsMounted] = React.useState(false);
   const [isCollapsed, setIsCollapsed] = React.useState(false);
@@ -120,6 +128,9 @@ export function AdminSidebar() {
         ) : (
           ADMIN_NAV_ITEMS.map((item) => {
             const isActive = item.exactMatch ? pathname === item.href : pathname.startsWith(item.href);
+            const isPending = item.exactMatch
+              ? pendingHref === item.href && !isActive
+              : pendingHref?.startsWith(item.href) && !isActive;
             const Icon = item.icon;
 
             return (
@@ -130,21 +141,26 @@ export function AdminSidebar() {
                 className={cn(
                   "flex items-center rounded-lg py-2.5 text-sm font-medium transition-all duration-200 group",
                   isCollapsed ? "justify-center px-2" : "gap-3 px-3",
-                  isActive
+                  isPending
+                    ? "bg-surface-elevated text-theme-accent pointer-events-none"
+                    : isActive
                     ? "bg-theme-accent-surface text-theme-accent"
                     : "text-content-muted hover:bg-surface-elevated/50 hover:text-content-primary",
                 )}
+                aria-busy={isPending}
               >
                 <Icon
                   className={cn(
                     "h-5 w-5 transition-colors",
-                    isActive
+                    isPending
+                      ? "text-theme-accent animate-pulse"
+                      : isActive
                       ? "text-theme-accent"
                       : "text-content-muted group-hover:text-content-secondary",
                   )}
                   isActive={isActive}
                 />
-                {!isCollapsed ? item.name : null}
+                {!isCollapsed ? <span className="truncate">{isPending ? "Loading..." : item.name}</span> : null}
               </Link>
             );
           })

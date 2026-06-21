@@ -4,8 +4,12 @@ import type { NextRequest } from "next/server";
 const publicRoutes = ["/login", "/register", "/recovery", "/"];
 
 const protectedRoutePrefixes = [
+  "/admin",
+  "/communication",
   "/dashboard",
   "/projects",
+  "/profile",
+  "/settings",
   "/tasks",
   "/invoices",
 ];
@@ -48,7 +52,6 @@ export function proxy(request: NextRequest) {
     return NextResponse.redirect(new URL("/admin", request.url));
   }
 
-  // Also protect /admin route for non-admins
   if (accessToken && pathname.startsWith("/admin") && userRole !== "ADMIN") {
     return NextResponse.redirect(new URL("/dashboard", request.url));
   }

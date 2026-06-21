@@ -6,6 +6,7 @@ import {
   NavInvoicesIcon,
   NavCommunicationIcon,
   NavAdminIcon,
+  NavSettingsIcon,
   ActionEditIcon,
   ActionDeleteIcon,
   ActionPlusIcon,
@@ -50,6 +51,7 @@ export const ICON_REGISTRY = {
   "nav-invoices": NavInvoicesIcon,
   "nav-communication": NavCommunicationIcon,
   "nav-admin": NavAdminIcon,
+  "nav-settings": NavSettingsIcon,
   "action-edit": ActionEditIcon,
   "action-delete": ActionDeleteIcon,
   "action-plus": ActionPlusIcon,
@@ -115,6 +117,7 @@ export const ICON_GROUPS = {
     "nav-invoices",
     "nav-communication",
     "nav-admin",
+    "nav-settings",
   ] as const,
 
   actions: [

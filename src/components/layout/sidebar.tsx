@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useAuthStore } from "@/features/auth/store/auth.store";
 import { useLogout } from "@/features/auth/hooks/use-logout";
+import { useNavigationProgress } from "@/providers/navigation-progress-provider";
 
 import {
   ClientHubLogo,
@@ -14,6 +15,7 @@ import {
   NavTasksIcon,
   NavInvoicesIcon,
   NavCommunicationIcon,
+  NavSettingsIcon,
   PersonIcon,
 } from "@/components/icons";
 
@@ -58,12 +60,19 @@ const NAV_ITEMS = [
     icon: PersonIcon,
     roles: ["ADMIN", "CLIENT", "FREELANCER"],
   },
+  {
+    name: "Settings",
+    href: "/settings",
+    icon: NavSettingsIcon,
+    roles: ["CLIENT", "FREELANCER"],
+  },
 ];
 
 export function Sidebar() {
   const pathname = usePathname();
   const { user } = useAuthStore();
   const { logout } = useLogout();
+  const { pendingHref } = useNavigationProgress();
 
   const [isMounted, setIsMounted] = React.useState(false);
   const [isCollapsed, setIsCollapsed] = React.useState(false);
@@ -135,6 +144,7 @@ export function Sidebar() {
         ) : (
           authorizedMenus.map((item) => {
             const isActive = pathname.startsWith(item.href);
+            const isPending = pendingHref?.startsWith(item.href) && !isActive;
             const Icon = item.icon;
 
             return (
@@ -145,21 +155,26 @@ export function Sidebar() {
                 className={cn(
                   "flex items-center rounded-lg py-2.5 text-sm font-medium transition-all duration-200 group",
                   isCollapsed ? "justify-center px-2" : "gap-3 px-3",
-                  isActive
+                  isPending
+                    ? "bg-slate-800/70 text-emerald-300 pointer-events-none"
+                    : isActive
                     ? "bg-emerald-500/10 text-emerald-400"
                     : "text-slate-400 hover:bg-slate-800/50 hover:text-white",
                 )}
+                aria-busy={isPending}
               >
                 <Icon
                   className={cn(
                     "h-5 w-5 transition-colors",
-                    isActive
+                    isPending
+                      ? "text-emerald-300 animate-pulse"
+                      : isActive
                       ? "text-emerald-400"
                       : "text-slate-500 group-hover:text-slate-300",
                   )}
                   isActive={isActive}
                 />
-                {!isCollapsed ? item.name : null}
+                {!isCollapsed ? <span className="truncate">{isPending ? "Loading..." : item.name}</span> : null}
               </Link>
             );
           })
