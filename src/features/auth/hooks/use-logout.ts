@@ -13,12 +13,10 @@ export const useLogout = () => {
   const logout = async () => {
     const refreshToken = getRefreshToken();
 
-    if (refreshToken) {
-      try {
-        await logoutApi(refreshToken);
-      } catch (error) {
-        console.error("Failed to revoke token on server", error);
-      }
+    try {
+      await logoutApi(refreshToken);
+    } catch (error) {
+      console.error("Failed to revoke token on server", error);
     }
 
     disconnect();

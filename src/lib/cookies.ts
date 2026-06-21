@@ -8,7 +8,7 @@ export const COOKIE_KEYS = {
 
 export function setAuthCookies(
   accessToken: string,
-  refreshToken: string,
+  _refreshToken: string | null | undefined,
   tenantId: string,
   persistSession = false,
 ) {
@@ -20,7 +20,6 @@ export function setAuthCookies(
   };
 
   Cookies.set(COOKIE_KEYS.ACCESS_TOKEN, accessToken, options);
-  Cookies.set(COOKIE_KEYS.REFRESH_TOKEN, refreshToken, options);
   Cookies.set(COOKIE_KEYS.TENANT_ID, tenantId, options);
 }
 
@@ -35,6 +34,7 @@ export function getAuthToken() {
 }
 
 export function getRefreshToken() {
+  // Refresh tokens are stored by the backend as HttpOnly cookies.
   return Cookies.get(COOKIE_KEYS.REFRESH_TOKEN);
 }
 

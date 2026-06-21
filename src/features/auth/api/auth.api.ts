@@ -36,7 +36,7 @@ export async function login(
  * Exchange a valid refresh token for a new access + refresh token pair.
  */
 export async function refreshToken(
-  payload: RefreshTokenRequest,
+  payload: RefreshTokenRequest = {},
 ): Promise<JwtResponse> {
   const { data } = await apiClient.post<JwtResponse>(
     `${AUTH_BASE}/refresh-token`,
@@ -49,10 +49,10 @@ export async function refreshToken(
  * POST /api/auth/logout
  * Revoke the refresh token server-side.
  */
-export async function logout(refreshTokenStr: string): Promise<void> {
-  await apiClient.post(`${AUTH_BASE}/logout`, {
+export async function logout(refreshTokenStr?: string | null): Promise<void> {
+  await apiClient.post(`${AUTH_BASE}/logout`, refreshTokenStr ? {
     refreshToken: refreshTokenStr,
-  });
+  } : {});
 }
 
 export async function registerUser(
