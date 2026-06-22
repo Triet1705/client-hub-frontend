@@ -21,13 +21,16 @@ function createRequestId(): string {
 
 function resolveApiBaseUrl(): string {
   const configuredUrl = process.env.NEXT_PUBLIC_API_URL;
+  const shouldEnforceDeployUrl =
+    process.env.NEXT_PUBLIC_ENFORCE_PROD_API_URL === "true" ||
+    (process.env.VERCEL === "1" && process.env.VERCEL_ENV !== "development");
 
-  if (process.env.NODE_ENV === "production") {
+  if (process.env.NODE_ENV === "production" && shouldEnforceDeployUrl) {
     if (!configuredUrl) {
-      throw new Error("NEXT_PUBLIC_API_URL is required for production builds");
+      throw new Error("NEXT_PUBLIC_API_URL is required for deployment builds");
     }
     if (configuredUrl.includes("localhost") || configuredUrl.includes("127.0.0.1")) {
-      throw new Error("NEXT_PUBLIC_API_URL must not point to localhost in production");
+      throw new Error("NEXT_PUBLIC_API_URL must not point to localhost in deployment builds");
     }
   }
 
