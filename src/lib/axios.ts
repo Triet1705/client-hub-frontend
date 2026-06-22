@@ -4,7 +4,6 @@ import { normalizeApiError } from "@/lib/api/error";
 import {
   getAuthToken,
   getTenantId,
-  getRefreshToken,
   setAuthCookies,
   clearAuthCookies,
 } from "./cookies";
@@ -20,9 +19,28 @@ function createRequestId(): string {
   return `${Date.now()}-${Math.random().toString(16).slice(2)}`;
 }
 
+function resolveApiBaseUrl(): string {
+  const configuredUrl = process.env.NEXT_PUBLIC_API_URL;
+  const shouldEnforceDeployUrl =
+    process.env.NEXT_PUBLIC_ENFORCE_PROD_API_URL === "true" ||
+    (process.env.VERCEL === "1" && process.env.VERCEL_ENV !== "development");
+
+  if (process.env.NODE_ENV === "production" && shouldEnforceDeployUrl) {
+    if (!configuredUrl) {
+      throw new Error("NEXT_PUBLIC_API_URL is required for deployment builds");
+    }
+    if (configuredUrl.includes("localhost") || configuredUrl.includes("127.0.0.1")) {
+      throw new Error("NEXT_PUBLIC_API_URL must not point to localhost in deployment builds");
+    }
+  }
+
+  return configuredUrl || "http://localhost:8080/api";
+}
+
 export const apiClient = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api",
+  baseURL: resolveApiBaseUrl(),
   timeout: 15_000, // 15 seconds
+  withCredentials: true,
   headers: {
     "Content-Type": "application/json",
   },
@@ -56,7 +74,9 @@ apiClient.interceptors.request.use(
       config.headers["X-Tenant-ID"] = tenantId;
     }
 
-    config.headers["X-Request-ID"] = createRequestId();
+    const requestId = createRequestId();
+    config.headers["X-Request-ID"] = requestId;
+    config.headers["X-Correlation-ID"] = requestId;
 
     return config;
   },
@@ -124,10 +144,9 @@ apiClient.interceptors.response.use(
       originalRequest._retry = true;
       isRefreshing = true;
 
-      const refreshToken = getRefreshToken();
       const tenantId = getTenantId();
 
-      if (!refreshToken) {
+      if (!tenantId) {
         if (!isOnAuthPage) {
           clearAuthCookies();
           if (typeof window !== "undefined") window.location.href = "/login";
@@ -136,17 +155,24 @@ apiClient.interceptors.response.use(
       }
 
       try {
+        const requestId = createRequestId();
         const { data } = await axios.post(
           `${apiClient.defaults.baseURL}/auth/refresh-token`,
-          { refreshToken },
-          { headers: { "X-Tenant-ID": tenantId || "default" } },
+          {},
+          {
+            withCredentials: true,
+            headers: {
+              "X-Tenant-ID": tenantId,
+              "X-Request-ID": requestId,
+              "X-Correlation-ID": requestId,
+            },
+          },
         );
 
         const newAccessToken = data.access_token;
-        const newRefreshToken = data.refresh_token;
         const refreshedTenantId = data.tenant_id || tenantId || "";
 
-        setAuthCookies(newAccessToken, newRefreshToken, refreshedTenantId);
+        setAuthCookies(newAccessToken, null, refreshedTenantId);
 
         originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
 

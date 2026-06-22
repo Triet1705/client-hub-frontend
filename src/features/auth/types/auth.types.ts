@@ -20,12 +20,12 @@ export interface RegisterResponse {
 }
 
 export interface RefreshTokenRequest {
-  refreshToken: string;
+  refreshToken?: string | null;
 }
 
 export interface JwtResponse {
   access_token: string;
-  refresh_token: string;
+  refresh_token: string | null;
   token_type: "Bearer";
   expires_in: number; // seconds
   id: string;

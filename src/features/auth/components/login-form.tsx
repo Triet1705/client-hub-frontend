@@ -10,6 +10,7 @@ import { AuthInput } from "@/components/ui/auth-input";
 import {
   EmailIcon,
   PasswordIcon,
+  WorkspaceDomainIcon,
 } from "@/components/icons";
 import { login } from "../api/auth.api";
 import { loginSchema, type LoginFormValues, type LoginInputValues } from "../validations/auth.schema";
@@ -31,6 +32,7 @@ export function LoginForm() {
   } = useForm<LoginInputValues, unknown, LoginFormValues>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
+      tenantId: getTenantId() || "",
       email: "",
       password: "",
       persistSession: false,
@@ -56,10 +58,9 @@ export function LoginForm() {
 
     setIsLoading(true);
     try {
-      const tenantHeader = getTenantId() || "default";
       const response = await login(
         { email: data.email, password: data.password },
-        tenantHeader,
+        data.tenantId,
       );
 
       setAuthCookies(
@@ -101,6 +102,14 @@ export function LoginForm() {
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
       <div className="space-y-6">
+        <AuthInput
+          label="Workspace Name / Tenant ID"
+          icon={WorkspaceDomainIcon}
+          placeholder="agency-alpha-hq"
+          error={errors.tenantId?.message}
+          {...register("tenantId")}
+        />
+
         <AuthInput
           label="Email Identity"
           icon={EmailIcon}
