@@ -37,23 +37,21 @@ export function HowItWorksSection() {
           </ScrollReveal>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-12 relative">
-          {/* Connecting line (desktop only) */}
-          <div className="hidden md:block absolute top-12 left-[16%] right-[16%] h-[1px] bg-gradient-to-r from-transparent via-slate-700 to-transparent z-0" />
-
-          {steps.map((step, index) => (
-            <ScrollReveal key={index} delay={index * 0.2} direction="up" className="relative z-10 text-center">
-              <div className="w-24 h-24 mx-auto bg-[#020617] rounded-full border border-slate-700 flex items-center justify-center mb-6 shadow-xl relative group">
-                <div className="absolute inset-0 rounded-full border-2 border-transparent group-hover:border-emerald-500/50 transition-colors" />
-                <span className="text-3xl font-display font-bold text-slate-300 group-hover:text-white transition-colors">{step.number}</span>
-              </div>
-              <h3 className="text-xl font-bold text-white mb-3">{step.title}</h3>
-              <p className="text-slate-400 leading-relaxed max-w-xs mx-auto">
-                {step.description}
-              </p>
-            </ScrollReveal>
-          ))}
-        </div>
+          <div className="grid md:grid-cols-3 gap-8 relative mt-12">
+            {steps.map((step, index) => (
+              <ScrollReveal key={index} delay={index * 0.2} direction="up" className="relative z-10">
+                <div className="glass-panel glass-panel-hover p-8 rounded-2xl h-full flex flex-col items-start relative overflow-hidden group">
+                  <div className="absolute top-0 right-0 p-6 opacity-10 font-display font-black text-8xl text-white group-hover:opacity-20 transition-opacity pointer-events-none select-none">
+                    {step.number}
+                  </div>
+                  <h3 className="text-2xl font-bold text-white mb-4 relative z-10">{step.title}</h3>
+                  <p className="text-slate-400 leading-relaxed relative z-10">
+                    {step.description}
+                  </p>
+                </div>
+              </ScrollReveal>
+            ))}
+          </div>
       </div>
     </section>
   );

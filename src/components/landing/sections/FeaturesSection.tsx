@@ -7,8 +7,7 @@ import { FolderKanban, MessageCircle, FileDown, HandCoins } from "lucide-react";
 export function FeaturesSection() {
   return (
     <section id="features" className="py-24 relative overflow-hidden">
-      {/* Decorative background glow */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[600px] bg-emerald-500/5 blur-[120px] rounded-[100%] pointer-events-none" />
+      {/* Decorative background glow removed, relying on ColorBendsBg */}
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="text-center max-w-3xl mx-auto mb-16">
@@ -27,7 +26,7 @@ export function FeaturesSection() {
           
           {/* Large Feature 1 */}
           <ScrollReveal className="md:col-span-2">
-            <div className="h-[350px] p-8 rounded-3xl bg-slate-800/30 border border-slate-700 hover:border-slate-600 transition-colors flex flex-col justify-between group overflow-hidden relative">
+            <div className="h-[350px] p-8 rounded-3xl glass-panel glass-panel-hover flex flex-col justify-between group overflow-hidden relative">
               <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:opacity-20 transition-opacity">
                 <FolderKanban className="w-48 h-48 text-emerald-500" />
               </div>
@@ -45,7 +44,7 @@ export function FeaturesSection() {
 
           {/* Small Feature 1 */}
           <ScrollReveal delay={0.1}>
-            <div className="h-[350px] p-8 rounded-3xl bg-slate-800/30 border border-slate-700 hover:border-slate-600 transition-colors flex flex-col group relative overflow-hidden">
+            <div className="h-[350px] p-8 rounded-3xl glass-panel glass-panel-hover flex flex-col group relative overflow-hidden">
                <div className="absolute -bottom-4 -right-4 p-8 opacity-10 group-hover:opacity-20 transition-opacity">
                 <HandCoins className="w-32 h-32 text-blue-400" />
               </div>
@@ -63,7 +62,7 @@ export function FeaturesSection() {
 
           {/* Small Feature 2 */}
           <ScrollReveal delay={0.2}>
-            <div className="h-[350px] p-8 rounded-3xl bg-slate-800/30 border border-slate-700 hover:border-slate-600 transition-colors flex flex-col group relative overflow-hidden">
+            <div className="h-[350px] p-8 rounded-3xl glass-panel glass-panel-hover flex flex-col group relative overflow-hidden">
               <div className="absolute -bottom-4 -right-4 p-8 opacity-10 group-hover:opacity-20 transition-opacity">
                 <MessageCircle className="w-32 h-32 text-purple-400" />
               </div>
@@ -81,7 +80,7 @@ export function FeaturesSection() {
 
           {/* Large Feature 2 */}
           <ScrollReveal delay={0.3} className="md:col-span-2">
-            <div className="h-[350px] p-8 rounded-3xl bg-slate-800/30 border border-slate-700 hover:border-slate-600 transition-colors flex flex-col justify-between group overflow-hidden relative">
+            <div className="h-[350px] p-8 rounded-3xl glass-panel glass-panel-hover flex flex-col justify-between group overflow-hidden relative">
               <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:opacity-20 transition-opacity">
                 <FileDown className="w-48 h-48 text-amber-500" />
               </div>

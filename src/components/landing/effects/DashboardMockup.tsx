@@ -9,16 +9,15 @@ export function DashboardMockup() {
       initial={{ opacity: 0, y: 50, rotateX: 10 }}
       animate={{ opacity: 1, y: 0, rotateX: 0 }}
       transition={{ duration: 1, delay: 0.2, ease: [0.21, 0.47, 0.32, 0.98] }}
-      className="relative w-full max-w-5xl mx-auto mt-16 perspective-1000"
+      className="relative w-full max-w-[1200px] mx-auto mt-24 perspective-1000"
     >
-      {/* Outer Glow / Rainbow border effect simplified for performance */}
-      <div className="absolute inset-0 bg-gradient-to-tr from-emerald-500/20 via-blue-500/10 to-emerald-500/20 rounded-2xl blur-xl" />
+      {/* Outer Glow effect removed to rely on ColorBendsBg */}
 
       {/* Main Mockup Container */}
-      <div className="relative rounded-2xl bg-[#0f172a] border border-slate-800 shadow-2xl overflow-hidden ring-1 ring-white/10">
+      <div className="relative rounded-2xl glass-panel shadow-2xl overflow-hidden ring-1 ring-white/10 border-none">
         
         {/* Browser / App Header */}
-        <div className="flex items-center px-4 py-3 border-b border-slate-800 bg-[#020617]/50">
+        <div className="flex items-center px-4 py-3 border-b border-white/5 bg-[#0a0a0a]/50">
           <div className="flex gap-2">
             <div className="w-3 h-3 rounded-full bg-slate-700" />
             <div className="w-3 h-3 rounded-full bg-slate-700" />
@@ -50,7 +49,7 @@ export function DashboardMockup() {
           </div>
 
           {/* Main Area */}
-          <div className="flex-1 p-6 sm:p-8 bg-gradient-to-br from-[#0f172a] to-[#020617] relative overflow-hidden">
+          <div className="flex-1 p-6 sm:p-8 bg-transparent relative overflow-hidden">
             {/* Background subtle grid */}
             <div className="absolute inset-0 bg-grid-slate-800/[0.2] [mask-image:linear-gradient(0deg,white,rgba(255,255,255,0.6))]" />
             

@@ -39,8 +39,8 @@ export function PainPointsSection() {
         <div className="grid md:grid-cols-3 gap-8">
           {painPoints.map((point, index) => (
             <ScrollReveal key={index} delay={index * 0.1} direction="up">
-              <div className="p-8 rounded-2xl bg-slate-800/20 border border-slate-700/50 hover:bg-slate-800/40 transition-colors h-full flex flex-col">
-                <div className="w-12 h-12 rounded-lg bg-slate-800 flex items-center justify-center border border-slate-700 mb-6 shadow-inner">
+              <div className="p-8 rounded-2xl glass-panel glass-panel-hover h-full flex flex-col">
+                <div className="w-12 h-12 rounded-lg bg-[#111111] flex items-center justify-center border border-white/5 mb-6 shadow-inner">
                   {point.icon}
                 </div>
                 <h3 className="text-xl font-semibold text-white mb-3">{point.title}</h3>
