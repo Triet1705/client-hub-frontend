@@ -22,7 +22,7 @@ export function CurvedLoopText({
   if (shouldReduceMotion) {
     return (
       <div className={`overflow-hidden whitespace-nowrap ${className}`}>
-        <p className="text-muted-foreground/40 font-mono text-sm uppercase tracking-widest">
+        <p className="text-slate-400 font-mono text-sm uppercase tracking-widest">
           {repeatedText}
         </p>
       </div>
@@ -40,10 +40,10 @@ export function CurvedLoopText({
         }}
         className="flex gap-4 min-w-max"
       >
-        <p className="text-muted-foreground/30 font-mono text-sm uppercase tracking-widest pl-4">
+        <p className="text-slate-400 font-mono text-sm uppercase tracking-widest pl-4">
           {repeatedText}
         </p>
-        <p className="text-muted-foreground/30 font-mono text-sm uppercase tracking-widest pl-4">
+        <p className="text-slate-400 font-mono text-sm uppercase tracking-widest pl-4">
           {repeatedText}
         </p>
       </motion.div>
