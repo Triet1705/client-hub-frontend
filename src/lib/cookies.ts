@@ -6,21 +6,32 @@ export const COOKIE_KEYS = {
   TENANT_ID: "tenant_id",
 } as const;
 
+function buildCookieOptions(persistSession = false): Cookies.CookieAttributes {
+  return {
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    path: "/",
+    ...(persistSession && { expires: 7 }),
+  };
+}
+
+export function setTenantIdCookie(
+  tenantId: string,
+  persistSession = false,
+) {
+  Cookies.set(COOKIE_KEYS.TENANT_ID, tenantId, buildCookieOptions(persistSession));
+}
+
 export function setAuthCookies(
   accessToken: string,
   _refreshToken: string | null | undefined,
   tenantId: string,
   persistSession = false,
 ) {
-  const options: Cookies.CookieAttributes = {
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    path: "/",
-    ...(persistSession && { expires: 7 }), // 7 days; omit → session cookie
-  };
+  const options = buildCookieOptions(persistSession);
 
   Cookies.set(COOKIE_KEYS.ACCESS_TOKEN, accessToken, options);
-  Cookies.set(COOKIE_KEYS.TENANT_ID, tenantId, options);
+  setTenantIdCookie(tenantId, persistSession);
 }
 
 export function clearAuthCookies() {

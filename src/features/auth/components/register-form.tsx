@@ -4,7 +4,6 @@ import * as React from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { toast } from "sonner";
 
 import { AuthInput } from "@/components/ui/auth-input";
@@ -14,6 +13,7 @@ import {
   PasswordIcon,
   PersonIcon,
 } from "@/components/icons";
+import { setTenantIdCookie } from "@/lib/cookies";
 import { registerUser } from "../api/auth.api";
 import {
   registerSchema,
@@ -46,6 +46,7 @@ export function RegisterForm() {
   const onSubmit = async (data: RegisterFormValues) => {
     setIsLoading(true);
     try {
+      const tenantId = data.tenantId.trim().toLowerCase();
       const response = await registerUser(
         {
           fullName: data.fullName,
@@ -53,8 +54,10 @@ export function RegisterForm() {
           password: data.password,
           role: data.role,
         },
-        data.tenantId,
+        tenantId,
       );
+
+      setTenantIdCookie(tenantId);
 
       toast.success("Workspace Provisioned!", {
         description: `Welcome to Client Hub, ${response.full_name}. Please sign in.`,
@@ -86,7 +89,6 @@ export function RegisterForm() {
                 : "border-slate-700 bg-slate-800/50 text-slate-400 hover:border-slate-500"
             }`}
           >
-            <span className="text-lg">💼</span>
             <span>Freelancer</span>
           </button>
           <button
@@ -98,7 +100,6 @@ export function RegisterForm() {
                 : "border-slate-700 bg-slate-800/50 text-slate-400 hover:border-slate-500"
             }`}
           >
-            <span className="text-lg">🏢</span>
             <span>Client</span>
           </button>
         </div>
@@ -106,6 +107,7 @@ export function RegisterForm() {
           <p className="text-xs text-red-400 mt-1">{errors.role.message}</p>
         )}
       </div>
+
       <AuthInput
         label="Workspace Name / Tenant ID"
         icon={WorkspaceDomainIcon}
@@ -135,12 +137,12 @@ export function RegisterForm() {
         label="Access Credential"
         icon={PasswordIcon}
         type="password"
-        placeholder="••••••••••••"
+        placeholder="************"
         error={errors.password?.message}
         {...register("password")}
       />
 
-      <div className="pt-4 space-y-4">
+      <div className="pt-4">
         <button
           type="submit"
           disabled={isLoading}
@@ -160,76 +162,6 @@ export function RegisterForm() {
             <span>Create Workspace</span>
           )}
         </button>
-
-        <div className="relative py-2 flex items-center">
-          <div className="grow border-t border-slate-900"></div>
-          <span className="shrink mx-4 text-[10px] uppercase tracking-widest text-slate-700 font-bold">
-            Or
-          </span>
-          <div className="grow border-t border-slate-900"></div>
-        </div>
-
-        <ConnectButton.Custom>
-          {({ account, chain, openConnectModal, mounted }) => {
-            const ready = mounted;
-            const connected = ready && account && chain;
-
-            return (
-              <div
-                className={!ready ? "opacity-0" : "opacity-100"}
-                aria-hidden={!ready}
-              >
-                {!connected ? (
-                  <button
-                    onClick={openConnectModal}
-                    type="button"
-                    className="rainbow-border w-full h-14 rounded-lg text-white font-bold flex items-center justify-center gap-3 transition-transform active:scale-[0.98] shadow-sm relative group"
-                  >
-                    <svg
-                      className="w-6 h-6"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="1.5"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M21 12V15C21 16.1046 20.1046 17 19 17H5C3.89543 17 3 16.1046 3 15V9C3 7.89543 3.89543 7 5 7H19C20.1046 7 21 7.89543 21 9V10"
-                      />
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M16 12C16 12.5523 16.4477 13 17 13H21V11H17C16.4477 11 16 11.4477 16 12Z"
-                      />
-                    </svg>
-                    Connect Wallet to Verify
-                  </button>
-                ) : (
-                  <div className="rainbow-border w-full h-14 rounded-lg flex items-center justify-between px-4 transition-all">
-                    <div className="flex items-center gap-2">
-                      {chain.hasIcon && chain.iconUrl && (
-                        <div className="w-5 h-5 bg-black rounded-full overflow-hidden flex items-center justify-center">
-                          <img
-                            alt={chain.name ?? "Chain icon"}
-                            src={chain.iconUrl}
-                            className="w-5 h-5"
-                          />
-                        </div>
-                      )}
-                      <span className="text-sm font-medium text-slate-300">
-                        {chain.name}
-                      </span>
-                    </div>
-                    <span className="text-white font-bold">
-                      {account.displayName}
-                    </span>
-                  </div>
-                )}
-              </div>
-            );
-          }}
-        </ConnectButton.Custom>
       </div>
     </form>
   );

@@ -2,9 +2,9 @@
 
 import * as React from "react";
 import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { toast } from "sonner";
 import { AuthInput } from "@/components/ui/auth-input";
 import {
@@ -16,7 +16,6 @@ import { login } from "../api/auth.api";
 import { loginSchema, type LoginFormValues, type LoginInputValues } from "../validations/auth.schema";
 import { getTenantId, setAuthCookies } from "@/lib/cookies";
 import { useAuthStore } from "../store/auth.store";
-import { useRouter, useSearchParams } from "next/navigation";
 
 export function LoginForm() {
   const [isLoading, setIsLoading] = React.useState(false);
@@ -58,9 +57,10 @@ export function LoginForm() {
 
     setIsLoading(true);
     try {
+      const tenantId = data.tenantId.trim().toLowerCase();
       const response = await login(
         { email: data.email, password: data.password },
-        data.tenantId,
+        tenantId,
       );
 
       setAuthCookies(
@@ -123,7 +123,7 @@ export function LoginForm() {
           label="Access Credential"
           icon={PasswordIcon}
           type="password"
-          placeholder="••••••••"
+          placeholder="********"
           error={errors.password?.message}
           {...register("password")}
         />
@@ -148,97 +148,25 @@ export function LoginForm() {
         </Link>
       </div>
 
-      <div className="space-y-4">
-        <button
-          type="submit"
-          disabled={isLoading}
-          className="w-full h-14 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-lg transition-all shadow-lg shadow-emerald-900/40 flex flex-col items-center justify-center relative overflow-hidden disabled:opacity-70 disabled:cursor-not-allowed"
-        >
-          {isLoading ? (
-            <>
-              <div className="flex items-center gap-2">
-                <div className="h-5 w-5 rounded-full border-2 border-white/25 border-t-white animate-spin" />
-                <span>Processing...</span>
-              </div>
-              <span className="text-[9px] uppercase tracking-tighter opacity-70 font-normal mt-0.5">
-                Validating tenant logic...
-              </span>
-            </>
-          ) : (
-            <span>Sign In Securely</span>
-          )}
-        </button>
-
-        <div className="relative py-2 flex items-center">
-          <div className="grow border-t border-slate-900"></div>
-          <span className="shrink mx-4 text-[10px] uppercase tracking-widest text-slate-700 font-bold">
-            Or
-          </span>
-          <div className="grow border-t border-slate-900"></div>
-        </div>
-
-        <ConnectButton.Custom>
-          {({ account, chain, openConnectModal, mounted }) => {
-            const ready = mounted;
-            const connected = ready && account && chain;
-
-            return (
-              <div
-                className={!ready ? "opacity-0" : "opacity-100"}
-                aria-hidden={!ready}
-              >
-                {!connected ? (
-                  <button
-                    onClick={openConnectModal}
-                    type="button"
-                    className="rainbow-border w-full h-14 rounded-lg text-white font-bold flex items-center justify-center gap-3 transition-transform active:scale-[0.98] shadow-sm relative group"
-                  >
-                    <svg
-                      className="w-6 h-6"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="1.5"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M21 12V15C21 16.1046 20.1046 17 19 17H5C3.89543 17 3 16.1046 3 15V9C3 7.89543 3.89543 7 5 7H19C20.1046 7 21 7.89543 21 9V10"
-                      />
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M16 12C16 12.5523 16.4477 13 17 13H21V11H17C16.4477 11 16 11.4477 16 12Z"
-                      />
-                    </svg>
-                    Connect Wallet
-                  </button>
-                ) : (
-                  <div className="rainbow-border w-full h-14 rounded-lg flex items-center justify-between px-4 transition-all">
-                    <div className="flex items-center gap-2">
-                      {chain.hasIcon && chain.iconUrl && (
-                        <div className="w-6 h-6 bg-black rounded-full overflow-hidden flex items-center justify-center">
-                          <img
-                            alt={chain.name ?? "Chain icon"}
-                            src={chain.iconUrl}
-                            className="w-6 h-6"
-                          />
-                        </div>
-                      )}
-                      <span className="text-sm font-medium text-slate-300">
-                        {chain.name}
-                      </span>
-                    </div>
-                    <span className="text-white font-bold">
-                      {account.displayName}
-                    </span>
-                  </div>
-                )}
-              </div>
-            );
-          }}
-        </ConnectButton.Custom>
-      </div>
+      <button
+        type="submit"
+        disabled={isLoading}
+        className="w-full h-14 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-lg transition-all shadow-lg shadow-emerald-900/40 flex flex-col items-center justify-center relative overflow-hidden disabled:opacity-70 disabled:cursor-not-allowed"
+      >
+        {isLoading ? (
+          <>
+            <div className="flex items-center gap-2">
+              <div className="h-5 w-5 rounded-full border-2 border-white/25 border-t-white animate-spin" />
+              <span>Processing...</span>
+            </div>
+            <span className="text-[9px] uppercase tracking-tighter opacity-70 font-normal mt-0.5">
+              Validating tenant logic...
+            </span>
+          </>
+        ) : (
+          <span>Sign In Securely</span>
+        )}
+      </button>
     </form>
   );
 }
