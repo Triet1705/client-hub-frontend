@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useRef } from 'react';
 import * as THREE from 'three';
-// @ts-ignore - Bundler handles side-effect CSS imports
 import './ColorBends.css';
 
 const MAX_COLORS = 8;

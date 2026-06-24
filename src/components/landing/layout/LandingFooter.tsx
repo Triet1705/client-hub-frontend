@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { GradientText } from "../effects/GradientText";
 import { ClientHubLogo } from "../../icons";
 
 export function LandingFooter() {
