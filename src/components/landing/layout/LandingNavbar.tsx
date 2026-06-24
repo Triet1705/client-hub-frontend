@@ -5,6 +5,7 @@ import { Menu, X } from "lucide-react";
 import { useState } from "react";
 import { GradientText } from "../effects/GradientText";
 import Link from "next/link";
+import { ClientHubIcon } from "@/components/icons/Branding/ClientHubLogo";
 
 export function LandingNavbar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -15,9 +16,7 @@ export function LandingNavbar() {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <div className="flex-shrink-0 flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-emerald-500/20 border border-emerald-500/50 flex items-center justify-center">
-              <div className="w-3 h-3 rounded-sm bg-emerald-400 animate-pulse" />
-            </div>
+            <ClientHubIcon />
             <span className="text-xl font-bold tracking-tight">
               Client <GradientText variant="emerald">Hub</GradientText>
             </span>

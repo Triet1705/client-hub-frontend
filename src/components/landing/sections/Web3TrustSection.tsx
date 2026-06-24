@@ -1,8 +1,8 @@
 "use client";
 
 import { ScrollReveal } from "../effects/ScrollReveal";
+import { CustomGraphic } from "../effects/CustomGraphics";
 import { GradientText } from "../effects/GradientText";
-import { ShieldCheck, History, Award } from "lucide-react";
 
 export function Web3TrustSection() {
   return (
@@ -13,7 +13,7 @@ export function Web3TrustSection() {
           <div className="flex-1">
             <ScrollReveal>
               <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 mb-6 text-blue-400 text-xs font-semibold uppercase tracking-wider">
-                <ShieldCheck className="w-4 h-4" />
+                <CustomGraphic type="audit" color="blue" size={16} />
                 Verified Trust
               </div>
               <h2 className="text-3xl md:text-4xl font-display font-bold text-white mb-6 leading-tight">
@@ -28,8 +28,8 @@ export function Web3TrustSection() {
             <div className="space-y-8">
               <ScrollReveal delay={0.1}>
                 <div className="flex gap-4">
-                  <div className="mt-1 flex-shrink-0 w-10 h-10 rounded-lg bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20">
-                    <WalletIcon className="w-5 h-5 text-emerald-400" />
+                  <div className="mt-1 flex-shrink-0">
+                    <CustomGraphic type="escrow" color="emerald" size={48} />
                   </div>
                   <div>
                     <h4 className="text-white font-semibold text-lg mb-2">Optional Smart Escrow</h4>
@@ -42,8 +42,8 @@ export function Web3TrustSection() {
 
               <ScrollReveal delay={0.2}>
                 <div className="flex gap-4">
-                  <div className="mt-1 flex-shrink-0 w-10 h-10 rounded-lg bg-slate-800 flex items-center justify-center border border-slate-700">
-                    <History className="w-5 h-5 text-slate-300" />
+                  <div className="mt-1 flex-shrink-0">
+                    <CustomGraphic type="audit" color="blue" size={48} />
                   </div>
                   <div>
                     <h4 className="text-white font-semibold text-lg mb-2">Hash-Backed Audit Trails</h4>
@@ -56,8 +56,8 @@ export function Web3TrustSection() {
 
               <ScrollReveal delay={0.3}>
                 <div className="flex gap-4">
-                  <div className="mt-1 flex-shrink-0 w-10 h-10 rounded-lg bg-purple-500/10 flex items-center justify-center border border-purple-500/20">
-                    <Award className="w-5 h-5 text-purple-400" />
+                  <div className="mt-1 flex-shrink-0">
+                    <CustomGraphic type="reputation" color="purple" size={48} />
                   </div>
                   <div>
                     <h4 className="text-white font-semibold text-lg mb-2">Soulbound Reputation</h4>
@@ -81,8 +81,8 @@ export function Web3TrustSection() {
                  <div className="absolute inset-0 flex items-center justify-center">
                     <div className="bg-[#0f172a] border border-slate-700 p-6 rounded-2xl shadow-2xl relative z-10 w-64">
                       <div className="flex items-center gap-3 mb-4 border-b border-slate-800 pb-4">
-                        <div className="w-10 h-10 rounded-full bg-emerald-500/20 flex items-center justify-center">
-                          <ShieldCheck className="w-5 h-5 text-emerald-400" />
+                        <div className="w-10 h-10 flex flex-shrink-0 items-center justify-center">
+                          <CustomGraphic type="lock" color="emerald" size={40} />
                         </div>
                         <div>
                           <div className="text-sm font-bold text-white">Escrow Locked</div>
@@ -110,24 +110,3 @@ export function Web3TrustSection() {
   );
 }
 
-// Inline icon for wallet
-function WalletIcon(props: React.SVGProps<SVGSVGElement>) {
-  return (
-    <svg
-      {...props}
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M21 12V7H5a2 2 0 0 1 0-4h14v4" />
-      <path d="M3 5v14a2 2 0 0 0 2 2h16v-5" />
-      <path d="M18 12a2 2 0 0 0 0 4h4v-4Z" />
-    </svg>
-  )
-}

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { GradientText } from "../effects/GradientText";
+import { ClientHubLogo } from "../../icons";
 
 export function LandingFooter() {
   return (
@@ -8,12 +9,7 @@ export function LandingFooter() {
         <div className="flex flex-col md:flex-row justify-between items-center gap-6">
           
           <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded-md bg-emerald-500/20 border border-emerald-500/50 flex items-center justify-center">
-              <div className="w-2 h-2 rounded-sm bg-emerald-400" />
-            </div>
-            <span className="text-lg font-bold tracking-tight text-white">
-              Client <GradientText variant="emerald">Hub</GradientText>
-            </span>
+            <ClientHubLogo className="h-10 w-auto text-emerald-500" />
           </div>
 
           <div className="flex gap-8">
