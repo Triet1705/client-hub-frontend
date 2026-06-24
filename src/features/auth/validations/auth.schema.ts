@@ -1,12 +1,17 @@
 import * as z from "zod";
 
+export const tenantIdSchema = z
+  .string()
+  .trim()
+  .toLowerCase()
+  .min(3, "Tenant ID must be at least 3 characters")
+  .max(64, "Tenant ID must be at most 64 characters")
+  .regex(/^[a-z0-9-]+$/, "Lowercase alphanumeric and dashes only");
+
 export const loginSchema = z.object({
-  tenantId: z
-    .string()
-    .min(3, "Tenant ID must be at least 3 characters")
-    .regex(/^[a-z0-9-]+$/, "Lowercase alphanumeric and dashes only"),
+  tenantId: tenantIdSchema,
   email: z.string().email("Invalid email address"),
-  password: z.string().min(6, "Password must be at least 6 characters"),
+  password: z.string().min(8, "Password must be at least 8 characters"),
   persistSession: z.boolean().optional(),
 });
 
@@ -16,10 +21,7 @@ export type LoginFormValues = z.infer<typeof loginSchema>;
 export type LoginInputValues = z.input<typeof loginSchema>;
 
 export const registerSchema = z.object({
-  tenantId: z
-    .string()
-    .min(3, "Tenant ID must be at least 3 characters")
-    .regex(/^[a-z0-9-]+$/, "Lowercase alphanumeric and dashes only"),
+  tenantId: tenantIdSchema,
   fullName: z.string().min(2, "Full name must be at least 2 characters"),
   email: z.string().email("Invalid email address"),
   password: z

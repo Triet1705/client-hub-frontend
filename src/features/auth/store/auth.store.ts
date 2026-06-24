@@ -51,11 +51,15 @@ export const useAuthStore = create<AuthState>()(
       },
 
       setImpersonation: (impersonationToken: string, adminToken: string, userPayload: UserPayload) => {
+        if (!userPayload.tenantId) {
+          throw new Error("Impersonation response is missing tenant ID.");
+        }
+
         // Also save original refresh token so we can fully restore
         const currentRefresh = getRefreshToken() || "";
 
         // Write the impersonated token to cookies so middleware accepts it
-        setAuthCookies(impersonationToken, currentRefresh, userPayload.tenantId || "default");
+        setAuthCookies(impersonationToken, currentRefresh, userPayload.tenantId);
 
         set((state) => ({
           impersonationToken,
@@ -70,7 +74,10 @@ export const useAuthStore = create<AuthState>()(
       exitImpersonation: () => {
         set((state) => {
           if (state.originalAdminToken && state.originalUser) {
-            setAuthCookies(state.originalAdminToken, getRefreshToken() || "", state.originalUser.tenantId || "default");
+            if (!state.originalUser.tenantId) {
+              throw new Error("Original admin session is missing tenant ID.");
+            }
+            setAuthCookies(state.originalAdminToken, getRefreshToken() || "", state.originalUser.tenantId);
           }
           return {
             impersonationToken: null,
