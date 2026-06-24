@@ -8,7 +8,6 @@ import { HowItWorksSection } from "@/components/landing/sections/HowItWorksSecti
 import { TechStackSection } from "@/components/landing/sections/TechStackSection";
 import { EarlyAccessSection } from "@/components/landing/sections/EarlyAccessSection";
 import { LandingFooter } from "@/components/landing/layout/LandingFooter";
-import { ColorBendsBg } from "@/components/landing/effects/ColorBendsBg";
 import { MotionGuard } from "@/components/landing/effects/MotionGuard";
 
 export const metadata: Metadata = {
@@ -18,8 +17,7 @@ export const metadata: Metadata = {
 
 export default function LandingPage() {
   return (
-    <div className="landing-dark min-h-screen relative overflow-hidden bg-[#020617] text-slate-300 font-sans antialiased selection:bg-emerald-500/30">
-      <ColorBendsBg />
+    <div className="landing-dark min-h-screen relative overflow-hidden bg-[#020617] text-slate-300 font-jakarta antialiased selection:bg-emerald-500/30">
       <LandingNavbar />
       
       <main className="relative z-10 flex flex-col w-full">

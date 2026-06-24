@@ -39,6 +39,7 @@ const config: Config = {
         sans: ["var(--font-inter)", "sans-serif"],
         display: ["var(--font-space-grotesk)", "sans-serif"],
         mono: ["var(--font-jetbrains-mono)", "monospace"],
+        jakarta: ['"Plus Jakarta Sans"', "sans-serif"],
       },
       backgroundImage: {
         "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
