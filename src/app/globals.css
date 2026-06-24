@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
 @import "tailwindcss";
 
 @theme {
@@ -148,6 +149,23 @@
     --theme-accent-hover: #34d399;   /* emerald-400 */
     --theme-accent-surface: rgba(16, 185, 129, 0.1);
   }
+
+  .landing-dark {
+    --bg-base: #020617;        /* slate-950 */
+    --bg-surface: #0f172a;     /* slate-900 */
+    --bg-elevated: #1e293b;    /* slate-800 */
+    --bg-sunken: #0f172a;      /* slate-900 */
+    --border-default: #1e293b; /* slate-800 */
+    --border-subtle: #334155;  /* slate-700 */
+    --text-primary: #ffffff;
+    --text-secondary: #94a3b8; /* slate-400 */
+    --text-muted: #64748b;     /* slate-500 */
+    --theme-accent: #10b981;         /* emerald-500 */
+    --theme-accent-hover: #34d399;   /* emerald-400 */
+    --theme-accent-surface: rgba(16, 185, 129, 0.1);
+    background-color: var(--bg-base);
+    color: var(--text-primary);
+  }
 }
 
 @layer base {
@@ -163,7 +181,10 @@
 
 @layer utilities {
   .glass-panel {
-    @apply bg-black/40 backdrop-blur-md border border-white/10;
+    @apply bg-[#0A0A0A]/90 backdrop-blur-2xl border border-white/[0.08] shadow-2xl;
+  }
+  .glass-panel-hover {
+    @apply hover:bg-[#111111] hover:border-white/[0.15] transition-all duration-300;
   }
 
   .no-scrollbar::-webkit-scrollbar {
@@ -220,5 +241,43 @@
       #fbbf24,
       #10b981
     );
+  }
+
+  .text-gradient {
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-image: linear-gradient(90deg, #ffffff, #94a3b8);
+  }
+
+  .text-gradient-emerald {
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-image: linear-gradient(90deg, #34d399, #10b981);
+  }
+}
+
+@layer utilities {
+  @keyframes float {
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-20px); }
+    100% { transform: translateY(0px); }
+  }
+  .animate-float {
+    animation: float 6s ease-in-out infinite;
+  }
+
+  @keyframes pulse-glow {
+    0%, 100% { opacity: 0.4; }
+    50% { opacity: 0.8; }
+  }
+  .animate-pulse-glow {
+    animation: pulse-glow 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  @keyframes scroll {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-33.33%); }
   }
 }
