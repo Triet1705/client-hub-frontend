@@ -54,7 +54,9 @@ export default function AdminSettingsPage() {
 
   const shortcuts: Array<[string, string, ElementType]> = [
     ["Manage Users", "/admin/users", Users],
-    ["Audit Logs", "/admin/logs", BadgeCheck],
+    ["Audit", "/admin/logs", BadgeCheck],
+    ["Events", "/admin/events", Activity],
+    ["Flags", "/admin/flags", Flag],
     ["Invoice Ops", "/admin/invoices", Activity],
   ];
 
@@ -68,7 +70,7 @@ export default function AdminSettingsPage() {
           </div>
           <h1 className="mt-4 text-4xl font-bold tracking-tight text-content-primary">Admin Settings</h1>
           <p className="mt-2 max-w-2xl text-content-muted">
-            Review administrator account context, platform health, feature flags, and shortcuts to operational tools.
+            Review administrator account context, platform health, runtime summary, and shortcuts to operational tools.
           </p>
         </div>
         <div className="rounded-2xl bg-surface-elevated/70 px-4 py-3 ring-1 ring-theme-border">
@@ -131,8 +133,8 @@ export default function AdminSettingsPage() {
               <Flag className="h-5 w-5" />
             </span>
             <div>
-              <h2 className="text-lg font-semibold text-content-primary">Feature Flags</h2>
-              <p className="mt-1 text-sm text-content-muted">Read-only platform capability status.</p>
+              <h2 className="text-lg font-semibold text-content-primary">Configuration Summary</h2>
+              <p className="mt-1 text-sm text-content-muted">Small runtime snapshot. Full capability status lives in Flags.</p>
             </div>
           </div>
           <div className="space-y-3">
@@ -146,6 +148,10 @@ export default function AdminSettingsPage() {
               <span className="text-sm font-medium text-content-primary">Admin console</span>
               <span className="rounded-full bg-emerald-500/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest text-emerald-300">Active</span>
             </div>
+            <Link href="/admin/flags" className="flex items-center justify-between rounded-2xl border border-theme-border bg-surface-base/50 p-4 text-sm font-medium text-content-primary transition-colors hover:border-emerald-500/30 hover:bg-emerald-500/10">
+              <span>Open dedicated flags view</span>
+              <Flag className="h-4 w-4 text-emerald-400" />
+            </Link>
           </div>
         </section>
 
