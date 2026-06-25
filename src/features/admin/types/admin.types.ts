@@ -16,11 +16,84 @@ export interface ComponentHealth {
   latencyMs: number;
 }
 
+export interface AdminJvmVitals {
+  usedMemoryMb: number;
+  maxMemoryMb: number;
+  freeMemoryMb: number;
+  availableProcessors: number;
+}
+
 export interface AdminHealthResponse {
   overallStatus: "UP" | "DEGRADED" | "DOWN";
   database: ComponentHealth;
   redis: ComponentHealth;
   aiEngine: ComponentHealth;
+  blockchain: ComponentHealth;
+  jvm: AdminJvmVitals;
+  uptimeSeconds: number;
+  checkedAt: string;
+}
+
+export interface ControlCenterSummary {
+  totalRevenue: string | number;
+  activeUsers24h: number;
+  openProjects: number;
+  unpaidInvoices: number;
+  systemStatus: "UP" | "DEGRADED" | "DOWN";
+}
+
+export type AdminAlertSeverity = "INFO" | "WARNING" | "CRITICAL";
+
+export interface AdminAlert {
+  id: string;
+  severity: AdminAlertSeverity;
+  title: string;
+  message: string;
+  recommendedAction: string;
+  createdAt: string;
+}
+
+export type AdminEventCategory =
+  | "AUTH"
+  | "USER"
+  | "PROJECT"
+  | "TASK"
+  | "INVOICE"
+  | "AUDIT"
+  | "SYSTEM"
+  | "WEB3";
+
+export type AdminEventSeverity = "INFO" | "SUCCESS" | "WARNING" | "CRITICAL";
+
+export interface AdminEventItem {
+  id: number;
+  category: AdminEventCategory;
+  severity: AdminEventSeverity;
+  title: string;
+  description: string;
+  actorEmail: string | null;
+  tenantId: string;
+  entityType: string;
+  entityId: string | null;
+  occurredAt: string;
+}
+
+export interface AdminFeatureFlag {
+  key: string;
+  label: string;
+  enabled: boolean;
+  status: string;
+  description: string;
+  source: string;
+}
+
+export interface ControlCenterResponse {
+  summary: ControlCenterSummary;
+  health: AdminHealthResponse;
+  alerts: AdminAlert[];
+  recentEvents: AdminEventItem[];
+  recentAuditLogs: AdminAuditLogResponse[];
+  flags: AdminFeatureFlag[];
 }
 
 export interface AdminAuditLogResponse {
@@ -38,6 +111,28 @@ export interface AdminAuditLogResponse {
   newValue: string | null;
   dataHash: string;
   isAnchored: boolean;
+}
+
+export interface AdminAuditLogFilters {
+  page: number;
+  size: number;
+  action?: string;
+  entityType?: string;
+  tenantId?: string;
+  anchored?: boolean;
+  from?: string;
+  to?: string;
+}
+
+export interface AdminEventFilters {
+  page: number;
+  size: number;
+  category?: AdminEventCategory | "ALL";
+  severity?: AdminEventSeverity | "ALL";
+  entityType?: string;
+  tenantId?: string;
+  from?: string;
+  to?: string;
 }
 
 export interface AdminUser {
