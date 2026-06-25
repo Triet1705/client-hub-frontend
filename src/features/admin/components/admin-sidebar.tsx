@@ -3,6 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+
 import { cn } from "@/lib/utils";
 import { useAuthStore } from "@/features/auth/store/auth.store";
 import { useLogout } from "@/features/auth/hooks/use-logout";
@@ -15,12 +16,17 @@ import {
   NavInvoicesIcon,
   NavUsersIcon,
   NavSettingsIcon,
-  AuditLoggingIcon,
+  NavHealthIcon,
+  NavEventsIcon,
+  NavFlagsIcon,
+  NavAuditIcon,
 } from "@/components/icons";
 
 const SIDEBAR_STORAGE_KEY = "clienthub.admin.sidebar.collapsed";
 const SIDEBAR_WIDTH_EXPANDED = "16rem";
 const SIDEBAR_WIDTH_COLLAPSED = "5rem";
+
+
 
 const ADMIN_NAV_ITEMS = [
   {
@@ -28,6 +34,16 @@ const ADMIN_NAV_ITEMS = [
     href: "/admin",
     icon: NavDashboardIcon,
     exactMatch: true,
+  },
+  {
+    name: "Health",
+    href: "/admin/health",
+    icon: NavHealthIcon,
+  },
+  {
+    name: "Events",
+    href: "/admin/events",
+    icon: NavEventsIcon,
   },
   {
     name: "Users",
@@ -45,9 +61,14 @@ const ADMIN_NAV_ITEMS = [
     icon: NavInvoicesIcon,
   },
   {
-    name: "Audit Logs",
+    name: "Audit",
     href: "/admin/logs",
-    icon: AuditLoggingIcon,
+    icon: NavAuditIcon,
+  },
+  {
+    name: "Flags",
+    href: "/admin/flags",
+    icon: NavFlagsIcon,
   },
   {
     name: "Settings",
