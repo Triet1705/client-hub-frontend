@@ -11,9 +11,12 @@ import {
   impersonateUser,
   fetchSystemHealth,
   fetchAdminAuditLogs,
+  fetchControlCenter,
+  fetchAdminEvents,
+  fetchAdminFlags,
 } from "../api/admin.api";
 import type { Role } from "@/features/auth/types/auth.types";
-import type { ForceStatusRequest } from "../types/admin.types";
+import type { AdminAuditLogFilters, AdminEventFilters, ForceStatusRequest } from "../types/admin.types";
 
 export const adminKeys = {
   all: ["admin"] as const,
@@ -41,8 +44,11 @@ export const adminKeys = {
     sortDir?: "asc" | "desc";
   }) => [...adminKeys.all, "invoices", params] as const,
   health: () => [...adminKeys.all, "health"] as const,
-  auditLogs: (params: { page: number; size: number }) =>
+  controlCenter: () => [...adminKeys.all, "control-center"] as const,
+  auditLogs: (params: AdminAuditLogFilters) =>
     [...adminKeys.all, "audit-logs", params] as const,
+  events: (params: AdminEventFilters) => [...adminKeys.all, "events", params] as const,
+  flags: () => [...adminKeys.all, "flags"] as const,
 };
 
 export function usePlatformStatsQuery() {
@@ -60,11 +66,35 @@ export function useSystemHealthQuery() {
   });
 }
 
-export function useAdminAuditLogsQuery(params: { page: number; size: number }) {
+export function useControlCenterQuery() {
+  return useQuery({
+    queryKey: adminKeys.controlCenter(),
+    queryFn: fetchControlCenter,
+    refetchInterval: 30000,
+  });
+}
+
+export function useAdminAuditLogsQuery(params: AdminAuditLogFilters) {
   return useQuery({
     queryKey: adminKeys.auditLogs(params),
     queryFn: () => fetchAdminAuditLogs(params),
     placeholderData: (previousData) => previousData,
+  });
+}
+
+export function useAdminEventsQuery(params: AdminEventFilters) {
+  return useQuery({
+    queryKey: adminKeys.events(params),
+    queryFn: () => fetchAdminEvents(params),
+    placeholderData: (previousData) => previousData,
+  });
+}
+
+export function useAdminFlagsQuery() {
+  return useQuery({
+    queryKey: adminKeys.flags(),
+    queryFn: fetchAdminFlags,
+    refetchInterval: 30000,
   });
 }
 

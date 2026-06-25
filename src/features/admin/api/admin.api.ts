@@ -8,6 +8,11 @@ import type {
   AdminInvoice,
   AdminHealthResponse,
   AdminAuditLogResponse,
+  AdminAuditLogFilters,
+  AdminEventFilters,
+  AdminEventItem,
+  AdminFeatureFlag,
+  ControlCenterResponse,
   ForceStatusRequest,
   ImpersonationResponse,
   PageResponse,
@@ -23,11 +28,29 @@ export async function fetchSystemHealth(): Promise<AdminHealthResponse> {
   return data;
 }
 
-export async function fetchAdminAuditLogs(params: {
-  page: number;
-  size: number;
-}): Promise<PageResponse<AdminAuditLogResponse>> {
+export async function fetchControlCenter(): Promise<ControlCenterResponse> {
+  const { data } = await apiClient.get<ControlCenterResponse>("/admin/control-center");
+  return data;
+}
+
+export async function fetchAdminAuditLogs(params: AdminAuditLogFilters): Promise<PageResponse<AdminAuditLogResponse>> {
   const { data } = await apiClient.get<PageResponse<AdminAuditLogResponse>>("/admin/audit-logs", { params });
+  return data;
+}
+
+export async function fetchAdminEvents(params: AdminEventFilters): Promise<PageResponse<AdminEventItem>> {
+  const { category, severity, ...rest } = params;
+  const requestParams = {
+    ...rest,
+    ...(category && category !== "ALL" ? { category } : {}),
+    ...(severity && severity !== "ALL" ? { severity } : {}),
+  };
+  const { data } = await apiClient.get<PageResponse<AdminEventItem>>("/admin/events", { params: requestParams });
+  return data;
+}
+
+export async function fetchAdminFlags(): Promise<AdminFeatureFlag[]> {
+  const { data } = await apiClient.get<AdminFeatureFlag[]>("/admin/flags");
   return data;
 }
 

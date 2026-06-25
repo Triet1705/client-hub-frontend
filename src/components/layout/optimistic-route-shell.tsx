@@ -47,7 +47,10 @@ function getAdminSkeleton(pathname: string) {
     pathname === "/admin/users" ||
     pathname === "/admin/projects" ||
     pathname === "/admin/invoices" ||
-    pathname === "/admin/logs"
+    pathname === "/admin/logs" ||
+    pathname === "/admin/health" ||
+    pathname === "/admin/events" ||
+    pathname === "/admin/flags"
   ) {
     return <AdminTableSkeleton />;
   }
