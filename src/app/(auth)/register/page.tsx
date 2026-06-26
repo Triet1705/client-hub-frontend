@@ -1,6 +1,7 @@
 import { RegisterForm } from "@/features/auth/components/register-form";
 import Link from "next/link";
 import { Metadata } from "next";
+import { ClientHubLogo } from "@/components/icons";
 
 export const metadata: Metadata = {
   title: "Client Hub | Register Organization",
@@ -11,6 +12,9 @@ export default function RegisterPage() {
   return (
     <div className="w-full max-w-md space-y-8 py-12 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="space-y-2">
+        <div className="flex items-center mb-4">
+          <ClientHubLogo className="h-8 w-8 text-emerald-500" />
+        </div>
         <h3 className="text-3xl font-medium text-white tracking-tight">
           Register Organization
         </h3>
