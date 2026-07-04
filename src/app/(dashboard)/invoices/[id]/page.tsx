@@ -6,12 +6,14 @@ import { useParams } from "next/navigation";
 import { format } from "date-fns";
 import { ArrowLeft, Copy, Receipt, ShieldCheck, Wallet } from "lucide-react";
 import { toast } from "sonner";
+import { useQueryClient } from "@tanstack/react-query";
 import { OperationsDetailLayout } from "@/components/layout/operations-detail-layout";
 import { InvoiceStatusPill } from "@/features/invoices/components/invoice-status-pill";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { INVOICE_STATUS_LABELS } from "@/features/invoices/constants/invoice.constants";
 import { useAuthStore } from "@/features/auth/store/auth.store";
 import {
+  invoiceKeys,
   useInvoiceDetailQuery,
   useUpdateInvoiceStatusMutation,
 } from "@/features/invoices/hooks/use-invoices";
@@ -62,6 +64,7 @@ export default function InvoiceDetailPage() {
   const invoiceId = Array.isArray(params?.id) ? params.id[0] : params?.id ?? "";
 
   const { user } = useAuthStore();
+  const queryClient = useQueryClient();
   const { data: invoice, isLoading, isError } = useInvoiceDetailQuery(invoiceId);
   const updateStatusMutation = useUpdateInvoiceStatusMutation({
     status: undefined,
@@ -85,20 +88,29 @@ export default function InvoiceDetailPage() {
     releaseError,
   } = useEscrowContract();
 
+  const refetchInvoice = React.useCallback(() => {
+    if (!invoiceId) return;
+    void queryClient.invalidateQueries({ queryKey: invoiceKeys.detail(invoiceId) });
+    void queryClient.invalidateQueries({ queryKey: invoiceKeys.lists() });
+  }, [invoiceId, queryClient]);
+
   React.useEffect(() => {
     if (isDepositSuccess) toast.success("Transaction submitted! 🚀", { description: "Deposit has been confirmed on-chain." });
+    if (isDepositSuccess) refetchInvoice();
     if (depositError) toast.error("Deposit Failed", { description: depositError.message });
-  }, [isDepositSuccess, depositError]);
+  }, [isDepositSuccess, depositError, refetchInvoice]);
 
   React.useEffect(() => {
     if (isApproveSuccess) toast.success("Token approval confirmed", { description: "You can now secure this invoice in escrow." });
+    if (isApproveSuccess) refetchInvoice();
     if (approveError) toast.error("Approval Failed", { description: approveError.message });
-  }, [isApproveSuccess, approveError]);
+  }, [isApproveSuccess, approveError, refetchInvoice]);
 
   React.useEffect(() => {
     if (isReleaseSuccess) toast.success("Funds Released! 🚀", { description: "Escrow funds have been successfully released." });
+    if (isReleaseSuccess) refetchInvoice();
     if (releaseError) toast.error("Release Failed", { description: releaseError.message });
-  }, [isReleaseSuccess, releaseError]);
+  }, [isReleaseSuccess, releaseError, refetchInvoice]);
 
   const canUpdateStatus = user?.role === "CLIENT" || user?.role === "ADMIN";
   const _isFreelancerView = user?.role === "FREELANCER";
