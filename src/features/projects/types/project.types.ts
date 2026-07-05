@@ -59,7 +59,36 @@ export interface ProjectFreelancerCandidate {
 export interface ProjectInvoice {
     id: string;
     invoiceNumber?: string;
+    title?: string;
+    dueDate?: string;
+    paymentMethod?: string;
     amount: string;
     status: string;             // DRAFT | SENT | PAID | OVERDUE | LOCKED
+    createdAt?: string;
+}
+
+export interface ProjectProgress {
+    progressPercent: number;
+    completedTasks: number;
+    totalTasks: number;
+}
+
+export interface ProjectFileItem {
+    fileUrl: string;
+    fileName: string;
+    sourceType: "PROJECT" | "TASK" | "INVOICE" | string;
+    sourceId: string;
+    commentId: number;
+    authorName: string;
+    createdAt?: string;
+}
+
+export interface ProjectActivityItem {
+    id: number | null;
+    action: string;
+    label: string;
+    entityType: "PROJECT" | "TASK" | "INVOICE" | "COMMENT" | string;
+    entityId: string;
+    actorName: string;
     createdAt?: string;
 }

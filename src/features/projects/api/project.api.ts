@@ -1,6 +1,9 @@
 import { apiClient } from "@/lib/axios";
 import type {
   Project,
+  ProjectActivityItem,
+  ProjectFileItem,
+  ProjectProgress,
   ProjectRequestPayload,
   PageResponse,
   ProjectMember,
@@ -74,4 +77,21 @@ export async function fetchProjectInvoices(projectId: string): Promise<ProjectIn
   }
 
   return data?.content ?? [];
+}
+
+export async function fetchProjectProgress(projectId: string): Promise<ProjectProgress> {
+  const { data } = await apiClient.get<ProjectProgress>(`${PROJECTS_BASE}/${projectId}/progress`);
+  return data;
+}
+
+export async function fetchProjectFiles(projectId: string): Promise<ProjectFileItem[]> {
+  const { data } = await apiClient.get<ProjectFileItem[]>(`${PROJECTS_BASE}/${projectId}/files`);
+  return data;
+}
+
+export async function fetchProjectActivity(projectId: string): Promise<ProjectActivityItem[]> {
+  const { data } = await apiClient.get<PageResponse<ProjectActivityItem>>(`${PROJECTS_BASE}/${projectId}/activity`, {
+    params: { page: 0, size: 20 },
+  });
+  return data.content ?? [];
 }

@@ -10,6 +10,9 @@ import {
   addProjectMember,
   removeProjectMember,
   fetchProjectInvoices,
+  fetchProjectProgress,
+  fetchProjectFiles,
+  fetchProjectActivity,
   searchProjectFreelancers,
 } from "../api/project.api";
 import type { ProjectRequestPayload } from "../types/project.types";
@@ -21,6 +24,9 @@ export const projectKeys = {
   detail: (id: string) => [...projectKeys.all, "detail", id] as const,
   members: (id: string) => [...projectKeys.all, "detail", id, "members"] as const,
   invoices: (id: string) => [...projectKeys.all, "detail", id, "invoices"] as const,
+  progress: (id: string) => [...projectKeys.all, "detail", id, "progress"] as const,
+  files: (id: string) => [...projectKeys.all, "detail", id, "files"] as const,
+  activity: (id: string) => [...projectKeys.all, "detail", id, "activity"] as const,
   freelancerSearch: (id: string, keyword: string) => [...projectKeys.all, "detail", id, "freelancer-search", keyword] as const,
 };
 
@@ -56,6 +62,30 @@ export function useProjectInvoicesQuery(id: string) {
   return useQuery({
     queryKey: projectKeys.invoices(id),
     queryFn: () => fetchProjectInvoices(id),
+    enabled: !!id,
+  });
+}
+
+export function useProjectProgressQuery(id: string) {
+  return useQuery({
+    queryKey: projectKeys.progress(id),
+    queryFn: () => fetchProjectProgress(id),
+    enabled: !!id,
+  });
+}
+
+export function useProjectFilesQuery(id: string) {
+  return useQuery({
+    queryKey: projectKeys.files(id),
+    queryFn: () => fetchProjectFiles(id),
+    enabled: !!id,
+  });
+}
+
+export function useProjectActivityQuery(id: string) {
+  return useQuery({
+    queryKey: projectKeys.activity(id),
+    queryFn: () => fetchProjectActivity(id),
     enabled: !!id,
   });
 }
