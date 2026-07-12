@@ -16,6 +16,8 @@ import type {
   ForceStatusRequest,
   ImpersonationResponse,
   PageResponse,
+  AuditAnchorBatch,
+  AuditProof,
 } from "../types/admin.types";
 
 export async function fetchPlatformStats(): Promise<PlatformStats> {
@@ -35,6 +37,26 @@ export async function fetchControlCenter(): Promise<ControlCenterResponse> {
 
 export async function fetchAdminAuditLogs(params: AdminAuditLogFilters): Promise<PageResponse<AdminAuditLogResponse>> {
   const { data } = await apiClient.get<PageResponse<AdminAuditLogResponse>>("/admin/audit-logs", { params });
+  return data;
+}
+
+export async function fetchAuditAnchorBatches(params: { page: number; size: number }): Promise<PageResponse<AuditAnchorBatch>> {
+  const { data } = await apiClient.get<PageResponse<AuditAnchorBatch>>("/admin/audit-anchor-batches", { params });
+  return data;
+}
+
+export async function runAuditAnchoring(): Promise<AuditAnchorBatch | null> {
+  const response = await apiClient.post<AuditAnchorBatch>("/admin/audit-anchor-batches/run");
+  return response.status === 204 ? null : response.data;
+}
+
+export async function fetchAuditProof(id: number): Promise<AuditProof> {
+  const { data } = await apiClient.get<AuditProof>(`/admin/audit-logs/${id}/proof`);
+  return data;
+}
+
+export async function verifyAuditProof(id: number): Promise<AuditProof> {
+  const { data } = await apiClient.post<AuditProof>(`/admin/audit-logs/${id}/verify`);
   return data;
 }
 

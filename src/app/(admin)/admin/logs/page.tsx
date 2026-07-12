@@ -5,6 +5,7 @@ import { AuditLogTable } from "@/features/admin/components/audit-log-table";
 import { FilterSection } from "@/components/ui/filter-section";
 import { SearchInput } from "@/components/ui/search-input";
 import { CircleDot } from "lucide-react";
+import { AuditAnchorBatches } from "@/features/admin/components/audit-anchor-batches";
 
 export default function AdminAuditLogsPage() {
   const [action, setAction] = React.useState<string>("");
@@ -40,6 +41,8 @@ export default function AdminAuditLogsPage() {
           Security and compliance records across tenants. Domain activity is available in Events.
         </p>
       </div>
+
+      <AuditAnchorBatches />
 
       <section className="grid grid-cols-1 xl:grid-cols-[18rem_minmax(0,1fr)] gap-6 items-start">
         <aside className="space-y-4 sticky top-24 z-10">

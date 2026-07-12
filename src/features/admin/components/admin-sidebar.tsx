@@ -108,7 +108,7 @@ export function AdminSidebar() {
   return (
     <aside
       className={cn(
-        "fixed inset-y-0 left-0 z-50 border-r border-theme-border bg-surface-base/95 backdrop-blur-xl flex flex-col transition-[width] duration-300",
+        "fixed inset-y-0 left-0 z-50 hidden border-r border-theme-border bg-surface-base/95 backdrop-blur-xl md:flex flex-col transition-[width] duration-300",
         isCollapsed ? "w-20" : "w-64",
       )}
     >

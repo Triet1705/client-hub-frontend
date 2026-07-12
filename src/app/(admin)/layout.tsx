@@ -14,10 +14,9 @@ export default function AdminLayout({
       <div className="flex h-screen bg-surface-base text-content-secondary font-sans selection:bg-theme-accent/30">
         <AdminSidebar />
         
-        <div className="flex flex-1 flex-col transition-[padding] duration-300 md:pl-20 lg:pl-64"
-             style={{ paddingLeft: "var(--admin-sidebar-width, 16rem)" }}>
+        <div className="flex min-w-0 flex-1 flex-col transition-[padding] duration-300 md:pl-[var(--admin-sidebar-width,16rem)]">
           <AdminHeader />
-          <main className="flex-1 overflow-y-auto overflow-x-hidden p-6 lg:p-8 relative scroll-smooth">
+          <main className="relative flex-1 overflow-y-auto overflow-x-hidden p-4 sm:p-6 lg:p-8 scroll-smooth">
             <div className="mx-auto max-w-7xl">
               <OptimisticRouteShell scope="admin">
                 {children}

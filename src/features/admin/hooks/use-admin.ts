@@ -14,6 +14,10 @@ import {
   fetchControlCenter,
   fetchAdminEvents,
   fetchAdminFlags,
+  fetchAuditAnchorBatches,
+  runAuditAnchoring,
+  fetchAuditProof,
+  verifyAuditProof,
 } from "../api/admin.api";
 import type { Role } from "@/features/auth/types/auth.types";
 import type { AdminAuditLogFilters, AdminEventFilters, ForceStatusRequest } from "../types/admin.types";
@@ -49,6 +53,8 @@ export const adminKeys = {
     [...adminKeys.all, "audit-logs", params] as const,
   events: (params: AdminEventFilters) => [...adminKeys.all, "events", params] as const,
   flags: () => [...adminKeys.all, "flags"] as const,
+  anchorBatches: (params: { page: number; size: number }) => [...adminKeys.all, "audit-anchor-batches", params] as const,
+  auditProof: (id: number) => [...adminKeys.all, "audit-proof", id] as const,
 };
 
 export function usePlatformStatsQuery() {
@@ -95,6 +101,44 @@ export function useAdminFlagsQuery() {
     queryKey: adminKeys.flags(),
     queryFn: fetchAdminFlags,
     refetchInterval: 30000,
+  });
+}
+
+export function useAuditAnchorBatchesQuery(params: { page: number; size: number }) {
+  return useQuery({
+    queryKey: adminKeys.anchorBatches(params),
+    queryFn: () => fetchAuditAnchorBatches(params),
+    refetchInterval: 15000,
+  });
+}
+
+export function useRunAuditAnchoringMutation() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: runAuditAnchoring,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin", "audit-anchor-batches"] });
+      queryClient.invalidateQueries({ queryKey: ["admin", "audit-logs"] });
+    },
+  });
+}
+
+export function useAuditProofQuery(id: number, enabled: boolean) {
+  return useQuery({
+    queryKey: adminKeys.auditProof(id),
+    queryFn: () => fetchAuditProof(id),
+    enabled,
+  });
+}
+
+export function useVerifyAuditProofMutation() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: verifyAuditProof,
+    onSuccess: (proof) => {
+      queryClient.setQueryData(adminKeys.auditProof(proof.auditLogId), proof);
+      queryClient.invalidateQueries({ queryKey: ["admin", "audit-logs"] });
+    },
   });
 }
 
