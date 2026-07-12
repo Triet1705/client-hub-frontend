@@ -29,12 +29,14 @@ interface CreateTaskModalProps {
   isOpen: boolean;
   onClose: () => void;
   defaultStatus?: TaskStatus;
+  defaultProjectId?: string;
 }
 
 export function CreateTaskModal({
   isOpen,
   onClose,
   defaultStatus = TaskStatus.TODO,
+  defaultProjectId = "",
 }: CreateTaskModalProps) {
   const { user } = useAuthStore();
   const canAssignOthers = user?.role === "CLIENT" || user?.role === "ADMIN";
@@ -59,7 +61,7 @@ export function CreateTaskModal({
     defaultValues: {
       title: "",
       description: "",
-      projectId: "",
+      projectId: defaultProjectId,
       priority: TaskPriority.MEDIUM,
       status: defaultStatus,
       estimatedHours: null,
@@ -84,8 +86,8 @@ export function CreateTaskModal({
   );
 
   React.useEffect(() => {
-    if (isOpen) reset((prev) => ({ ...prev, status: defaultStatus }));
-  }, [isOpen, defaultStatus, reset]);
+    if (isOpen) reset((prev) => ({ ...prev, projectId: defaultProjectId, status: defaultStatus }));
+  }, [isOpen, defaultProjectId, defaultStatus, reset]);
 
   React.useEffect(() => {
     if (!isOpen) {

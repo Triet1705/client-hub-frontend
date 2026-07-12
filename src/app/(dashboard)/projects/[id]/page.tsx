@@ -8,20 +8,27 @@ import {
   AlertCircle,
   ArrowLeft,
   Calendar,
+  Check,
   CheckCircle2,
   Clock3,
   DollarSign,
   ExternalLink,
   FileText,
+  Flag,
   FolderGit2,
+  LayoutGrid,
   LayoutDashboard,
+  List,
   ListTodo,
   MessageSquare,
   Paperclip,
   Plus,
   Receipt,
+  SlidersHorizontal,
   Sparkles,
+  TimerReset,
   Trash2,
+  User,
   Users,
 } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
@@ -29,8 +36,19 @@ import { cn, formatDate, formatFiat, formatInvoiceId } from "@/lib/utils";
 import { useAuthStore } from "@/features/auth/store/auth.store";
 import { TaskPriority, TaskStatus, type Task } from "@/features/tasks/types/task.types";
 import { TaskBoard } from "@/features/tasks/components/task-board";
+import { TaskList } from "@/features/tasks/components/task-list";
 import { CreateTaskModal } from "@/features/tasks/components/create-task-modal";
 import { useTasksQuery } from "@/features/tasks/hooks/use-tasks";
+import { TaskAdvancedFilters } from "@/features/tasks/components/task-advanced-filters";
+import {
+  DEFAULT_ADVANCED_FILTERS,
+  isTaskMatchingAdvancedFilters,
+  isTaskMatchingDueFilter,
+  type AdvancedFilters,
+} from "@/features/tasks/utils/task-filter";
+import type { TaskDueFilterValue, TaskPriorityFilterValue, TaskStatusFilterValue, TasksViewMode } from "@/features/tasks/query/tasks-query.schema";
+import { TASK_PRIORITY_OPTIONS } from "@/features/tasks/constants/task-ui.constants";
+import { FilterDropdown, type FilterDropdownOption } from "@/components/ui/filter-dropdown";
 import {
   useAddMemberMutation,
   useProjectActivityQuery,
@@ -70,6 +88,22 @@ const PROJECT_PORTAL_TABS: Array<{
   { id: "files", label: "Files", icon: Paperclip },
   { id: "invoices", label: "Invoices", icon: Receipt },
   { id: "activity", label: "Activity", icon: ActivityIcon },
+];
+
+const TASK_STATUS_FILTER_OPTIONS: FilterDropdownOption<TaskStatusFilterValue>[] = [
+  { value: "ALL", label: "All Statuses" },
+  { value: TaskStatus.TODO, label: "To Do" },
+  { value: TaskStatus.IN_PROGRESS, label: "In Progress" },
+  { value: TaskStatus.DONE, label: "Done" },
+  { value: TaskStatus.CANCELED, label: "Cancelled" },
+];
+
+const TASK_DUE_FILTER_OPTIONS: FilterDropdownOption<TaskDueFilterValue>[] = [
+  { value: "ALL", label: "Any Due Date" },
+  { value: "OVERDUE", label: "Overdue" },
+  { value: "TODAY", label: "Due Today" },
+  { value: "THIS_WEEK", label: "Due This Week" },
+  { value: "NO_DUE_DATE", label: "No Due Date" },
 ];
 
 function isProjectPortalTab(value: string | null): value is ProjectPortalTab {
@@ -145,6 +179,24 @@ function EmptyState({
       <Icon className="mb-4 h-10 w-10 text-slate-600" />
       <p className="font-semibold text-slate-300">{title}</p>
       <p className="mt-1 max-w-md text-sm text-slate-500">{description}</p>
+    </div>
+  );
+}
+
+function TabErrorState({
+  icon: Icon,
+  title,
+  description,
+}: {
+  icon: React.ComponentType<{ className?: string }>;
+  title: string;
+  description: string;
+}) {
+  return (
+    <div className="flex min-h-48 flex-col items-center justify-center rounded-2xl border border-rose-500/20 bg-rose-500/10 p-8 text-center text-rose-200">
+      <Icon className="mb-4 h-10 w-10 text-rose-300" />
+      <p className="font-semibold text-rose-100">{title}</p>
+      <p className="mt-1 max-w-md text-sm text-rose-200/80">{description}</p>
     </div>
   );
 }
@@ -324,17 +376,24 @@ export default function ProjectDetailPage() {
   const { data: members = [], isLoading: isMembersLoading } = useProjectMembersQuery(projectId);
   const { data: invoices = [], isLoading: isInvoicesLoading } = useProjectInvoicesQuery(projectId);
   const { data: progress } = useProjectProgressQuery(projectId);
-  const { data: files = [], isLoading: isFilesLoading } = useProjectFilesQuery(projectId);
-  const { data: activity = [], isLoading: isActivityLoading } = useProjectActivityQuery(projectId);
+  const { data: files = [], isLoading: isFilesLoading, isError: isFilesError } = useProjectFilesQuery(projectId);
+  const { data: activity = [], isLoading: isActivityLoading, isError: isActivityError } = useProjectActivityQuery(projectId);
   const { data: projectMessages = [] } = useCommentsQuery("PROJECT", projectId);
 
   const taskParams = React.useMemo(() => ({ projectId, page: 0, size: 50 }), [projectId]);
   const { data: tasksPage, isLoading: isTasksLoading, isError: isTasksError } = useTasksQuery(taskParams);
-  const tasks = tasksPage?.content ?? [];
+  const tasks = React.useMemo(() => tasksPage?.content ?? [], [tasksPage?.content]);
 
   const [isCreateTaskModalOpen, setIsCreateTaskModalOpen] = React.useState(false);
   const [defaultStatus, setDefaultStatus] = React.useState(TaskStatus.TODO);
   const [selectedTask, setSelectedTask] = React.useState<Task | null>(null);
+  const [tasksViewMode, setTasksViewMode] = React.useState<TasksViewMode>("kanban");
+  const [taskPriorityFilter, setTaskPriorityFilter] = React.useState<TaskPriorityFilterValue>("ALL");
+  const [taskStatusFilter, setTaskStatusFilter] = React.useState<TaskStatusFilterValue>("ALL");
+  const [taskDueFilter, setTaskDueFilter] = React.useState<TaskDueFilterValue>("ALL");
+  const [taskAssigneeId, setTaskAssigneeId] = React.useState<string | undefined>();
+  const [isAdvancedFiltersOpen, setIsAdvancedFiltersOpen] = React.useState(false);
+  const [advancedFilters, setAdvancedFilters] = React.useState<AdvancedFilters>(DEFAULT_ADVANCED_FILTERS);
   const [isAddMemberOpen, setIsAddMemberOpen] = React.useState(false);
   const [isSmartUploadOpen, setIsSmartUploadOpen] = React.useState(false);
   const [isCreateInvoiceOpen, setIsCreateInvoiceOpen] = React.useState(false);
@@ -350,6 +409,34 @@ export default function ProjectDetailPage() {
   const paidInvoices = invoices.filter((invoice) => invoice.status === InvoiceStatus.PAID);
   const openInvoices = invoices.filter((invoice) => invoice.status !== InvoiceStatus.PAID && invoice.status !== InvoiceStatus.REFUNDED);
   const invoiceTotal = invoices.reduce((sum, invoice) => sum + Number(invoice.amount || 0), 0);
+  const taskAssigneeOptions = React.useMemo<FilterDropdownOption<string | "ALL">[]>(
+    () => [
+      { value: "ALL", label: "All Assignees" },
+      ...members.map((member) => ({
+        value: member.userId,
+        label: member.fullName || member.email,
+      })),
+    ],
+    [members],
+  );
+  const filteredTasks = React.useMemo(
+    () =>
+      tasks
+        .filter((task) => taskPriorityFilter === "ALL" || task.priority === taskPriorityFilter)
+        .filter((task) => taskStatusFilter === "ALL" || task.status === taskStatusFilter)
+        .filter((task) => !taskAssigneeId || task.assignedTo?.id === taskAssigneeId)
+        .filter((task) => isTaskMatchingDueFilter(task, taskDueFilter))
+        .filter((task) => isTaskMatchingAdvancedFilters(task, advancedFilters)),
+    [advancedFilters, taskAssigneeId, taskDueFilter, taskPriorityFilter, tasks, taskStatusFilter],
+  );
+  const hasActiveAdvancedFilters = React.useMemo(
+    () =>
+      advancedFilters.keyword.trim() !== "" ||
+      advancedFilters.statuses.length > 0 ||
+      advancedFilters.minEstimate.trim() !== "" ||
+      advancedFilters.maxEstimate.trim() !== "",
+    [advancedFilters],
+  );
 
   const handleTabChange = (tab: ProjectPortalTab) => {
     const nextParams = new URLSearchParams(searchParams.toString());
@@ -485,6 +572,20 @@ export default function ProjectDetailPage() {
               <MetricTile label="Open Invoices" value={String(openInvoices.length)} icon={Receipt} tone="text-amber-300" />
               <MetricTile label="Files" value={String(files.length)} icon={Paperclip} tone="text-indigo-300" />
             </div>
+
+            {(isFilesError || isActivityError) ? (
+              <div className="rounded-2xl border border-amber-500/20 bg-amber-500/10 p-4 text-sm text-amber-100">
+                <div className="flex items-start gap-3">
+                  <AlertCircle className="mt-0.5 h-5 w-5 shrink-0 text-amber-300" />
+                  <div>
+                    <p className="font-bold">Some portal panels did not load.</p>
+                    <p className="mt-1 text-amber-100/80">
+                      Project details are still available. Check the Files or Activity tab for the failed panel and retry after the API is healthy.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            ) : null}
 
             <section className="rounded-2xl border border-white/10 bg-slate-900/60 p-5">
               <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
@@ -626,19 +727,105 @@ export default function ProjectDetailPage() {
 
       {activeTab === "tasks" ? (
         <section className="min-h-[650px] overflow-hidden rounded-2xl border border-white/10 bg-slate-900/60">
-          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 bg-slate-950/40 px-5 py-4">
-            <div>
-              <h2 className="font-bold text-white">Tasks</h2>
-              <p className="mt-1 text-sm text-slate-500">{openTasks.length} open, {doneTasks.length} completed</p>
+          <div className="space-y-4 border-b border-white/10 bg-slate-950/40 px-5 py-4">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div>
+                <h2 className="font-bold text-white">Tasks</h2>
+                <p className="mt-1 text-sm text-slate-500">
+                  {filteredTasks.length} shown from {tasks.length} total - {openTasks.length} open, {doneTasks.length} completed
+                </p>
+              </div>
+              <div className="flex flex-wrap items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setIsSmartUploadOpen(true)}
+                  className="inline-flex items-center gap-2 rounded-xl border border-indigo-500/30 bg-indigo-600/20 px-4 py-2.5 text-sm font-bold text-indigo-200 transition hover:border-indigo-400/50 hover:bg-indigo-600/30"
+                >
+                  <Sparkles className="h-4 w-4" />
+                  Smart Upload
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleAddTask(TaskStatus.TODO)}
+                  className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-bold text-white transition hover:bg-emerald-500"
+                >
+                  <Plus className="h-4 w-4" />
+                  Add Task
+                </button>
+              </div>
             </div>
-            <button
-              type="button"
-              onClick={() => handleAddTask(TaskStatus.TODO)}
-              className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-bold text-white transition hover:bg-emerald-500"
-            >
-              <Plus className="h-4 w-4" />
-              Add Task
-            </button>
+            <div className="flex flex-wrap items-center gap-2">
+              <div className="flex items-center gap-0.5 rounded-lg border border-white/10 bg-white/5 p-1">
+                <button
+                  type="button"
+                  onClick={() => setTasksViewMode("kanban")}
+                  className={cn(
+                    "inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors",
+                    tasksViewMode === "kanban" ? "bg-white/10 text-white" : "text-slate-500 hover:text-slate-300",
+                  )}
+                >
+                  <LayoutGrid className="h-3.5 w-3.5" />
+                  Kanban
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setTasksViewMode("list")}
+                  className={cn(
+                    "inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors",
+                    tasksViewMode === "list" ? "bg-white/10 text-white" : "text-slate-500 hover:text-slate-300",
+                  )}
+                >
+                  <List className="h-3.5 w-3.5" />
+                  List
+                </button>
+              </div>
+              <FilterDropdown
+                icon={Flag}
+                label="Priority"
+                options={[{ value: "ALL" as const, label: "All Priorities" }, ...TASK_PRIORITY_OPTIONS]}
+                value={taskPriorityFilter}
+                onChange={(value) => setTaskPriorityFilter(value)}
+              />
+              <FilterDropdown
+                icon={User}
+                label="Assignee"
+                options={taskAssigneeOptions}
+                value={taskAssigneeId ?? "ALL"}
+                onChange={(value) => setTaskAssigneeId(value === "ALL" ? undefined : value)}
+              />
+              <FilterDropdown
+                icon={Check}
+                label="Status"
+                options={TASK_STATUS_FILTER_OPTIONS}
+                value={taskStatusFilter}
+                onChange={(value) => setTaskStatusFilter(value)}
+              />
+              <FilterDropdown
+                icon={TimerReset}
+                label="Due"
+                options={TASK_DUE_FILTER_OPTIONS}
+                value={taskDueFilter}
+                onChange={(value) => setTaskDueFilter(value)}
+              />
+              <button
+                type="button"
+                onClick={() => setIsAdvancedFiltersOpen(true)}
+                className={cn(
+                  "inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs transition-colors",
+                  hasActiveAdvancedFilters
+                    ? "border-emerald-500/30 bg-emerald-500/12 text-emerald-300"
+                    : "border-white/10 bg-white/5 text-slate-400 hover:border-white/20 hover:text-slate-200",
+                )}
+              >
+                <SlidersHorizontal className={cn("h-3 w-3", hasActiveAdvancedFilters ? "text-emerald-300" : "text-slate-500")} />
+                Advanced
+                {hasActiveAdvancedFilters ? (
+                  <span className="inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-emerald-400/20 px-1 text-[10px] font-semibold text-emerald-300">
+                    ON
+                  </span>
+                ) : null}
+              </button>
+            </div>
           </div>
           {isTasksError ? (
             <div className="m-6 rounded-2xl border border-rose-500/20 bg-rose-500/10 p-5 text-center text-sm text-rose-300">
@@ -648,8 +835,12 @@ export default function ProjectDetailPage() {
             <div className="flex h-full gap-4 p-6">
               {[1, 2, 3, 4].map((item) => <div key={item} className="h-[32rem] flex-1 animate-pulse rounded-2xl bg-slate-800/50" />)}
             </div>
+          ) : tasksViewMode === "list" ? (
+            <div className="px-5 pb-5">
+              <TaskList tasks={filteredTasks} onTaskClick={setSelectedTask} />
+            </div>
           ) : (
-            <TaskBoard tasks={tasks} currentParams={taskParams} onAddTask={handleAddTask} onTaskClick={setSelectedTask} />
+            <TaskBoard tasks={filteredTasks} currentParams={taskParams} onAddTask={handleAddTask} onTaskClick={setSelectedTask} />
           )}
         </section>
       ) : null}
@@ -685,6 +876,12 @@ export default function ProjectDetailPage() {
             <div className="grid gap-3 lg:grid-cols-2">
               {[1, 2, 3, 4].map((item) => <div key={item} className="h-24 animate-pulse rounded-2xl bg-slate-900/60" />)}
             </div>
+          ) : isFilesError ? (
+            <TabErrorState
+              icon={Paperclip}
+              title="Files could not be loaded"
+              description="The project is available, but the file aggregation API did not respond successfully."
+            />
           ) : (
             <ProjectFilesList files={files} />
           )}
@@ -741,6 +938,12 @@ export default function ProjectDetailPage() {
             <div className="space-y-3">
               {[1, 2, 3, 4].map((item) => <div key={item} className="h-20 animate-pulse rounded-2xl bg-slate-900/60" />)}
             </div>
+          ) : isActivityError ? (
+            <TabErrorState
+              icon={ActivityIcon}
+              title="Activity could not be loaded"
+              description="The project is available, but the activity timeline API did not respond successfully."
+            />
           ) : (
             <ProjectActivityList activity={activity} />
           )}
@@ -758,6 +961,7 @@ export default function ProjectDetailPage() {
         isOpen={isCreateTaskModalOpen}
         onClose={() => setIsCreateTaskModalOpen(false)}
         defaultStatus={defaultStatus}
+        defaultProjectId={projectId}
       />
 
       <AddMemberModal
@@ -791,6 +995,14 @@ export default function ProjectDetailPage() {
         isOpen={isCreateInvoiceOpen}
         onClose={() => setIsCreateInvoiceOpen(false)}
         defaultProjectId={projectId}
+      />
+
+      <TaskAdvancedFilters
+        isOpen={isAdvancedFiltersOpen}
+        onClose={() => setIsAdvancedFiltersOpen(false)}
+        filters={advancedFilters}
+        onApply={setAdvancedFilters}
+        onReset={() => setAdvancedFilters(DEFAULT_ADVANCED_FILTERS)}
       />
     </div>
   );
