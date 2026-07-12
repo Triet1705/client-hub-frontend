@@ -3,6 +3,8 @@
 import * as React from "react";
 import { useAuthStore } from "@/features/auth/store/auth.store";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
+import { Menu } from "lucide-react";
+import { ADMIN_SIDEBAR_TOGGLE_EVENT } from "./admin-sidebar";
 
 export function AdminHeader() {
   const { user } = useAuthStore();
@@ -15,6 +17,14 @@ export function AdminHeader() {
   return (
     <header className="sticky top-0 z-40 flex h-16 shrink-0 items-center justify-between border-b border-theme-border bg-surface-base/80 px-4 sm:px-6 lg:px-8 backdrop-blur-md">
       <div className="flex items-center gap-3">
+        <button
+          type="button"
+          aria-label="Open admin navigation"
+          className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-theme-border text-content-secondary md:hidden"
+          onClick={() => window.dispatchEvent(new Event(ADMIN_SIDEBAR_TOGGLE_EVENT))}
+        >
+          <Menu className="h-5 w-5" />
+        </button>
         <h1 className="text-xl font-bold text-content-primary tracking-tight">Platform Admin</h1>
       </div>
 
