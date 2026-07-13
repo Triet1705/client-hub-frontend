@@ -124,6 +124,55 @@ export interface AdminAuditLogFilters {
   to?: string;
 }
 
+export type AuditVerificationStatus =
+  | "VERIFIED"
+  | "PENDING"
+  | "NOT_ANCHORED"
+  | "TAMPERED"
+  | "CHAIN_UNAVAILABLE";
+
+export interface AuditAnchorBatch {
+  id: string;
+  status: "BUILDING" | "READY" | "SUBMITTED" | "CONFIRMED" | "FAILED";
+  merkleRoot: string;
+  metadataHash: string;
+  hashVersion: string;
+  chainId: number | null;
+  contractAddress: string | null;
+  firstLogId: number;
+  lastLogId: number;
+  recordCount: number;
+  transactionHash: string | null;
+  submittedBlock: string | null;
+  confirmedBlock: string | null;
+  confirmations: number;
+  attempts: number;
+  lastError: string | null;
+  nextAttemptAt: string | null;
+  createdAt: string;
+  submittedAt: string | null;
+  confirmedAt: string | null;
+}
+
+export interface AuditProof {
+  auditLogId: number;
+  batchId: string | null;
+  batchStatus: string | null;
+  verificationStatus: AuditVerificationStatus;
+  hashVersion: string;
+  leafHash: string | null;
+  leafIndex: number;
+  proof: string[];
+  merkleRoot: string | null;
+  metadataHash: string | null;
+  chainId: number | null;
+  contractAddress: string | null;
+  transactionHash: string | null;
+  submittedBlock: string | null;
+  confirmedBlock: string | null;
+  confirmations: number;
+}
+
 export interface AdminEventFilters {
   page: number;
   size: number;

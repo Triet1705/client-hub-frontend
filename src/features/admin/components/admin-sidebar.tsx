@@ -25,6 +25,7 @@ import {
 const SIDEBAR_STORAGE_KEY = "clienthub.admin.sidebar.collapsed";
 const SIDEBAR_WIDTH_EXPANDED = "16rem";
 const SIDEBAR_WIDTH_COLLAPSED = "5rem";
+export const ADMIN_SIDEBAR_TOGGLE_EVENT = "clienthub:admin-sidebar-toggle";
 
 
 
@@ -85,6 +86,7 @@ export function AdminSidebar() {
 
   const [isMounted, setIsMounted] = React.useState(false);
   const [isCollapsed, setIsCollapsed] = React.useState(false);
+  const [isMobileOpen, setIsMobileOpen] = React.useState(false);
 
   React.useEffect(() => {
     setIsMounted(true);
@@ -105,11 +107,32 @@ export function AdminSidebar() {
     );
   }, [isCollapsed, isMounted]);
 
+  React.useEffect(() => {
+    const toggleMobileSidebar = () => {
+      setIsCollapsed(false);
+      setIsMobileOpen((current) => !current);
+    };
+    window.addEventListener(ADMIN_SIDEBAR_TOGGLE_EVENT, toggleMobileSidebar);
+    return () => window.removeEventListener(ADMIN_SIDEBAR_TOGGLE_EVENT, toggleMobileSidebar);
+  }, []);
+
+  React.useEffect(() => setIsMobileOpen(false), [pathname]);
+
   return (
-    <aside
+    <>
+      {isMobileOpen && (
+        <button
+          type="button"
+          aria-label="Close admin navigation"
+          className="fixed inset-0 z-40 bg-black/60 md:hidden"
+          onClick={() => setIsMobileOpen(false)}
+        />
+      )}
+      <aside
       className={cn(
-        "fixed inset-y-0 left-0 z-50 border-r border-theme-border bg-surface-base/95 backdrop-blur-xl flex flex-col transition-[width] duration-300",
-        isCollapsed ? "w-20" : "w-64",
+        "fixed inset-y-0 left-0 z-50 flex w-64 flex-col border-r border-theme-border bg-surface-base/95 backdrop-blur-xl transition-[width,transform] duration-300 md:translate-x-0",
+        isMobileOpen ? "translate-x-0" : "-translate-x-full",
+        isCollapsed ? "md:w-20" : "md:w-64",
       )}
     >
       <div
@@ -237,6 +260,7 @@ export function AdminSidebar() {
           {!isCollapsed ? "Terminate Session" : null}
         </button>
       </div>
-    </aside>
+      </aside>
+    </>
   );
 }
