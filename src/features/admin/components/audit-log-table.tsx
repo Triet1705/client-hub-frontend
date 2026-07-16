@@ -15,16 +15,17 @@ interface AuditLogTableProps {
   entityType?: string;
   tenantId?: string;
   anchored?: boolean;
+  anchorStatus?: "WAITING" | "PENDING" | "VERIFIED" | "FAILED";
 }
 
-export function AuditLogTable({ action, entityType, tenantId, anchored }: AuditLogTableProps = {}) {
+export function AuditLogTable({ action, entityType, tenantId, anchored, anchorStatus }: AuditLogTableProps = {}) {
   const [page, setPage] = React.useState(0);
   const [selectedLog, setSelectedLog] = React.useState<AdminAuditLogResponse | null>(null);
   
   // Reset page when filters change
   React.useEffect(() => {
     setPage(0);
-  }, [action, entityType, tenantId, anchored]);
+  }, [action, entityType, tenantId, anchored, anchorStatus]);
 
   const { data: logs, isLoading } = useAdminAuditLogsQuery({ 
     page, 
@@ -33,6 +34,7 @@ export function AuditLogTable({ action, entityType, tenantId, anchored }: AuditL
     entityType: entityType || undefined,
     tenantId: tenantId || undefined,
     anchored: anchored !== undefined ? anchored : undefined,
+    anchorStatus,
   });
 
   return (

@@ -10,6 +10,7 @@ import type {
   ProjectInvoice,
   ProjectFreelancerCandidate,
 } from "../types/project.types";
+import type { UserAuditProof } from "@/features/audit/types/audit-proof.types";
 
 const PROJECTS_BASE = "/projects";
 
@@ -94,4 +95,14 @@ export async function fetchProjectActivity(projectId: string): Promise<ProjectAc
     params: { page: 0, size: 20 },
   });
   return data.content ?? [];
+}
+
+export async function fetchProjectActivityProof(projectId: string, auditLogId: number): Promise<UserAuditProof> {
+  const { data } = await apiClient.get<UserAuditProof>(`${PROJECTS_BASE}/${projectId}/activity/${auditLogId}/proof`);
+  return data;
+}
+
+export async function verifyProjectActivityProof(projectId: string, auditLogId: number): Promise<UserAuditProof> {
+  const { data } = await apiClient.post<UserAuditProof>(`${PROJECTS_BASE}/${projectId}/activity/${auditLogId}/verify`);
+  return data;
 }

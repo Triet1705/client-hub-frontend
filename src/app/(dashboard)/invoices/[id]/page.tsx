@@ -15,7 +15,9 @@ import { useAuthStore } from "@/features/auth/store/auth.store";
 import {
   invoiceKeys,
   useInvoiceDetailQuery,
+  useInvoiceAuditProofQuery,
   useUpdateInvoiceStatusMutation,
+  useVerifyInvoiceAuditProofMutation,
 } from "@/features/invoices/hooks/use-invoices";
 import { canTransitionTo } from "@/lib/invoice-status-mapper";
 import { InvoiceStatus, PaymentMethod } from "@/lib/type";
@@ -29,6 +31,7 @@ import {
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { useAccount, useChainId } from "wagmi";
 import { InvoiceDetailSkeleton } from "@/components/skeletons/page-skeletons";
+import { IntegrityProofPanel } from "@/features/audit/components/integrity-proof-panel";
 
 function formatUsd(value: string) {
   const parsed = Number(value);
@@ -66,6 +69,8 @@ export default function InvoiceDetailPage() {
   const { user } = useAuthStore();
   const queryClient = useQueryClient();
   const { data: invoice, isLoading, isError } = useInvoiceDetailQuery(invoiceId);
+  const auditProofQuery = useInvoiceAuditProofQuery(invoiceId);
+  const verifyAuditProofMutation = useVerifyInvoiceAuditProofMutation(invoiceId);
   const updateStatusMutation = useUpdateInvoiceStatusMutation({
     status: undefined,
     projectId: invoice?.projectId,
@@ -423,7 +428,7 @@ export default function InvoiceDetailPage() {
                   </div>
                 </div>
                 <div className="space-y-1">
-                  <p className="text-slate-500 uppercase tracking-wider">Transaction Hash</p>
+                  <p className="text-slate-500 uppercase tracking-wider">Payment / Escrow Transaction</p>
                   <div className="flex items-center justify-between gap-2 rounded-lg border border-slate-800 bg-slate-900/50 p-2">
                     <span className="font-mono text-slate-300 truncate">{invoice.txHash || "-"}</span>
                     {invoice.txHash ? (
@@ -450,13 +455,23 @@ export default function InvoiceDetailPage() {
               <div className="px-4 py-3 border-b border-slate-800">
                 <h3 className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-400">
                   <ShieldCheck size={14} />
-                  Audit
+                  Audit & Integrity
                 </h3>
               </div>
               <div className="p-4 space-y-2 text-xs text-slate-400">
                 <p>Created at: <span className="font-mono text-slate-300">{formatDateTime(invoice.createdAt)}</span></p>
                 <p>Updated at: <span className="font-mono text-slate-300">{formatDateTime(invoice.updatedAt)}</span></p>
                 <p>Method: <span className="font-semibold text-slate-300">{invoice.paymentMethod}</span></p>
+                <div className="pt-2">
+                  <IntegrityProofPanel
+                    compact
+                    proof={auditProofQuery.data}
+                    isLoading={auditProofQuery.isLoading}
+                    isError={auditProofQuery.isError}
+                    onVerify={() => verifyAuditProofMutation.mutate()}
+                    isVerifying={verifyAuditProofMutation.isPending}
+                  />
+                </div>
               </div>
             </section>
           </aside>

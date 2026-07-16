@@ -18,6 +18,7 @@ import type {
   PageResponse,
   AuditAnchorBatch,
   AuditProof,
+  AuditAnchorSummary,
 } from "../types/admin.types";
 
 export async function fetchPlatformStats(): Promise<PlatformStats> {
@@ -40,8 +41,13 @@ export async function fetchAdminAuditLogs(params: AdminAuditLogFilters): Promise
   return data;
 }
 
-export async function fetchAuditAnchorBatches(params: { page: number; size: number }): Promise<PageResponse<AuditAnchorBatch>> {
+export async function fetchAuditAnchorBatches(params: { page: number; size: number; status?: AuditAnchorBatch["status"] }): Promise<PageResponse<AuditAnchorBatch>> {
   const { data } = await apiClient.get<PageResponse<AuditAnchorBatch>>("/admin/audit-anchor-batches", { params });
+  return data;
+}
+
+export async function fetchAuditAnchorSummary(): Promise<AuditAnchorSummary> {
+  const { data } = await apiClient.get<AuditAnchorSummary>("/admin/audit-anchor-summary");
   return data;
 }
 

@@ -1,9 +1,12 @@
 "use client";
 
+import * as React from "react";
 import { Database, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useAuditAnchorBatchesQuery, useRunAuditAnchoringMutation } from "../hooks/use-admin";
+import { Pagination } from "@/components/ui/pagination";
+import type { AuditAnchorBatch } from "../types/admin.types";
 
 const STATUS_STYLE: Record<string, string> = {
   CONFIRMED: "border-emerald-500/30 bg-emerald-500/10 text-emerald-300",
@@ -14,8 +17,12 @@ const STATUS_STYLE: Record<string, string> = {
 };
 
 export function AuditAnchorBatches() {
-  const { data, isLoading, isError } = useAuditAnchorBatchesQuery({ page: 0, size: 5 });
+  const [page, setPage] = React.useState(0);
+  const [status, setStatus] = React.useState<AuditAnchorBatch["status"] | undefined>();
+  const { data, isLoading, isError } = useAuditAnchorBatchesQuery({ page, size: 20, status });
   const runMutation = useRunAuditAnchoringMutation();
+
+  React.useEffect(() => setPage(0), [status]);
 
   return (
     <section className="space-y-3" aria-labelledby="anchor-batches-heading">
@@ -34,6 +41,24 @@ export function AuditAnchorBatches() {
 
       {runMutation.isError && <p className="text-xs text-rose-300">Anchoring could not be started. Check blockchain readiness.</p>}
       {runMutation.isSuccess && !runMutation.data && <p className="text-xs text-content-muted">No unanchored audit records are waiting.</p>}
+
+      <div className="flex flex-wrap gap-2" aria-label="Batch status filter">
+        {([undefined, "READY", "SUBMITTED", "CONFIRMED", "FAILED"] as const).map((value) => (
+          <button
+            key={value ?? "ALL"}
+            type="button"
+            onClick={() => setStatus(value)}
+            className={cn(
+              "h-8 rounded-md border px-3 text-xs font-semibold transition-colors",
+              status === value
+                ? "border-emerald-500/40 bg-emerald-500/10 text-emerald-200"
+                : "border-theme-border bg-surface-elevated text-content-muted hover:text-content-primary",
+            )}
+          >
+            {value ?? "ALL"}
+          </button>
+        ))}
+      </div>
 
       <div className="overflow-hidden rounded-lg border border-theme-border bg-surface-elevated">
         {isLoading ? (
@@ -61,6 +86,15 @@ export function AuditAnchorBatches() {
             ))}
           </div>
         )}
+        {data ? (
+          <Pagination
+            page={page}
+            totalPages={data.totalPages}
+            totalElements={data.totalElements}
+            onPageChange={setPage}
+            label="batches"
+          />
+        ) : null}
       </div>
     </section>
   );
