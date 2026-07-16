@@ -120,8 +120,18 @@ export interface AdminAuditLogFilters {
   entityType?: string;
   tenantId?: string;
   anchored?: boolean;
+  anchorStatus?: "WAITING" | "PENDING" | "VERIFIED" | "FAILED";
   from?: string;
   to?: string;
+}
+
+export interface AuditAnchorSummary {
+  waitingRecords: number;
+  pendingBatches: number;
+  confirmedBatches: number;
+  failedBatches: number;
+  latestConfirmedAt: string | null;
+  serviceStatus: "READY" | "DISABLED" | "UNAVAILABLE";
 }
 
 export type AuditVerificationStatus =

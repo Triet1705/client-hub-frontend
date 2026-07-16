@@ -18,9 +18,10 @@ import {
   runAuditAnchoring,
   fetchAuditProof,
   verifyAuditProof,
+  fetchAuditAnchorSummary,
 } from "../api/admin.api";
 import type { Role } from "@/features/auth/types/auth.types";
-import type { AdminAuditLogFilters, AdminEventFilters, ForceStatusRequest } from "../types/admin.types";
+import type { AdminAuditLogFilters, AdminEventFilters, ForceStatusRequest, AuditAnchorBatch } from "../types/admin.types";
 
 export const adminKeys = {
   all: ["admin"] as const,
@@ -53,7 +54,8 @@ export const adminKeys = {
     [...adminKeys.all, "audit-logs", params] as const,
   events: (params: AdminEventFilters) => [...adminKeys.all, "events", params] as const,
   flags: () => [...adminKeys.all, "flags"] as const,
-  anchorBatches: (params: { page: number; size: number }) => [...adminKeys.all, "audit-anchor-batches", params] as const,
+  anchorBatches: (params: { page: number; size: number; status?: AuditAnchorBatch["status"] }) => [...adminKeys.all, "audit-anchor-batches", params] as const,
+  anchorSummary: () => [...adminKeys.all, "audit-anchor-summary"] as const,
   auditProof: (id: number) => [...adminKeys.all, "audit-proof", id] as const,
 };
 
@@ -104,10 +106,18 @@ export function useAdminFlagsQuery() {
   });
 }
 
-export function useAuditAnchorBatchesQuery(params: { page: number; size: number }) {
+export function useAuditAnchorBatchesQuery(params: { page: number; size: number; status?: AuditAnchorBatch["status"] }) {
   return useQuery({
     queryKey: adminKeys.anchorBatches(params),
     queryFn: () => fetchAuditAnchorBatches(params),
+    refetchInterval: 15000,
+  });
+}
+
+export function useAuditAnchorSummaryQuery() {
+  return useQuery({
+    queryKey: adminKeys.anchorSummary(),
+    queryFn: fetchAuditAnchorSummary,
     refetchInterval: 15000,
   });
 }
@@ -119,6 +129,7 @@ export function useRunAuditAnchoringMutation() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin", "audit-anchor-batches"] });
       queryClient.invalidateQueries({ queryKey: ["admin", "audit-logs"] });
+      queryClient.invalidateQueries({ queryKey: adminKeys.anchorSummary() });
     },
   });
 }

@@ -52,6 +52,8 @@ import { FilterDropdown, type FilterDropdownOption } from "@/components/ui/filte
 import {
   useAddMemberMutation,
   useProjectActivityQuery,
+  useProjectActivityProofQuery,
+  useVerifyProjectActivityProofMutation,
   useProjectDetailQuery,
   useProjectFilesQuery,
   useProjectInvoicesQuery,
@@ -74,6 +76,7 @@ import { useCommentsQuery } from "@/features/communication/hooks/use-communicati
 import { InvoiceStatus, PaymentMethod } from "@/lib/type";
 import { UserAvatar } from "@/components/ui/user-avatar";
 import { ProjectDetailSkeleton } from "@/components/skeletons/page-skeletons";
+import { IntegrityProofPanel } from "@/features/audit/components/integrity-proof-panel";
 
 type ProjectPortalTab = "overview" | "tasks" | "messages" | "files" | "invoices" | "activity";
 
@@ -245,7 +248,39 @@ function ProjectFilesList({ files }: { files: ProjectFileItem[] }) {
   );
 }
 
-function ProjectActivityList({ activity }: { activity: ProjectActivityItem[] }) {
+function ActivityProof({ projectId, item }: { projectId: string; item: ProjectActivityItem }) {
+  const [open, setOpen] = React.useState(false);
+  const proofQuery = useProjectActivityProofQuery(projectId, item.id ?? 0, open);
+  const verifyMutation = useVerifyProjectActivityProofMutation(projectId);
+
+  if (!item.id) return null;
+
+  return (
+    <div className="mt-3">
+      <button
+        type="button"
+        onClick={() => setOpen((value) => !value)}
+        className="text-xs font-semibold text-emerald-300 hover:text-emerald-200"
+      >
+        {open ? "Hide integrity proof" : "View integrity proof"}
+      </button>
+      {open ? (
+        <div className="mt-3">
+          <IntegrityProofPanel
+            compact
+            proof={proofQuery.data}
+            isLoading={proofQuery.isLoading}
+            isError={proofQuery.isError}
+            onVerify={() => verifyMutation.mutate(item.id!)}
+            isVerifying={verifyMutation.isPending}
+          />
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+function ProjectActivityList({ projectId, activity }: { projectId: string; activity: ProjectActivityItem[] }) {
   if (activity.length === 0) {
     return (
       <EmptyState
@@ -269,10 +304,21 @@ function ProjectActivityList({ activity }: { activity: ProjectActivityItem[] }) 
               <span className="rounded-md border border-white/10 bg-white/5 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-slate-500">
                 {sourceLabel(item.entityType)}
               </span>
+              <span className={cn(
+                "rounded-md border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider",
+                item.proofStatus === "VERIFIED" && "border-emerald-500/30 bg-emerald-500/10 text-emerald-300",
+                item.proofStatus === "PENDING" && "border-amber-500/30 bg-amber-500/10 text-amber-300",
+                item.proofStatus === "TAMPERED" && "border-rose-500/30 bg-rose-500/10 text-rose-300",
+                item.proofStatus === "CHAIN_UNAVAILABLE" && "border-sky-500/30 bg-sky-500/10 text-sky-300",
+                item.proofStatus === "NOT_ANCHORED" && "border-slate-700 bg-slate-800/60 text-slate-400",
+              )}>
+                {item.proofStatus === "NOT_ANCHORED" ? "Waiting for anchor" : item.proofStatus.replace(/_/g, " ")}
+              </span>
             </div>
             <p className="mt-1 text-sm text-slate-500">
               {item.actorName} - {formatDate(item.createdAt, { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })}
             </p>
+            <ActivityProof projectId={projectId} item={item} />
           </div>
         </div>
       ))}
@@ -945,7 +991,7 @@ export default function ProjectDetailPage() {
               description="The project is available, but the activity timeline API did not respond successfully."
             />
           ) : (
-            <ProjectActivityList activity={activity} />
+            <ProjectActivityList projectId={projectId} activity={activity} />
           )}
         </section>
       ) : null}

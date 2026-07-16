@@ -91,4 +91,7 @@ export interface ProjectActivityItem {
     entityId: string;
     actorName: string;
     createdAt?: string;
+    proofStatus: import("@/features/audit/types/audit-proof.types").AuditVerificationStatus;
+    proofAvailable: boolean;
+    anchoredAt?: string | null;
 }

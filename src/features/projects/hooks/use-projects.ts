@@ -14,6 +14,8 @@ import {
   fetchProjectFiles,
   fetchProjectActivity,
   searchProjectFreelancers,
+  fetchProjectActivityProof,
+  verifyProjectActivityProof,
 } from "../api/project.api";
 import type { ProjectRequestPayload } from "../types/project.types";
 import { toast } from "sonner";
@@ -27,6 +29,7 @@ export const projectKeys = {
   progress: (id: string) => [...projectKeys.all, "detail", id, "progress"] as const,
   files: (id: string) => [...projectKeys.all, "detail", id, "files"] as const,
   activity: (id: string) => [...projectKeys.all, "detail", id, "activity"] as const,
+  activityProof: (id: string, auditLogId: number) => [...projectKeys.activity(id), "proof", auditLogId] as const,
   freelancerSearch: (id: string, keyword: string) => [...projectKeys.all, "detail", id, "freelancer-search", keyword] as const,
 };
 
@@ -87,6 +90,25 @@ export function useProjectActivityQuery(id: string) {
     queryKey: projectKeys.activity(id),
     queryFn: () => fetchProjectActivity(id),
     enabled: !!id,
+  });
+}
+
+export function useProjectActivityProofQuery(projectId: string, auditLogId: number, enabled: boolean) {
+  return useQuery({
+    queryKey: projectKeys.activityProof(projectId, auditLogId),
+    queryFn: () => fetchProjectActivityProof(projectId, auditLogId),
+    enabled: enabled && Boolean(projectId) && auditLogId > 0,
+  });
+}
+
+export function useVerifyProjectActivityProofMutation(projectId: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (auditLogId: number) => verifyProjectActivityProof(projectId, auditLogId),
+    onSuccess: (proof) => {
+      if (proof.auditLogId) queryClient.setQueryData(projectKeys.activityProof(projectId, proof.auditLogId), proof);
+      queryClient.invalidateQueries({ queryKey: projectKeys.activity(projectId) });
+    },
   });
 }
 

@@ -2,7 +2,7 @@ import { keepPreviousData, useMutation, useQuery, useQueryClient } from "@tansta
 import { toast } from "sonner";
 import { getApiErrorMessage } from "@/lib/api/error";
 import { InvoiceStatus } from "@/lib/type";
-import { fetchInvoiceById, fetchInvoices, updateInvoiceStatus, createInvoice } from "../api/invoice.api";
+import { fetchInvoiceById, fetchInvoices, updateInvoiceStatus, createInvoice, fetchInvoiceAuditProof, verifyInvoiceAuditProof } from "../api/invoice.api";
 import type { InvoiceQueryParams } from "../types/invoice.types";
 
 export const invoiceKeys = {
@@ -11,6 +11,7 @@ export const invoiceKeys = {
   list: (params: InvoiceQueryParams) => [...invoiceKeys.all, "list", params] as const,
   details: () => [...invoiceKeys.all, "detail"] as const,
   detail: (id: string) => [...invoiceKeys.details(), id] as const,
+  auditProof: (id: string) => [...invoiceKeys.detail(id), "audit-proof"] as const,
 };
 
 export function useInvoicesQuery(params: InvoiceQueryParams) {
@@ -29,18 +30,35 @@ export function useInvoiceDetailQuery(id: string) {
   });
 }
 
+export function useInvoiceAuditProofQuery(id: string) {
+  return useQuery({
+    queryKey: invoiceKeys.auditProof(id),
+    queryFn: () => fetchInvoiceAuditProof(id),
+    enabled: Boolean(id),
+  });
+}
+
+export function useVerifyInvoiceAuditProofMutation(id: string) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: () => verifyInvoiceAuditProof(id),
+    onSuccess: (proof) => queryClient.setQueryData(invoiceKeys.auditProof(id), proof),
+  });
+}
+
 export function useUpdateInvoiceStatusMutation(currentParams: InvoiceQueryParams) {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: ({ id, status }: { id: string; status: InvoiceStatus }) =>
       updateInvoiceStatus(id, status),
-    onSuccess: () => {
+    onSuccess: (_, variables) => {
       toast.success("Invoice Updated", {
         description: "Invoice status changed successfully.",
       });
       queryClient.invalidateQueries({ queryKey: invoiceKeys.list(currentParams) });
       queryClient.invalidateQueries({ queryKey: invoiceKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: invoiceKeys.auditProof(variables.id) });
     },
     onError: (error: unknown) => {
       const message = getApiErrorMessage(error, "Failed to update invoice status.");
