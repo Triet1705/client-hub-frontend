@@ -2,7 +2,11 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { getApiErrorMessage } from "@/lib/api/error";
 import { fetchComments, postComment } from "../api/comment.api";
-import { uploadAttachment } from "../api/attachment.api";
+import {
+  downloadAttachment,
+  uploadAttachment,
+  type AttachmentUploadInput,
+} from "../api/attachment.api";
 import type { CommentTargetType } from "../types/comment.types";
 
 export const communicationKeys = {
@@ -49,10 +53,21 @@ export function usePostCommentMutation(targetType?: CommentTargetType, targetId?
 
 export function useUploadAttachmentMutation() {
   return useMutation({
-    mutationFn: (file: File) => uploadAttachment(file),
+    mutationFn: (input: AttachmentUploadInput) => uploadAttachment(input),
     onError: (error: unknown) => {
       const message = getApiErrorMessage(error, "Unable to upload file.");
       toast.error("Upload failed", { description: message });
+    },
+  });
+}
+
+export function useDownloadAttachmentMutation() {
+  return useMutation({
+    mutationFn: ({ fileUrl, fileName }: { fileUrl: string; fileName?: string }) =>
+      downloadAttachment(fileUrl, fileName),
+    onError: (error: unknown) => {
+      const message = getApiErrorMessage(error, "Unable to download file.");
+      toast.error("Download failed", { description: message });
     },
   });
 }

@@ -11,7 +11,12 @@ import { useAuthStore } from "@/features/auth/store/auth.store";
 import { useInvoicesQuery } from "@/features/invoices/hooks/use-invoices";
 import { useProjectsQuery } from "@/features/projects/hooks/use-projects";
 import { useTasksQuery } from "@/features/tasks/hooks/use-tasks";
-import { useCommentsQuery, usePostCommentMutation, useUploadAttachmentMutation } from "@/features/communication/hooks/use-communication";
+import {
+  useCommentsQuery,
+  useDownloadAttachmentMutation,
+  usePostCommentMutation,
+  useUploadAttachmentMutation,
+} from "@/features/communication/hooks/use-communication";
 import type { Invoice } from "@/features/invoices/types/invoice.types";
 import type { CommentTargetType } from "@/features/communication/types/comment.types";
 import type { Project } from "@/features/projects/types/project.types";
@@ -142,6 +147,7 @@ export default function CommunicationClient() {
 
   const postCommentMutation = usePostCommentMutation(commentsQueryArgs?.targetType, commentsQueryArgs?.targetId);
   const uploadAttachmentMutation = useUploadAttachmentMutation();
+  const downloadAttachmentMutation = useDownloadAttachmentMutation();
 
   React.useEffect(() => {
     if (!selectedConversation && conversations.length > 0) {
@@ -209,7 +215,12 @@ export default function CommunicationClient() {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    const uploaded = await uploadAttachmentMutation.mutateAsync(file);
+    if (!commentsQueryArgs) return;
+    const uploaded = await uploadAttachmentMutation.mutateAsync({
+      file,
+      targetType: commentsQueryArgs.targetType,
+      targetId: commentsQueryArgs.targetId,
+    });
     setUploadedUrls((current) => [...current, uploaded.fileUrl]);
     event.target.value = "";
   };
@@ -389,10 +400,16 @@ export default function CommunicationClient() {
                     {comment.attachmentUrls && comment.attachmentUrls.length > 0 && (
                       <div className="mt-3 flex flex-col gap-2">
                         {comment.attachmentUrls.map((url, i) => (
-                          <a key={i} href={url} target="_blank" rel="noreferrer" className="flex items-center gap-2 px-3 py-2 bg-black/20 rounded border border-white/5 hover:bg-black/30 transition text-xs truncate max-w-full">
+                          <button
+                            type="button"
+                            key={i}
+                            onClick={() => downloadAttachmentMutation.mutate({ fileUrl: url })}
+                            disabled={downloadAttachmentMutation.isPending}
+                            className="flex w-full items-center gap-2 rounded border border-white/5 bg-black/20 px-3 py-2 text-left text-xs transition hover:bg-black/30 disabled:opacity-50"
+                          >
                             <Paperclip className="w-3.5 h-3.5 shrink-0" />
-                            <span className="truncate">{url.split('/').pop() || url}</span>
-                          </a>
+                            <span className="truncate">Protected attachment</span>
+                          </button>
                         ))}
                       </div>
                     )}

@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 import { useAuthStore } from "@/features/auth/store/auth.store";
 import {
   useCommentsQuery,
+  useDownloadAttachmentMutation,
   usePostCommentMutation,
   useUploadAttachmentMutation,
 } from "@/features/communication/hooks/use-communication";
@@ -32,11 +33,10 @@ function formatTime(dateString?: string) {
   }).format(new Date(dateString));
 }
 
-function isImageUrl(url: string) {
-  return /\.(png|jpe?g|gif|webp)$/i.test(url.split("?")[0] ?? "");
-}
-
 function fileNameFromUrl(url: string) {
+  if (/^\/api\/attachments\/[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(url)) {
+    return "Protected attachment";
+  }
   return decodeURIComponent(url.split("?")[0]?.split("/").pop() || url);
 }
 
@@ -52,6 +52,7 @@ export function ContextualDiscussion({
   const { data: comments = [], isLoading } = useCommentsQuery(targetType, targetId);
   const postComment = usePostCommentMutation(targetType, targetId);
   const uploadAttachment = useUploadAttachmentMutation();
+  const downloadAttachment = useDownloadAttachmentMutation();
   const [content, setContent] = useState("");
   const [uploadedUrls, setUploadedUrls] = useState<string[]>([]);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -92,7 +93,7 @@ export function ContextualDiscussion({
     const file = event.target.files?.[0];
     if (!file) return;
 
-    const uploaded = await uploadAttachment.mutateAsync(file);
+    const uploaded = await uploadAttachment.mutateAsync({ file, targetType, targetId });
     setUploadedUrls((current) => [...current, uploaded.fileUrl]);
     event.target.value = "";
   };
@@ -167,20 +168,19 @@ export function ContextualDiscussion({
                       {comment.attachmentUrls && comment.attachmentUrls.length > 0 && (
                         <div className="mt-3 space-y-2">
                           {comment.attachmentUrls.map((url) => (
-                            <a
+                            <button
+                              type="button"
                               key={url}
-                              href={url}
-                              target="_blank"
-                              rel="noreferrer"
-                              className="block overflow-hidden rounded-xl border border-white/10 bg-black/20 text-xs text-slate-200 transition hover:bg-black/30"
+                              onClick={() => downloadAttachment.mutate({ fileUrl: url })}
+                              disabled={downloadAttachment.isPending}
+                              className="block w-full overflow-hidden rounded-xl border border-white/10 bg-black/20 text-left text-xs text-slate-200 transition hover:bg-black/30 disabled:opacity-50"
                             >
-                              {isImageUrl(url) && <img src={url} alt="" className="max-h-40 w-full object-cover" />}
                               <span className="flex items-center gap-2 px-3 py-2">
                                 <Paperclip className="h-3.5 w-3.5 shrink-0" />
                                 <span className="truncate">{fileNameFromUrl(url)}</span>
                                 <ExternalLink className="ml-auto h-3 w-3 shrink-0 text-slate-500" />
                               </span>
-                            </a>
+                            </button>
                           ))}
                         </div>
                       )}
