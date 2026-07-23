@@ -72,7 +72,10 @@ import {
   PAYMENT_METHOD_LABELS,
 } from "@/features/invoices/constants/invoice.constants";
 import { ContextualDiscussion } from "@/features/communication/components/contextual-discussion";
-import { useCommentsQuery } from "@/features/communication/hooks/use-communication";
+import {
+  useCommentsQuery,
+  useDownloadAttachmentMutation,
+} from "@/features/communication/hooks/use-communication";
 import { InvoiceStatus, PaymentMethod } from "@/lib/type";
 import { UserAvatar } from "@/components/ui/user-avatar";
 import { ProjectDetailSkeleton } from "@/components/skeletons/page-skeletons";
@@ -205,6 +208,8 @@ function TabErrorState({
 }
 
 function ProjectFilesList({ files }: { files: ProjectFileItem[] }) {
+  const downloadAttachment = useDownloadAttachmentMutation();
+
   if (files.length === 0) {
     return (
       <EmptyState
@@ -218,12 +223,15 @@ function ProjectFilesList({ files }: { files: ProjectFileItem[] }) {
   return (
     <div className="grid gap-3 lg:grid-cols-2">
       {files.map((file) => (
-        <a
+        <button
+          type="button"
           key={`${file.commentId}-${file.fileUrl}`}
-          href={file.fileUrl}
-          target="_blank"
-          rel="noreferrer"
-          className="group rounded-2xl border border-white/10 bg-slate-900/60 p-4 transition hover:border-emerald-500/30 hover:bg-slate-900"
+          onClick={() => downloadAttachment.mutate({
+            fileUrl: file.fileUrl,
+            fileName: file.fileName,
+          })}
+          disabled={downloadAttachment.isPending}
+          className="group rounded-2xl border border-white/10 bg-slate-900/60 p-4 text-left transition hover:border-emerald-500/30 hover:bg-slate-900 disabled:opacity-50"
         >
           <div className="flex items-start gap-3">
             <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-300 ring-1 ring-emerald-500/20">
@@ -242,7 +250,7 @@ function ProjectFilesList({ files }: { files: ProjectFileItem[] }) {
               </p>
             </div>
           </div>
-        </a>
+        </button>
       ))}
     </div>
   );
