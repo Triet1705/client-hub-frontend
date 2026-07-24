@@ -11,6 +11,7 @@ import {
   assignTask
 } from "../api/task.api";
 import type { FetchTasksParams, TaskRequestPayload, TaskStatus, TaskPageResponse } from "../types/task.types";
+import { projectKeys } from "@/features/projects/hooks/use-projects";
 
 export const taskKeys = {
   all: ["tasks"] as const,
@@ -40,9 +41,13 @@ export function useCreateTaskMutation() {
 
   return useMutation({
     mutationFn: (payload: TaskRequestPayload) => createTask(payload),
-    onSuccess: (newTask) => {
+    onSuccess: (newTask, variables) => {
       toast.success("Task Created", { description: `${newTask.title} added successfully.` });
       queryClient.invalidateQueries({ queryKey: taskKeys.lists() });
+      queryClient.invalidateQueries({
+        queryKey: projectKeys.activity(newTask.projectId || variables.projectId),
+        exact: true,
+      });
     },
     onError: (error: unknown) => {
       const errorMsg = getApiErrorMessage(error, "Failed to create task.");
@@ -83,13 +88,22 @@ export function useUpdateTaskStatusMutation(currentParams: FetchTasksParams) {
       toast.error("Update Failed", { description: errorMsg });
     },
 
+    onSuccess: () => {
+      if (currentParams.projectId) {
+        queryClient.invalidateQueries({
+          queryKey: projectKeys.activity(currentParams.projectId),
+          exact: true,
+        });
+      }
+    },
+
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: queryKeyToUpdate });
     }
   });
 }
 
-export function useAssignTaskMutation() {
+export function useAssignTaskMutation(projectId?: string) {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -97,6 +111,12 @@ export function useAssignTaskMutation() {
     onSuccess: () => {
       toast.success("Task Assigned");
       queryClient.invalidateQueries({ queryKey: taskKeys.lists() });
+      if (projectId) {
+        queryClient.invalidateQueries({
+          queryKey: projectKeys.activity(projectId),
+          exact: true,
+        });
+      }
     },
     onError: (error: unknown) => {
       const errorMsg = getApiErrorMessage(error, "Failed to assign task.");
@@ -105,7 +125,7 @@ export function useAssignTaskMutation() {
   });
 }
 
-export function useDeleteTaskMutation() {
+export function useDeleteTaskMutation(projectId?: string) {
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -113,6 +133,12 @@ export function useDeleteTaskMutation() {
     onSuccess: () => {
       toast.success("Task Deleted");
       queryClient.invalidateQueries({ queryKey: taskKeys.lists() });
+      if (projectId) {
+        queryClient.invalidateQueries({
+          queryKey: projectKeys.activity(projectId),
+          exact: true,
+        });
+      }
     },
     onError: (error: unknown) => {
       const errorMsg = getApiErrorMessage(error, "Failed to delete task.");
@@ -130,6 +156,12 @@ export function useUpdateTaskMutation(currentParams: FetchTasksParams) {
     onSuccess: () => {
       toast.success("Task Updated");
       queryClient.invalidateQueries({ queryKey: taskKeys.list(currentParams) });
+      if (currentParams.projectId) {
+        queryClient.invalidateQueries({
+          queryKey: projectKeys.activity(currentParams.projectId),
+          exact: true,
+        });
+      }
     },
     onError: (error: unknown) => {
       const errorMsg = getApiErrorMessage(error, "Failed to update task.");

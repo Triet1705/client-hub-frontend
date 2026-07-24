@@ -85,11 +85,12 @@ export function useProjectFilesQuery(id: string) {
   });
 }
 
-export function useProjectActivityQuery(id: string) {
+export function useProjectActivityQuery(id: string, enabled = true) {
   return useQuery({
     queryKey: projectKeys.activity(id),
     queryFn: () => fetchProjectActivity(id),
-    enabled: !!id,
+    enabled: enabled && !!id,
+    staleTime: 0,
   });
 }
 

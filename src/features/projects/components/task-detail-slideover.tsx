@@ -39,7 +39,7 @@ export function TaskDetailSlideover({
 
   const { mutate: updateTask, isPending: isSaving } = useUpdateTaskMutation(projectParams);
   const { mutate: updateStatus } = useUpdateTaskStatusMutation(projectParams);
-  const { mutate: deleteTask }   = useDeleteTaskMutation();
+  const { mutate: deleteTask }   = useDeleteTaskMutation(projectParams.projectId);
 
   const [assignedToId,    setAssignedToId]    = React.useState("");
   const [priority,        setPriority]        = React.useState<TaskPriority>(TaskPriority.MEDIUM);

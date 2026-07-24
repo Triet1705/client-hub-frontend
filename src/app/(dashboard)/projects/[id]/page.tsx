@@ -431,7 +431,8 @@ export default function ProjectDetailPage() {
   const { data: invoices = [], isLoading: isInvoicesLoading } = useProjectInvoicesQuery(projectId);
   const { data: progress } = useProjectProgressQuery(projectId);
   const { data: files = [], isLoading: isFilesLoading, isError: isFilesError } = useProjectFilesQuery(projectId);
-  const { data: activity = [], isLoading: isActivityLoading, isError: isActivityError } = useProjectActivityQuery(projectId);
+  const { data: activity = [], isLoading: isActivityLoading, isError: isActivityError } =
+    useProjectActivityQuery(projectId, activeTab === "activity");
   const { data: projectMessages = [] } = useCommentsQuery("PROJECT", projectId);
 
   const taskParams = React.useMemo(() => ({ projectId, page: 0, size: 50 }), [projectId]);

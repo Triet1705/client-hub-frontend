@@ -4,6 +4,7 @@ import { getApiErrorMessage } from "@/lib/api/error";
 import { InvoiceStatus } from "@/lib/type";
 import { fetchInvoiceById, fetchInvoices, updateInvoiceStatus, createInvoice, fetchInvoiceAuditProof, verifyInvoiceAuditProof } from "../api/invoice.api";
 import type { InvoiceQueryParams } from "../types/invoice.types";
+import { projectKeys } from "@/features/projects/hooks/use-projects";
 
 export const invoiceKeys = {
   all: ["invoices"] as const,
@@ -59,6 +60,12 @@ export function useUpdateInvoiceStatusMutation(currentParams: InvoiceQueryParams
       queryClient.invalidateQueries({ queryKey: invoiceKeys.list(currentParams) });
       queryClient.invalidateQueries({ queryKey: invoiceKeys.lists() });
       queryClient.invalidateQueries({ queryKey: invoiceKeys.auditProof(variables.id) });
+      if (currentParams.projectId) {
+        queryClient.invalidateQueries({
+          queryKey: projectKeys.activity(currentParams.projectId),
+          exact: true,
+        });
+      }
     },
     onError: (error: unknown) => {
       const message = getApiErrorMessage(error, "Failed to update invoice status.");
@@ -72,11 +79,15 @@ export function useCreateInvoiceMutation() {
 
   return useMutation({
     mutationFn: (payload: import("../types/invoice.types").CreateInvoicePayload) => createInvoice(payload),
-    onSuccess: () => {
+    onSuccess: (_, variables) => {
       toast.success("Invoice Created", {
         description: "New invoice has been created.",
       });
       queryClient.invalidateQueries({ queryKey: invoiceKeys.lists() });
+      queryClient.invalidateQueries({
+        queryKey: projectKeys.activity(variables.projectId),
+        exact: true,
+      });
     },
     onError: (error: unknown) => {
       const message = getApiErrorMessage(error, "Failed to create invoice.");
