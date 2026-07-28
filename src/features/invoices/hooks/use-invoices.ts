@@ -5,6 +5,8 @@ import { InvoiceStatus } from "@/lib/type";
 import { fetchInvoiceById, fetchInvoices, updateInvoiceStatus, createInvoice, fetchInvoiceAuditProof, verifyInvoiceAuditProof } from "../api/invoice.api";
 import type { InvoiceQueryParams } from "../types/invoice.types";
 import { projectKeys } from "@/features/projects/hooks/use-projects";
+import { useRealtimeConnection } from "@/features/realtime/context/realtime-provider";
+import * as React from "react";
 
 export const invoiceKeys = {
   all: ["invoices"] as const,
@@ -16,18 +18,47 @@ export const invoiceKeys = {
 };
 
 export function useInvoicesQuery(params: InvoiceQueryParams) {
-  return useQuery({
+  const queryClient = useQueryClient();
+  const { isConnected, subscribe } = useRealtimeConnection();
+  const query = useQuery({
     queryKey: invoiceKeys.list(params),
     queryFn: () => fetchInvoices(params),
     placeholderData: keepPreviousData,
+    refetchInterval: isConnected ? false : 10_000,
   });
+
+  const visibleInvoiceIds = React.useMemo<string[]>(
+    () => query.data?.map((invoice) => String(invoice.id)) ?? [],
+    [query.data],
+  );
+
+  React.useEffect(() => {
+    if (!isConnected || visibleInvoiceIds.length === 0) {
+      return;
+    }
+
+    const unsubscribe = visibleInvoiceIds.map((invoiceId) =>
+      subscribe(`/topic/invoices/${invoiceId}/status`, () => {
+        void queryClient.invalidateQueries({ queryKey: invoiceKeys.lists() });
+        void queryClient.invalidateQueries({
+          queryKey: invoiceKeys.detail(invoiceId),
+        });
+      }),
+    );
+
+    return () => unsubscribe.forEach((stop) => stop());
+  }, [isConnected, queryClient, subscribe, visibleInvoiceIds]);
+
+  return query;
 }
 
 export function useInvoiceDetailQuery(id: string) {
+  const { isConnected } = useRealtimeConnection();
   return useQuery({
     queryKey: invoiceKeys.detail(id),
     queryFn: () => fetchInvoiceById(id),
     enabled: Boolean(id),
+    refetchInterval: isConnected ? false : 10_000,
   });
 }
 
@@ -88,6 +119,7 @@ export function useCreateInvoiceMutation() {
         queryKey: projectKeys.activity(variables.projectId),
         exact: true,
       });
+      queryClient.invalidateQueries({ queryKey: projectKeys.invoices(variables.projectId) });
     },
     onError: (error: unknown) => {
       const message = getApiErrorMessage(error, "Failed to create invoice.");

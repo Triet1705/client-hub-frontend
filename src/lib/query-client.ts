@@ -41,6 +41,10 @@ function normalizeErrorMessage(error: unknown): string {
 
 function handleError(error: unknown, context?: { queryKey?: QueryKey }) {
   const errorMessage = normalizeErrorMessage(error);
+  const validationDetails = (error as { details?: unknown } | null)?.details;
+  const status =
+    (error as { status?: number } | null)?.status ??
+    (error as AxiosLikeError | null)?.response?.status;
 
   if (process.env.NODE_ENV === "development") {
     try {
@@ -59,11 +63,30 @@ function handleError(error: unknown, context?: { queryKey?: QueryKey }) {
   }
 
   if (errorMessage.includes("Network Error") || errorMessage.includes("Failed to fetch")) {
-    toast.error("Network connection lost. Please check your internet connection.");
+    toast.error("Network connection lost. Please check your internet connection.", {
+      id: "api-network-error",
+    });
     return;
   }
 
-  toast.error(errorMessage);
+  // Field-level validation is rendered by the owning form.
+  if (Array.isArray(validationDetails) && validationDetails.length > 0) {
+    return;
+  }
+
+  // Filter out raw Web3/Wagmi errors from global toast (handled locally by components)
+  if (
+    errorMessage.includes("User rejected the request") ||
+    errorMessage.includes("User denied transaction signature") ||
+    errorMessage.includes("Contract Call:") ||
+    errorMessage.includes("Connector not connected")
+  ) {
+    return;
+  }
+
+  toast.error(errorMessage, {
+    id: `api-error-${status ?? errorMessage}`,
+  });
 
   reportClientError(error, {
     queryKey: context?.queryKey,

@@ -542,6 +542,7 @@ function InvoicesPageContent() {
                             invoiceId={invoice.id}
                             status={invoice.status}
                             canEdit={canUpdateStatus}
+                            paymentMethod={invoice.paymentMethod}
                             onUpdate={(nextStatus) => handleStatusUpdate(invoice.id, nextStatus)}
                             isPending={updateStatusMutation.isPending}
                           />

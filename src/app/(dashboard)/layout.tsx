@@ -3,7 +3,6 @@ import { Sidebar } from "@/components/layout/sidebar";
 import { Header } from "@/components/layout/header";
 import { OptimisticRouteShell } from "@/components/layout/optimistic-route-shell";
 import { ImpersonationBanner } from "@/features/admin/components/impersonation-banner";
-import { WalletBinder } from "@/features/wallet/components/wallet-binder";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -18,7 +17,6 @@ export default function DashboardLayout({
 }) {
   return (
     <div className="relative min-h-screen bg-[#020617] font-space-grotesk text-slate-100 selection:bg-emerald-500/30">
-      <WalletBinder />
       <Sidebar />
 
       <div

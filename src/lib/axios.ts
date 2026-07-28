@@ -10,6 +10,7 @@ import {
 import { useAuthStore } from "@/features/auth/store/auth.store";
 
 const JSONBig = JSONBigInt({ storeAsString: true });
+export const ACCESS_TOKEN_REFRESHED_EVENT = "client-hub:access-token-refreshed";
 
 function createRequestId(): string {
   if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
@@ -147,8 +148,10 @@ apiClient.interceptors.response.use(
       const tenantId = getTenantId();
 
       if (!tenantId) {
+        isRefreshing = false;
         if (!isOnAuthPage) {
           clearAuthCookies();
+          useAuthStore.getState().clearAuth();
           if (typeof window !== "undefined") window.location.href = "/login";
         }
         return Promise.reject(normalizeApiError(error));
@@ -173,6 +176,9 @@ apiClient.interceptors.response.use(
         const refreshedTenantId = data.tenant_id || tenantId || "";
 
         setAuthCookies(newAccessToken, null, refreshedTenantId);
+        if (typeof window !== "undefined") {
+          window.dispatchEvent(new Event(ACCESS_TOKEN_REFRESHED_EVENT));
+        }
 
         originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
 
@@ -180,8 +186,15 @@ apiClient.interceptors.response.use(
         return apiClient(originalRequest);
       } catch (refreshError) {
         processQueue(refreshError as AxiosError, null);
-        if (!isOnAuthPage) {
+        const refreshStatus = axios.isAxiosError(refreshError)
+          ? refreshError.response?.status
+          : undefined;
+        const refreshCredentialIsInvalid =
+          refreshStatus === 401 || refreshStatus === 403;
+
+        if (refreshCredentialIsInvalid && !isOnAuthPage) {
           clearAuthCookies();
+          useAuthStore.getState().clearAuth();
           if (typeof window !== "undefined") window.location.href = "/login";
         }
         return Promise.reject(normalizeApiError(refreshError));

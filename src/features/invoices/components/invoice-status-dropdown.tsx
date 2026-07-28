@@ -4,7 +4,7 @@ import * as React from "react";
 import { createPortal } from "react-dom";
 import { ChevronDown, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { InvoiceStatus } from "@/lib/type";
+import { InvoiceStatus, PaymentMethod } from "@/lib/type";
 import { InvoiceStatusPill } from "./invoice-status-pill";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { canTransitionTo } from "@/lib/invoice-status-mapper";
@@ -14,6 +14,7 @@ interface InvoiceStatusDropdownProps {
   invoiceId: string;
   status: InvoiceStatus;
   canEdit: boolean;
+  paymentMethod: PaymentMethod;
   onUpdate: (nextStatus: InvoiceStatus) => void;
   isPending?: boolean;
 }
@@ -27,6 +28,7 @@ export function InvoiceStatusDropdown({
   invoiceId,
   status,
   canEdit,
+  paymentMethod,
   onUpdate,
   isPending = false,
 }: InvoiceStatusDropdownProps) {
@@ -37,7 +39,10 @@ export function InvoiceStatusDropdown({
   const [coords, setCoords] = React.useState({ top: 0, left: 0 });
 
   const transitions = React.useMemo(() => getTransitionOptions(status), [status]);
-  const isEditable = canEdit && transitions.length > 0;
+  const isEditable =
+    canEdit &&
+    paymentMethod !== PaymentMethod.CRYPTO_ESCROW &&
+    transitions.length > 0;
 
   const handleToggle = () => {
     if (!open && buttonRef.current) {

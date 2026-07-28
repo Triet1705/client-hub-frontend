@@ -5,6 +5,7 @@ import { createPortal } from "react-dom";
 import { format } from "date-fns";
 import { Calendar as CalendarIcon } from "lucide-react";
 import { DayPicker } from "react-day-picker";
+import type { Matcher } from "react-day-picker";
 import "react-day-picker/dist/style.css";
 
 interface CustomDatePickerProps {
@@ -13,6 +14,7 @@ interface CustomDatePickerProps {
   placeholder?: string;
   className?: string;
   disabled?: boolean;
+  disabledDays?: Matcher | Matcher[];
 }
 
 export function CustomDatePicker({
@@ -21,6 +23,7 @@ export function CustomDatePicker({
   placeholder = "Pick a date",
   className = "",
   disabled = false,
+  disabledDays,
 }: CustomDatePickerProps) {
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -108,6 +111,7 @@ export function CustomDatePicker({
         mode="single"
         selected={value}
         onSelect={handleSelect}
+        disabled={disabledDays}
         showOutsideDays
       />
     </div>

@@ -12,9 +12,12 @@ import { PaymentMethod } from "@/lib/type";
 import { fetchSystemConfig } from "@/lib/api/config.api";
 import { useCreateInvoiceMutation } from "../hooks/use-invoices";
 import { useProjectsQuery } from "@/features/projects/hooks/use-projects";
+import { useCurrentUserQuery } from "@/features/users/hooks/use-current-user";
 import { useAccount } from "wagmi";
 import { Wallet, Building2 } from "lucide-react";
 import { isAddress } from "viem";
+import { ApiClientError } from "@/lib/api/error";
+import { formatFiat } from "@/lib/utils";
 
 interface CreateInvoiceModalProps {
   isOpen: boolean;
@@ -31,15 +34,20 @@ export function CreateInvoiceModal({ isOpen, onClose, defaultProjectId }: Create
   const [projectId, setProjectId] = React.useState(defaultProjectId || "");
   const [paymentMethod, setPaymentMethod] = React.useState<PaymentMethod>(PaymentMethod.FIAT);
   const [walletAddress, setWalletAddress] = React.useState("");
+  const [fieldErrors, setFieldErrors] = React.useState<Record<string, string>>({});
 
   const { data: projectsData, isLoading: loadingProjects } = useProjectsQuery(0, 100);
   const { mutate: createInvoice, isPending } = useCreateInvoiceMutation();
-  const { isConnected } = useAccount();
+  const { address, isConnected } = useAccount();
+  const { data: currentUser } = useCurrentUserQuery();
   const { data: systemConfig } = useQuery({
     queryKey: ["system", "config"],
     queryFn: fetchSystemConfig,
     staleTime: 60_000,
   });
+  const tomorrow = new Date();
+  tomorrow.setHours(0, 0, 0, 0);
+  tomorrow.setDate(tomorrow.getDate() + 1);
 
   React.useEffect(() => {
     if (isOpen) {
@@ -53,6 +61,7 @@ export function CreateInvoiceModal({ isOpen, onClose, defaultProjectId }: Create
       setProjectId(defaultProjectId || "");
       setPaymentMethod(PaymentMethod.FIAT);
       setWalletAddress("");
+      setFieldErrors({});
     }
   }, [isOpen, defaultProjectId]);
 
@@ -62,9 +71,24 @@ export function CreateInvoiceModal({ isOpen, onClose, defaultProjectId }: Create
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    setFieldErrors({});
     if (!title || !amount || !dueDate || !projectId) return;
     if (!/^[1-9]\d*$/.test(amount)) return;
+    if (dueDate < tomorrow) {
+      setFieldErrors({ dueDate: "Due date must be in the future." });
+      return;
+    }
     if (paymentMethod === PaymentMethod.CRYPTO_ESCROW && !isAddress(walletAddress)) return;
+    if (
+      paymentMethod === PaymentMethod.CRYPTO_ESCROW &&
+      currentUser?.walletAddress &&
+      walletAddress.toLowerCase() === currentUser.walletAddress.toLowerCase()
+    ) {
+      setFieldErrors({
+        freelancerWalletAddress: "Freelancer wallet must be different from your bound client wallet.",
+      });
+      return;
+    }
 
     createInvoice(
       {
@@ -76,21 +100,71 @@ export function CreateInvoiceModal({ isOpen, onClose, defaultProjectId }: Create
         paymentMethod,
         freelancerWalletAddress: paymentMethod === PaymentMethod.CRYPTO_ESCROW ? walletAddress : undefined,
       },
-      { onSuccess: handleClose },
+      {
+        onSuccess: handleClose,
+        onError: (err: unknown) => {
+          const apiError = err as ApiClientError;
+          if (apiError.status === 400 && Array.isArray(apiError.details)) {
+            const newErrors: Record<string, string> = {};
+            apiError.details.forEach((detail) => {
+              if (typeof detail === "string") {
+                const [field, ...msgParts] = detail.split(": ");
+                if (field && msgParts.length > 0) {
+                  newErrors[field] = msgParts.join(": ");
+                }
+              }
+            });
+            setFieldErrors(newErrors);
+          } else if (
+            apiError.status === 409 &&
+            apiError.message.toLowerCase().includes("project budget")
+          ) {
+            setFieldErrors({ amount: apiError.message });
+          }
+        }
+      },
     );
   };
 
   const projects = projectsData?.content || [];
+  const selectedProject = projects.find((project) => project.id === projectId);
   const projectOptions: SelectOption[] = projects.map((p) => ({
     value: p.id,
     label: p.title,
   }));
 
   const amountIsValid = /^[1-9]\d*$/.test(amount);
-  const walletIsValid = paymentMethod !== PaymentMethod.CRYPTO_ESCROW || isAddress(walletAddress);
+  const dueDateIsValid = !!dueDate && dueDate >= tomorrow;
   const blockchainEnabled = systemConfig?.blockchainEnabled === true;
-  const canUseCrypto = blockchainEnabled && isConnected;
-  const canSubmit = !!title && amountIsValid && !!dueDate && !!projectId && walletIsValid;
+  const boundClientWalletIsValid = isAddress(currentUser?.walletAddress ?? "");
+  const connectedWalletMatchesBoundClient =
+    boundClientWalletIsValid &&
+    !!address &&
+    currentUser?.walletAddress?.toLowerCase() === address.toLowerCase();
+  const freelancerWalletIsDistinct =
+    !currentUser?.walletAddress ||
+    walletAddress.toLowerCase() !== currentUser.walletAddress.toLowerCase();
+  const walletIsValid =
+    paymentMethod !== PaymentMethod.CRYPTO_ESCROW ||
+    (isAddress(walletAddress) && freelancerWalletIsDistinct);
+  const canUseCrypto =
+    blockchainEnabled &&
+    isConnected &&
+    connectedWalletMatchesBoundClient;
+  const cryptoRequirementMessage = !isConnected
+    ? "Connect wallet first"
+    : !boundClientWalletIsValid
+      ? "Bind your client wallet in Settings"
+      : !connectedWalletMatchesBoundClient
+        ? "Connect your bound client wallet"
+        : "USDC/USDT on Polygon";
+  const canSubmit =
+    !!title &&
+    amountIsValid &&
+    dueDateIsValid &&
+    !!projectId &&
+    walletIsValid &&
+    (paymentMethod !== PaymentMethod.CRYPTO_ESCROW || canUseCrypto);
 
   // ── footer ──────────────────────────────────────────────────────────────
   const footer = (
@@ -135,6 +209,7 @@ export function CreateInvoiceModal({ isOpen, onClose, defaultProjectId }: Create
             placeholder="— Select a project —"
             loading={loadingProjects}
           />
+          {fieldErrors.projectId && <p className="text-xs text-rose-400 mt-2">{fieldErrors.projectId}</p>}
         </FormField>
 
         {/* Title */}
@@ -146,6 +221,7 @@ export function CreateInvoiceModal({ isOpen, onClose, defaultProjectId }: Create
             placeholder="e.g. Phase 1 Development"
             disabled={isPending}
           />
+          {fieldErrors.title && <p className="text-xs text-rose-400 mt-2">{fieldErrors.title}</p>}
         </FormField>
 
         {/* Description */}
@@ -157,6 +233,7 @@ export function CreateInvoiceModal({ isOpen, onClose, defaultProjectId }: Create
             placeholder="Optional notes for this invoice"
             disabled={isPending}
           />
+          {fieldErrors.description && <p className="text-xs text-rose-400 mt-2">{fieldErrors.description}</p>}
         </FormField>
 
         {/* Amount + Due Date */}
@@ -175,13 +252,28 @@ export function CreateInvoiceModal({ isOpen, onClose, defaultProjectId }: Create
             {amount && !amountIsValid ? (
               <p className="text-xs text-rose-400 mt-2">Use whole-dollar amounts greater than zero.</p>
             ) : null}
+            {fieldErrors.amount && <p className="text-xs text-rose-400 mt-2">{fieldErrors.amount}</p>}
+            {selectedProject?.budget ? (
+              <p className="mt-2 text-xs text-slate-500">
+                Project budget: {formatFiat(selectedProject.budget)}. Existing non-refunded invoices also reserve this budget.
+              </p>
+            ) : null}
           </FormField>
           <FormField label="Due Date" required>
             <CustomDatePicker
               value={dueDate}
-              onChange={setDueDate}
+              onChange={(date) => {
+                setDueDate(date);
+                setFieldErrors((current) => {
+                  const next = { ...current };
+                  delete next.dueDate;
+                  return next;
+                });
+              }}
               disabled={isPending}
+              disabledDays={{ before: tomorrow }}
             />
+            {fieldErrors.dueDate && <p className="text-xs text-rose-400 mt-2">{fieldErrors.dueDate}</p>}
           </FormField>
         </div>
 
@@ -239,7 +331,7 @@ export function CreateInvoiceModal({ isOpen, onClose, defaultProjectId }: Create
                   Crypto Escrow
                 </span>
                 <span className="text-xs text-slate-500 mt-1">
-                  {canUseCrypto ? "USDC/USDT on Polygon" : "Connect wallet first"}
+                  {cryptoRequirementMessage}
                 </span>
               </button>
             ) : null}
@@ -263,6 +355,12 @@ export function CreateInvoiceModal({ isOpen, onClose, defaultProjectId }: Create
               {walletAddress && !isAddress(walletAddress) ? (
                 <p className="text-xs text-rose-400 mt-2">Enter a valid Ethereum wallet address.</p>
               ) : null}
+              {walletAddress && isAddress(walletAddress) && !freelancerWalletIsDistinct ? (
+                <p className="text-xs text-rose-400 mt-2">
+                  Freelancer wallet must be different from your bound client wallet.
+                </p>
+              ) : null}
+              {fieldErrors.freelancerWalletAddress && <p className="text-xs text-rose-400 mt-2">{fieldErrors.freelancerWalletAddress}</p>}
             </FormField>
           </div>
         )}
