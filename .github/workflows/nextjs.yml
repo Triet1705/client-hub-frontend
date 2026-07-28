@@ -44,10 +44,11 @@ jobs:
 
       # 6. Build Next.js
       - name: Build Next.js Application
-        run: npm run build
+        run: npm run build:hosted
         env:
-          # Dummy environment variables for CI build
-          NEXT_PUBLIC_API_URL: http://localhost:8080/api
+          # Non-secret deployment-shape values for CI validation
+          NEXT_PUBLIC_API_URL: https://api.clienthub.example/api
+          NEXT_PUBLIC_BLOCKCHAIN_ENABLED: "false"
           NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID: dummy_project_id_for_ci
           NEXT_PUBLIC_POLYGON_AMOY_RPC: https://rpc-amoy.polygon.technology/
           NEXT_PUBLIC_POLYGON_MAINNET_RPC: https://polygon-rpc.com
