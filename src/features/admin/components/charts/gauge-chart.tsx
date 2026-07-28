@@ -1,5 +1,6 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
+import type { ComponentHealthStatus } from "@/features/admin/types/admin.types";
 
 interface GaugeChartProps {
   label: string;
@@ -8,7 +9,7 @@ interface GaugeChartProps {
   isFractional?: boolean;
   value?: number; // Used for fractional
   max?: number;   // Used for fractional
-  status?: "UP" | "DEGRADED" | "DOWN"; // Used for categorical or color overrides
+  status?: ComponentHealthStatus; // Used for categorical or color overrides
   className?: string;
 }
 
@@ -16,6 +17,7 @@ const statusColors = {
   UP: "text-emerald-400 drop-shadow-[0_0_8px_rgba(52,211,153,0.5)]",
   DEGRADED: "text-amber-400 drop-shadow-[0_0_8px_rgba(251,191,36,0.5)]",
   DOWN: "text-rose-400 drop-shadow-[0_0_8px_rgba(244,63,94,0.5)]",
+  DISABLED: "text-slate-500",
 };
 
 export function GaugeChart({
@@ -27,7 +29,15 @@ export function GaugeChart({
   status = "UP",
   className,
 }: GaugeChartProps) {
-  const percent = isFractional && max > 0 ? Math.min(100, Math.max(0, (value / max) * 100)) : (status === "UP" ? 100 : status === "DEGRADED" ? 50 : 15);
+  const percent = isFractional && max > 0
+    ? Math.min(100, Math.max(0, (value / max) * 100))
+    : status === "UP"
+      ? 100
+      : status === "DEGRADED"
+        ? 50
+        : status === "DOWN"
+          ? 15
+          : 0;
   
   let colorClass = statusColors[status];
   if (isFractional) {

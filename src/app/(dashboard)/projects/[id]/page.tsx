@@ -63,6 +63,7 @@ import {
 } from "@/features/projects/hooks/use-projects";
 import type { ProjectActivityItem, ProjectFileItem, ProjectInvoice } from "@/features/projects/types/project.types";
 import { ProjectStatusBadge } from "@/features/projects/components/project-status-badge";
+import { ProjectFileUploadZone } from "@/features/projects/components/project-file-upload-zone";
 import { TaskDetailSlideover } from "@/features/projects/components/task-detail-slideover";
 import { AddMemberModal } from "@/features/projects/components/add-member-modal";
 import { SmartUploadSlideover } from "@/features/smart-tasks/components/smart-upload-slideover";
@@ -927,6 +928,7 @@ export default function ProjectDetailPage() {
               {files.length} Files
             </span>
           </div>
+          <ProjectFileUploadZone projectId={projectId} />
           {isFilesLoading ? (
             <div className="grid gap-3 lg:grid-cols-2">
               {[1, 2, 3, 4].map((item) => <div key={item} className="h-24 animate-pulse rounded-2xl bg-slate-900/60" />)}

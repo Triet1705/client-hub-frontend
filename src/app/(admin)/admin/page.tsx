@@ -21,6 +21,7 @@ import type {
   AdminEventItem,
   ControlCenterResponse,
   ControlCenterSummary,
+  ComponentHealth,
 } from "@/features/admin/types/admin.types";
 import { cn, formatFiat } from "@/lib/utils";
 
@@ -97,15 +98,22 @@ function MetricCard({
 function SystemVitalsPanel({ data }: { data: ControlCenterResponse }) {
   const uptimeHours = Math.floor(data.health.uptimeSeconds / 3600);
   const uptimeMinutes = Math.floor((data.health.uptimeSeconds % 3600) / 60);
+  const healthDetail = (component: ComponentHealth) => {
+    const enabled = component.enabled ?? component.status !== "DISABLED";
+    if (!enabled) return component.label;
+    return component.latencyMs !== null
+      ? `${component.label} · ${component.latencyMs}ms`
+      : component.label;
+  };
 
   return (
     <section className="rounded-lg border border-theme-border bg-surface-elevated/70 p-5 shadow-lg shadow-black/10">
       <SectionHeader title="System Vitals" action={<StatusBadge status={data.health.overallStatus} />} />
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <GaugeChart label="JVM Memory" isFractional value={data.health.jvm.usedMemoryMb} max={data.health.jvm.maxMemoryMb} subLabel="Megabytes" />
-        <GaugeChart label="Database" status={data.health.database.status} />
-        <GaugeChart label="Redis" status={data.health.redis.status} />
-        <GaugeChart label="AI Engine" status={data.health.aiEngine.status} />
+        <GaugeChart label="Database" status={data.health.database.status} subLabel={healthDetail(data.health.database)} />
+        <GaugeChart label="Redis" status={data.health.redis.status} subLabel={healthDetail(data.health.redis)} />
+        <GaugeChart label="AI Engine" status={data.health.aiEngine.status} subLabel={healthDetail(data.health.aiEngine)} />
       </div>
       <div className="mt-4 grid gap-3 sm:grid-cols-2">
         <div className="flex items-center justify-between rounded-lg border border-theme-border bg-surface-base/50 p-4">

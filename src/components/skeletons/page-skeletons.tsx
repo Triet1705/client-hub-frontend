@@ -130,17 +130,43 @@ export function ProjectsSkeleton() {
 
 export function ProjectDetailSkeleton() {
   return (
-    <div className="space-y-6">
-      <HeaderSkeleton />
-      <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_20rem]">
-        <div className="space-y-4">
-          <Pulse className="h-32 rounded-3xl" />
-          <KanbanSkeleton />
+    <div className="w-full max-w-[1600px] space-y-6">
+      <Pulse className="h-4 w-36" />
+      <section className="rounded-2xl bg-surface-elevated/60 p-6 ring-1 ring-theme-border">
+        <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
+          <div className="flex-1 space-y-4">
+            <div className="flex items-center gap-3">
+              <Pulse className="h-11 w-11 rounded-xl" />
+              <Pulse className="h-6 w-24 rounded-full" />
+              <Pulse className="h-6 w-28 rounded-md" />
+            </div>
+            <Pulse className="h-10 w-80 max-w-full" />
+            <Pulse className="h-4 w-full max-w-3xl" />
+            <div className="flex flex-wrap gap-3">
+              <Pulse className="h-10 w-44 rounded-xl" />
+              <Pulse className="h-10 w-52 rounded-xl" />
+            </div>
+          </div>
+          <div className="flex gap-3">
+            <Pulse className="h-10 w-28 rounded-xl" />
+            <Pulse className="h-10 w-28 rounded-xl" />
+          </div>
         </div>
-        <div className="space-y-4">
-          <Pulse className="h-44 rounded-3xl" />
-          <Pulse className="h-44 rounded-3xl" />
-          <Pulse className="h-56 rounded-3xl" />
+      </section>
+      <div className="flex gap-2 overflow-hidden rounded-2xl bg-surface-elevated/60 p-2 ring-1 ring-theme-border">
+        {Array.from({ length: 6 }).map((_, index) => (
+          <Pulse key={index} className="h-10 min-w-24 flex-1 rounded-xl" />
+        ))}
+      </div>
+      <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_24rem]">
+        <div className="space-y-6">
+          <MetricGrid count={4} />
+          <Pulse className="h-72 rounded-2xl" />
+          <Pulse className="h-56 rounded-2xl" />
+        </div>
+        <div className="space-y-6">
+          <Pulse className="h-72 rounded-2xl" />
+          <Pulse className="h-56 rounded-2xl" />
         </div>
       </div>
     </div>
