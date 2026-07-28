@@ -9,10 +9,6 @@ export type ApiClientError = Error & {
 };
 
 export function normalizeApiError(input: unknown): ApiClientError {
-  if (input instanceof Error && "status" in input) {
-    return input as ApiClientError;
-  }
-
   if (input && typeof input === "object" && "isAxiosError" in input) {
     const axiosError = input as AxiosError<{
       message?: string;
@@ -40,6 +36,10 @@ export function normalizeApiError(input: unknown): ApiClientError {
     normalized.cause = axiosError;
 
     return normalized;
+  }
+
+  if (input instanceof Error && "status" in input) {
+    return input as ApiClientError;
   }
 
   const fallback = new Error("Unexpected API error") as ApiClientError;

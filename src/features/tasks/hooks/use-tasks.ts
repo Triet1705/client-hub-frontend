@@ -12,6 +12,9 @@ import {
 } from "../api/task.api";
 import type { FetchTasksParams, TaskRequestPayload, TaskStatus, TaskPageResponse } from "../types/task.types";
 import { projectKeys } from "@/features/projects/hooks/use-projects";
+import { useRealtimeConnection } from "@/features/realtime/context/realtime-provider";
+import { useAuthStore } from "@/features/auth/store/auth.store";
+import * as React from "react";
 
 export const taskKeys = {
   all: ["tasks"] as const,
@@ -21,18 +24,64 @@ export const taskKeys = {
 };
 
 export function useTasksQuery(params: FetchTasksParams) {
+  const queryClient = useQueryClient();
+  const { isConnected, subscribe } = useRealtimeConnection();
+  const user = useAuthStore((state) => state.user);
+
+  React.useEffect(() => {
+    if (!isConnected || !user?.id) {
+      return;
+    }
+
+    const destination =
+      user.role === "ADMIN" && params.projectId
+        ? `/topic/projects/${params.projectId}/tasks`
+        : `/topic/users/${user.id}/tasks`;
+
+    return subscribe(destination, (message) => {
+      let taskId: string | undefined;
+      try {
+        taskId = (JSON.parse(message.body) as { id?: string }).id;
+      } catch {
+        // A malformed optional push never replaces the REST source of truth.
+      }
+      void queryClient.invalidateQueries({ queryKey: taskKeys.lists() });
+      if (taskId) {
+        void queryClient.invalidateQueries({
+          queryKey: taskKeys.detail(taskId),
+        });
+      }
+      if (params.projectId) {
+        void queryClient.invalidateQueries({
+          queryKey: projectKeys.activity(params.projectId),
+          exact: true,
+        });
+      }
+    });
+  }, [
+    isConnected,
+    params.projectId,
+    queryClient,
+    subscribe,
+    user?.id,
+    user?.role,
+  ]);
+
   return useQuery({
     queryKey: taskKeys.list(params),
     queryFn: () => fetchTasks(params),
     placeholderData: keepPreviousData,
+    refetchInterval: isConnected ? false : 10_000,
   });
 }
 
 export function useTaskQuery(id?: string | null) {
+  const { isConnected } = useRealtimeConnection();
   return useQuery({
     queryKey: taskKeys.detail(id ?? ""),
     queryFn: () => fetchTaskById(id!),
     enabled: Boolean(id),
+    refetchInterval: isConnected ? false : 10_000,
   });
 }
 

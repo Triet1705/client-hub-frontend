@@ -4,11 +4,13 @@ import { clearAuthCookies, getRefreshToken } from "@/lib/cookies";
 import { useAuthStore } from "../store/auth.store";
 import { toast } from "sonner";
 import { useDisconnect } from "wagmi";
+import { useQueryClient } from "@tanstack/react-query";
 
 export const useLogout = () => {
   const router = useRouter();
   const clearAuth = useAuthStore((state) => state.clearAuth);
   const { disconnect } = useDisconnect();
+  const queryClient = useQueryClient();
 
   const logout = async () => {
     const refreshToken = getRefreshToken();
@@ -22,6 +24,7 @@ export const useLogout = () => {
     disconnect();
     clearAuthCookies();
     clearAuth();
+    queryClient.clear(); // Clear all cached data across queries
 
     toast.info("Session Terminated", {
       description: "You have been logged out securely.",

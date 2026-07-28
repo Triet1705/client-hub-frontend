@@ -12,6 +12,7 @@ import { InvoiceStatusPill } from "@/features/invoices/components/invoice-status
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { INVOICE_STATUS_LABELS } from "@/features/invoices/constants/invoice.constants";
 import { useAuthStore } from "@/features/auth/store/auth.store";
+import { useCurrentUserQuery } from "@/features/users/hooks/use-current-user";
 import {
   invoiceKeys,
   useInvoiceDetailQuery,
@@ -27,11 +28,14 @@ import {
   ESCROW_TOKEN_DECIMALS,
   isConfiguredAddress,
   useEscrowContract,
+  useTokenAllowance,
 } from "@/features/wallet/hooks/useEscrowContract";
+import { getWeb3ErrorMessage } from "@/features/wallet/lib/web3-error";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { useAccount, useChainId } from "wagmi";
 import { InvoiceDetailSkeleton } from "@/components/skeletons/page-skeletons";
 import { IntegrityProofPanel } from "@/features/audit/components/integrity-proof-panel";
+import { useInvoiceRealtime } from "@/features/realtime/hooks/use-invoice-realtime";
 
 function formatUsd(value: string) {
   const parsed = Number(value);
@@ -65,8 +69,10 @@ function getPrimaryTransition(status: InvoiceStatus): InvoiceStatus | null {
 export default function InvoiceDetailPage() {
   const params = useParams<{ id: string }>();
   const invoiceId = Array.isArray(params?.id) ? params.id[0] : params?.id ?? "";
+  useInvoiceRealtime(invoiceId);
 
   const { user } = useAuthStore();
+  const { data: currentUser } = useCurrentUserQuery();
   const queryClient = useQueryClient();
   const { data: invoice, isLoading, isError } = useInvoiceDetailQuery(invoiceId);
   const auditProofQuery = useInvoiceAuditProofQuery(invoiceId);
@@ -76,22 +82,28 @@ export default function InvoiceDetailPage() {
     projectId: invoice?.projectId,
   });
 
-  const { isConnected } = useAccount();
+  const { address, isConnected } = useAccount();
   const chainId = useChainId();
   const {
     approve,
     isApproving,
     isApproveSuccess,
-    approveError,
     deposit,
     isDepositing,
     isDepositSuccess,
-    depositError,
     release,
     isReleasing,
     isReleaseSuccess,
-    releaseError,
-  } = useEscrowContract();
+  } = useEscrowContract(currentUser?.walletAddress);
+
+  const expectedChainIds = [31337, 80002];
+  const isSupportedChain = expectedChainIds.includes(chainId);
+
+  const {
+    hasAllowance,
+    refetchAllowance,
+    allowanceError,
+  } = useTokenAllowance(address, invoice?.amount || 0, isSupportedChain, ESCROW_TOKEN_DECIMALS);
 
   const refetchInvoice = React.useCallback(() => {
     if (!invoiceId) return;
@@ -100,39 +112,58 @@ export default function InvoiceDetailPage() {
   }, [invoiceId, queryClient]);
 
   React.useEffect(() => {
-    if (isDepositSuccess) toast.success("Transaction submitted! 🚀", { description: "Deposit has been confirmed on-chain." });
-    if (isDepositSuccess) refetchInvoice();
-    if (depositError) toast.error("Deposit Failed", { description: depositError.message });
-  }, [isDepositSuccess, depositError, refetchInvoice]);
+    if (isDepositSuccess) {
+      toast.success("Transaction submitted! 🚀", { description: "Deposit has been confirmed on-chain. Waiting for backend sync..." });
+      refetchInvoice();
+    }
+  }, [isDepositSuccess, refetchInvoice]);
 
   React.useEffect(() => {
-    if (isApproveSuccess) toast.success("Token approval confirmed", { description: "You can now secure this invoice in escrow." });
-    if (isApproveSuccess) refetchInvoice();
-    if (approveError) toast.error("Approval Failed", { description: approveError.message });
-  }, [isApproveSuccess, approveError, refetchInvoice]);
+    if (isApproveSuccess) {
+      toast.success("Token approval confirmed", { description: "You can now secure this invoice in escrow." });
+      void refetchAllowance();
+    }
+  }, [isApproveSuccess, refetchAllowance]);
 
   React.useEffect(() => {
-    if (isReleaseSuccess) toast.success("Funds Released! 🚀", { description: "Escrow funds have been successfully released." });
-    if (isReleaseSuccess) refetchInvoice();
-    if (releaseError) toast.error("Release Failed", { description: releaseError.message });
-  }, [isReleaseSuccess, releaseError, refetchInvoice]);
+    if (isReleaseSuccess) {
+      toast.success("Funds Released! 🚀", { description: "Escrow funds have been successfully released. Waiting for backend sync..." });
+      refetchInvoice();
+    }
+  }, [isReleaseSuccess, refetchInvoice]);
 
   const canUpdateStatus = user?.role === "CLIENT" || user?.role === "ADMIN";
   const _isFreelancerView = user?.role === "FREELANCER";
   const escrowContractConfigured = isConfiguredAddress(ESCROW_ADDRESS);
   const escrowTokenConfigured = isConfiguredAddress(ESCROW_TOKEN_ADDRESS);
   const freelancerWalletConfigured = isConfiguredAddress(invoice?.walletAddress);
-  const expectedChainIds = [31337, 80002];
-  const isSupportedChain = expectedChainIds.includes(chainId);
-  const escrowConfigReady = escrowContractConfigured && escrowTokenConfigured && freelancerWalletConfigured && isSupportedChain;
+  const clientWalletConfigured = isConfiguredAddress(currentUser?.walletAddress);
+  const connectedWalletMatchesClient =
+    clientWalletConfigured &&
+    !!address &&
+    currentUser?.walletAddress?.toLowerCase() === address.toLowerCase();
+  const escrowConfigReady =
+    escrowContractConfigured &&
+    escrowTokenConfigured &&
+    freelancerWalletConfigured &&
+    clientWalletConfigured &&
+    connectedWalletMatchesClient &&
+    isSupportedChain &&
+    !allowanceError;
   const escrowConfigMessage = !escrowContractConfigured
     ? "Escrow contract address is not configured."
     : !escrowTokenConfigured
       ? "Escrow token address is not configured."
       : !freelancerWalletConfigured
         ? "Freelancer wallet address is missing or invalid."
+        : !clientWalletConfigured
+          ? "Bind your client wallet in Settings before using escrow."
+          : !connectedWalletMatchesClient
+            ? "Connect the same wallet that is bound to your Client Hub profile."
         : !isSupportedChain
           ? "Switch to Hardhat Local or Polygon Amoy."
+          : allowanceError
+            ? "Local contracts are unavailable or out of sync. Run npm run local:bootstrap, then restart the apps."
           : null;
 
   const transitionOptions = React.useMemo(
@@ -260,9 +291,10 @@ export default function InvoiceDetailPage() {
                                   <div className="rounded-xl bg-slate-900/50 p-4 border border-slate-800">
                                     <h4 className="text-xs font-bold uppercase tracking-wider text-slate-300 mb-2">Escrow Process</h4>
                                     <div className="space-y-2 text-xs text-slate-400">
-                                      <p className="flex items-center justify-between"><span className={!isApproveSuccess ? "text-emerald-400 font-bold" : ""}>1. Approve Token</span> <span>Gas fee only</span></p>
-                                      <p className="flex items-center justify-between"><span className={isApproveSuccess ? "text-emerald-400 font-bold" : ""}>2. Secure Deposit</span> <span>Gas fee + Invoice Amount</span></p>
+                                      <p className="flex items-center justify-between"><span className={!hasAllowance ? "text-emerald-400 font-bold" : ""}>1. Approve {invoice.amount} mUSDT</span> <span>Gas fee only</span></p>
+                                      <p className="flex items-center justify-between"><span className={hasAllowance ? "text-emerald-400 font-bold" : ""}>2. Deposit {invoice.amount} mUSDT</span> <span>Gas fee only</span></p>
                                       <p className="flex items-center justify-between"><span>3. Release Payment</span> <span>Gas fee only</span></p>
+                                      <p className="pt-2 text-[11px] text-slate-500">Wallets may display 0 ETH because this transfers ERC-20 tokens, not native ETH.</p>
                                     </div>
                                   </div>
                                   <div className="flex w-full gap-3">
@@ -270,7 +302,7 @@ export default function InvoiceDetailPage() {
                                       <div className="rounded-xl bg-slate-900/50 p-4 text-center border border-slate-800 w-full">
                                         <p className="text-sm text-slate-400">{escrowConfigMessage}</p>
                                       </div>
-                                    ) : !isApproveSuccess ? (
+                                    ) : !hasAllowance ? (
                                       <button
                                         type="button"
                                         disabled={isApproving}
@@ -278,12 +310,7 @@ export default function InvoiceDetailPage() {
                                           try { 
                                             await approve(ESCROW_TOKEN_ADDRESS, invoice.amount, ESCROW_TOKEN_DECIMALS); 
                                           } catch (err) { 
-                                            const e = err as Error & { name?: string };
-                                            if (e?.message?.includes("User rejected") || e?.name === "UserRejectedRequestError") {
-                                              toast.error("Transaction cancelled by user");
-                                            } else {
-                                              toast.error("Approval failed", { description: err instanceof Error ? err.message : "Unknown error" }); 
-                                            }
+                                            toast.error("Approval failed", { description: getWeb3ErrorMessage(err) });
                                           } 
                                         }}
                                         className="flex-1 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white px-5 py-3 text-sm font-bold transition-all shadow-lg shadow-cyan-900/20 hover:shadow-cyan-500/25 disabled:opacity-50 disabled:cursor-not-allowed"
@@ -296,14 +323,12 @@ export default function InvoiceDetailPage() {
                                         disabled={isDepositing}
                                         onClick={async () => { 
                                           try { 
-                                            await deposit(Number(invoice.id), ESCROW_TOKEN_ADDRESS, invoice.amount, invoice.walletAddress!, ESCROW_TOKEN_DECIMALS); 
+                                            await deposit(Number(invoice.id), ESCROW_TOKEN_ADDRESS, invoice.amount, invoice.walletAddress!, ESCROW_TOKEN_DECIMALS);
+                                            toast.success("Escrow funded", {
+                                              description: `Client mUSDT -${invoice.amount}; escrow +${invoice.amount}. ETH is used only for gas.`,
+                                            });
                                           } catch (err) { 
-                                            const e = err as Error & { name?: string };
-                                            if (e?.message?.includes("User rejected") || e?.name === "UserRejectedRequestError") {
-                                              toast.error("Transaction cancelled by user");
-                                            } else {
-                                              toast.error("Deposit failed", { description: err instanceof Error ? err.message : "Unknown error" }); 
-                                            }
+                                            toast.error("Deposit failed", { description: getWeb3ErrorMessage(err) });
                                           } 
                                         }}
                                         className="flex-1 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white px-5 py-3 text-sm font-bold transition-all shadow-lg shadow-emerald-900/20 hover:shadow-emerald-500/25 disabled:opacity-50 disabled:cursor-not-allowed"
@@ -316,15 +341,21 @@ export default function InvoiceDetailPage() {
                               ) : invoice.status === InvoiceStatus.LOCKED ? (
                                 <button
                                   type="button"
-                                  disabled={isReleasing || !escrowContractConfigured || !isSupportedChain}
+                                  disabled={isReleasing || !escrowConfigReady}
                                   onClick={async () => {
                                     try {
-                                      await release(Number(invoice.id));
+                                      await release(
+                                        Number(invoice.id),
+                                        ESCROW_TOKEN_ADDRESS,
+                                        invoice.amount,
+                                        invoice.walletAddress!,
+                                        ESCROW_TOKEN_DECIMALS,
+                                      );
+                                      toast.success("Payment released", {
+                                        description: `Freelancer mUSDT +${invoice.amount}; escrow -${invoice.amount}. ETH is used only for gas.`,
+                                      });
                                     } catch (err) {
-                                      const e = err as Error & { name?: string };
-                                      if (e?.message?.includes("User rejected") || e?.name === "UserRejectedRequestError") {
-                                        toast.error("Transaction cancelled by user");
-                                      }
+                                      toast.error("Release failed", { description: getWeb3ErrorMessage(err) });
                                     }
                                   }}
                                   className="flex-1 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white px-5 py-3 text-sm font-bold transition-all shadow-lg shadow-emerald-900/20 hover:shadow-emerald-500/25 disabled:opacity-50 disabled:cursor-not-allowed"

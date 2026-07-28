@@ -9,13 +9,15 @@ import { queryClient } from "@/lib/query-client";
 import { web3Config } from "@/lib/web3-config";
 import { ThemeProvider } from "@/providers/theme-provider";
 import { NavigationProgressProvider } from "@/providers/navigation-progress-provider";
+import { RealtimeProvider } from "@/features/realtime/context/realtime-provider";
 import "@rainbow-me/rainbowkit/styles.css";
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <WagmiProvider config={web3Config}>
       <QueryClientProvider client={queryClient}>
-        <RainbowKitProvider
+        <RealtimeProvider>
+          <RainbowKitProvider
           theme={darkTheme({
             accentColor: "#10b77f",
             accentColorForeground: "white",
@@ -42,7 +44,8 @@ export function Providers({ children }: { children: React.ReactNode }) {
               },
             }}
           />
-        </RainbowKitProvider>
+          </RainbowKitProvider>
+        </RealtimeProvider>
       </QueryClientProvider>
     </WagmiProvider>
   );

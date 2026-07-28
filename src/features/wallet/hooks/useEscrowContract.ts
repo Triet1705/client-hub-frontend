@@ -1,4 +1,10 @@
-import { useWriteContract, useReadContract, useWaitForTransactionReceipt } from "wagmi";
+import {
+  useAccount,
+  usePublicClient,
+  useReadContract,
+  useWaitForTransactionReceipt,
+  useWriteContract,
+} from "wagmi";
 import { isAddress, parseUnits } from "viem";
 
 import contractAbis from "@/lib/contracts/abi.json";
@@ -17,6 +23,29 @@ export const ERC20_ABI = [
     ],
     "stateMutability": "nonpayable",
     "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "address", "name": "owner", "type": "address" },
+      { "internalType": "address", "name": "spender", "type": "address" }
+    ],
+    "name": "allowance",
+    "outputs": [
+      { "internalType": "uint256", "name": "", "type": "uint256" }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "address", "name": "account", "type": "address" }
+    ],
+    "name": "balanceOf",
+    "outputs": [
+      { "internalType": "uint256", "name": "", "type": "uint256" }
+    ],
+    "stateMutability": "view",
+    "type": "function"
   }
 ] as const;
 
@@ -29,7 +58,22 @@ export function isConfiguredAddress(value: string | undefined | null): value is 
   return !!value && value !== ZERO_ADDRESS && isAddress(value);
 }
 
-export function useEscrowContract() {
+function requireExpectedSigner(
+  connectedAddress: string | undefined,
+  expectedSigner: string | undefined | null,
+): `0x${string}` {
+  if (!isConfiguredAddress(expectedSigner)) {
+    throw new Error("The bound client wallet is missing or invalid.");
+  }
+  if (!connectedAddress || connectedAddress.toLowerCase() !== expectedSigner.toLowerCase()) {
+    throw new Error("The connected wallet does not match the bound client wallet.");
+  }
+  return expectedSigner;
+}
+
+export function useEscrowContract(expectedSigner?: string | null) {
+  const { address: connectedAddress } = useAccount();
+  const publicClient = usePublicClient();
   const depositMutation = useWriteContract();
   const releaseMutation = useWriteContract();
   const approveMutation = useWriteContract();
@@ -38,29 +82,101 @@ export function useEscrowContract() {
   const releaseReceipt = useWaitForTransactionReceipt({ hash: releaseMutation.data });
   const approveReceipt = useWaitForTransactionReceipt({ hash: approveMutation.data });
 
+  const readTokenBalance = async (
+    tokenAddress: `0x${string}`,
+    account: `0x${string}`,
+  ) => {
+    if (!publicClient) {
+      throw new Error("The blockchain client is not ready.");
+    }
+    return publicClient.readContract({
+      address: tokenAddress,
+      abi: ERC20_ABI,
+      functionName: "balanceOf",
+      args: [account],
+    });
+  };
+
   const deposit = async (invoiceId: number, tokenAddress: string, amount: string | number, freelancer: string, decimals: number = 6) => {
     try {
+      const account = requireExpectedSigner(connectedAddress, expectedSigner);
+      if (!publicClient) {
+        throw new Error("The blockchain client is not ready.");
+      }
+      if (!isConfiguredAddress(tokenAddress) || !isConfiguredAddress(freelancer)) {
+        throw new Error("The escrow token or freelancer wallet is invalid.");
+      }
       const parsedAmount = parseUnits(String(amount), decimals);
-      return await depositMutation.writeContractAsync({
+      const clientBalanceBefore = await readTokenBalance(tokenAddress, account);
+      const escrowBalanceBefore = await readTokenBalance(tokenAddress, ESCROW_ADDRESS);
+      const hash = await depositMutation.writeContractAsync({
         address: ESCROW_ADDRESS,
         abi: ESCROW_ABI,
         functionName: "deposit",
-        args: [BigInt(invoiceId), tokenAddress as `0x${string}`, parsedAmount, freelancer as `0x${string}`],
+        args: [BigInt(invoiceId), tokenAddress, parsedAmount, freelancer],
+        account,
       });
+      const receipt = await publicClient.waitForTransactionReceipt({ hash });
+      if (receipt.status !== "success") {
+        throw new Error("The escrow deposit transaction failed on-chain.");
+      }
+      if (receipt.from.toLowerCase() !== account.toLowerCase()) {
+        throw new Error("The deposit was sent by a wallet other than the bound client wallet.");
+      }
+      const clientBalanceAfter = await readTokenBalance(tokenAddress, account);
+      const escrowBalanceAfter = await readTokenBalance(tokenAddress, ESCROW_ADDRESS);
+      const clientDelta = clientBalanceBefore - clientBalanceAfter;
+      const escrowDelta = escrowBalanceAfter - escrowBalanceBefore;
+      if (clientDelta !== parsedAmount || escrowDelta !== parsedAmount) {
+        throw new Error("Deposit mined, but the expected mUSDT balance transfer was not observed.");
+      }
+      return { hash, clientDelta, escrowDelta };
     } catch (error) {
       console.error("Deposit error:", error);
       throw error;
     }
   };
 
-  const release = async (invoiceId: number) => {
+  const release = async (
+    invoiceId: number,
+    tokenAddress: string,
+    amount: string | number,
+    freelancer: string,
+    decimals: number = 6,
+  ) => {
     try {
-      return await releaseMutation.writeContractAsync({
+      const account = requireExpectedSigner(connectedAddress, expectedSigner);
+      if (!publicClient) {
+        throw new Error("The blockchain client is not ready.");
+      }
+      if (!isConfiguredAddress(tokenAddress) || !isConfiguredAddress(freelancer)) {
+        throw new Error("The escrow token or freelancer wallet is invalid.");
+      }
+      const parsedAmount = parseUnits(String(amount), decimals);
+      const escrowBalanceBefore = await readTokenBalance(tokenAddress, ESCROW_ADDRESS);
+      const freelancerBalanceBefore = await readTokenBalance(tokenAddress, freelancer);
+      const hash = await releaseMutation.writeContractAsync({
         address: ESCROW_ADDRESS,
         abi: ESCROW_ABI,
         functionName: "release",
         args: [BigInt(invoiceId)],
+        account,
       });
+      const receipt = await publicClient.waitForTransactionReceipt({ hash });
+      if (receipt.status !== "success") {
+        throw new Error("The escrow release transaction failed on-chain.");
+      }
+      if (receipt.from.toLowerCase() !== account.toLowerCase()) {
+        throw new Error("The release was sent by a wallet other than the bound client wallet.");
+      }
+      const escrowBalanceAfter = await readTokenBalance(tokenAddress, ESCROW_ADDRESS);
+      const freelancerBalanceAfter = await readTokenBalance(tokenAddress, freelancer);
+      const escrowDelta = escrowBalanceBefore - escrowBalanceAfter;
+      const freelancerDelta = freelancerBalanceAfter - freelancerBalanceBefore;
+      if (escrowDelta !== parsedAmount || freelancerDelta !== parsedAmount) {
+        throw new Error("Release mined, but the expected freelancer mUSDT balance transfer was not observed.");
+      }
+      return { hash, escrowDelta, freelancerDelta };
     } catch (error) {
       console.error("Release error:", error);
       throw error;
@@ -69,13 +185,26 @@ export function useEscrowContract() {
 
   const approve = async (tokenAddress: string, amount: string | number, decimals: number = 6) => {
     try {
+      const account = requireExpectedSigner(connectedAddress, expectedSigner);
+      if (!publicClient) {
+        throw new Error("The blockchain client is not ready.");
+      }
       const parsedAmount = parseUnits(String(amount), decimals);
-      return await approveMutation.writeContractAsync({
+      const hash = await approveMutation.writeContractAsync({
         address: tokenAddress as `0x${string}`,
         abi: ERC20_ABI,
         functionName: "approve",
         args: [ESCROW_ADDRESS, parsedAmount],
+        account,
       });
+      const receipt = await publicClient.waitForTransactionReceipt({ hash });
+      if (receipt.status !== "success") {
+        throw new Error("The token approval transaction failed on-chain.");
+      }
+      if (receipt.from.toLowerCase() !== account.toLowerCase()) {
+        throw new Error("The approval was sent by a wallet other than the bound client wallet.");
+      }
+      return hash;
     } catch (error) {
       console.error("Approve error:", error);
       throw error;
@@ -110,4 +239,31 @@ export function useEscrowStatus(invoiceId: number) {
     functionName: "getEscrowStatus",
     args: [BigInt(invoiceId)],
   });
+}
+
+export function useTokenAllowance(owner: `0x${string}` | undefined, amount: string | number, isSupportedChain: boolean, decimals: number = 6) {
+  const { data, refetch, isLoading, error } = useReadContract({
+    address: ESCROW_TOKEN_ADDRESS,
+    abi: ERC20_ABI,
+    functionName: "allowance",
+    args: owner ? [owner, ESCROW_ADDRESS] : undefined,
+    query: {
+      enabled:
+        !!owner &&
+        isSupportedChain &&
+        isConfiguredAddress(ESCROW_ADDRESS) &&
+        isConfiguredAddress(ESCROW_TOKEN_ADDRESS),
+      retry: false,
+    },
+  });
+
+  const parsedAmount = amount ? parseUnits(String(amount), decimals) : BigInt(0);
+  const hasAllowance = data !== undefined && (data as bigint) >= parsedAmount;
+
+  return {
+    hasAllowance,
+    refetchAllowance: refetch,
+    isLoadingAllowance: isLoading,
+    allowanceError: error,
+  };
 }

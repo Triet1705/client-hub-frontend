@@ -3,6 +3,7 @@
 import * as React from "react";
 import { useAccount } from "wagmi";
 import { toast } from "sonner";
+import { useQueryClient } from "@tanstack/react-query";
 import { Bell, KeyRound, MonitorCog, Palette, Shield, User, WalletCards } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { CustomSelect } from "@/components/ui/custom-select";
@@ -13,12 +14,14 @@ import { UserAvatar } from "@/components/ui/user-avatar";
 import { SettingsSkeleton } from "@/components/skeletons/page-skeletons";
 import { bindWalletAddress } from "@/features/users/api/user.api";
 import {
+  currentUserKeys,
   useChangePasswordMutation,
   useCurrentUserQuery,
   useUpdatePreferencesMutation,
   useUpdateProfileMutation,
 } from "@/features/users/hooks/use-current-user";
-import { cn } from "@/lib/utils";
+import { getApiErrorMessage } from "@/lib/api/error";
+import { cn, truncateAddress } from "@/lib/utils";
 
 const SECTIONS = [
   { id: "profile", label: "Account", icon: User, helper: "Identity and portfolio" },
@@ -94,6 +97,7 @@ export default function SettingsPage() {
   const updateProfile = useUpdateProfileMutation();
   const updatePreferences = useUpdatePreferencesMutation();
   const changePassword = useChangePasswordMutation();
+  const queryClient = useQueryClient();
   const { address, isConnected } = useAccount();
 
   const [activeSection, setActiveSection] = React.useState<SectionId>("profile");
@@ -159,13 +163,19 @@ export default function SettingsPage() {
     setWalletSaving(true);
     try {
       await bindWalletAddress(address);
+      await queryClient.invalidateQueries({ queryKey: currentUserKeys.me() });
       toast.success("Wallet bound successfully");
-    } catch {
-      toast.error("Failed to bind wallet");
+    } catch (error) {
+      toast.error(getApiErrorMessage(error, "Failed to bind wallet"));
     } finally {
       setWalletSaving(false);
     }
   };
+
+  const connectedWalletIsSaved =
+    !!address &&
+    !!me?.walletAddress &&
+    address.toLowerCase() === me.walletAddress.toLowerCase();
 
   const scrollToSection = (section: SectionId) => {
     setActiveSection(section);
@@ -326,15 +336,29 @@ export default function SettingsPage() {
             <div className="grid gap-4 lg:grid-cols-2">
               <div className="rounded-2xl border border-theme-border bg-surface-base/50 p-4">
                 <p className="text-xs font-bold uppercase tracking-widest text-content-muted">Saved wallet</p>
-                <p className="mt-3 break-all font-mono text-sm text-content-primary">{me?.walletAddress || "Not configured"}</p>
+                <p className="mt-3 font-mono text-sm text-content-primary">
+                  {truncateAddress(me?.walletAddress ?? undefined) || "Not configured"}
+                </p>
               </div>
               <div className="rounded-2xl border border-theme-border bg-surface-base/50 p-4">
                 <p className="text-xs font-bold uppercase tracking-widest text-content-muted">Connected wallet</p>
-                <p className="mt-3 break-all font-mono text-sm text-content-primary">{address || "Not connected"}</p>
+                <p className="mt-3 font-mono text-sm text-content-primary">
+                  {truncateAddress(address) || "Not connected"}
+                </p>
               </div>
             </div>
-            <Button className="mt-5" disabled={!isConnected || !address} isLoading={walletSaving} onClick={saveWallet}>
-              Bind Connected Wallet
+            {isConnected && address && me?.walletAddress && !connectedWalletIsSaved ? (
+              <p className="mt-4 text-sm text-amber-300">
+                The connected wallet differs from the wallet bound to this account.
+              </p>
+            ) : null}
+            <Button
+              className="mt-5"
+              disabled={!isConnected || !address || connectedWalletIsSaved}
+              isLoading={walletSaving}
+              onClick={saveWallet}
+            >
+              {connectedWalletIsSaved ? "Wallet Already Bound" : "Bind Connected Wallet"}
             </Button>
           </SettingsPanel>
         </div>
