@@ -19,6 +19,7 @@ import {
   registerSchema,
   type RegisterFormValues,
 } from "../validations/auth.schema";
+import { normalizeApiError } from "@/lib/api/error";
 
 export function RegisterForm() {
   const [isLoading, setIsLoading] = React.useState(false);
@@ -29,6 +30,8 @@ export function RegisterForm() {
     handleSubmit,
     watch,
     setValue,
+    setError,
+    clearErrors,
     formState: { errors },
   } = useForm<RegisterFormValues>({
     resolver: zodResolver(registerSchema),
@@ -44,6 +47,7 @@ export function RegisterForm() {
   const selectedRole = watch("role");
 
   const onSubmit = async (data: RegisterFormValues) => {
+    clearErrors();
     setIsLoading(true);
     try {
       const tenantId = data.tenantId.trim().toLowerCase();
@@ -65,10 +69,48 @@ export function RegisterForm() {
 
       router.push("/login");
     } catch (error: unknown) {
-      const err = error as { response?: { data?: { message?: string } } };
-      const errorMsg =
-        err.response?.data?.message ||
-        "Registration failed. Please try again.";
+      const apiError = normalizeApiError(error);
+      const errorMsg = apiError.message || "Registration failed. Please try again.";
+      let fieldErrorApplied = false;
+
+      if (Array.isArray(apiError.details)) {
+        const supportedFields = new Set<keyof RegisterFormValues>([
+          "tenantId",
+          "fullName",
+          "email",
+          "password",
+          "role",
+        ]);
+        for (const detail of apiError.details) {
+          if (typeof detail !== "string") continue;
+          const [field, ...messageParts] = detail.split(": ");
+          if (!supportedFields.has(field as keyof RegisterFormValues) || messageParts.length === 0) continue;
+          setError(field as keyof RegisterFormValues, {
+            type: "server",
+            message: messageParts.join(": "),
+          });
+          fieldErrorApplied = true;
+        }
+      }
+
+      const normalizedMessage = errorMsg.toLowerCase();
+      if (apiError.status === 409 || apiError.code === "Workspace Already Exists") {
+        setError("tenantId", { type: "server", message: errorMsg });
+        fieldErrorApplied = true;
+      } else if (!fieldErrorApplied && normalizedMessage.includes("tenant")) {
+        setError("tenantId", { type: "server", message: errorMsg });
+        fieldErrorApplied = true;
+      } else if (!fieldErrorApplied && normalizedMessage.includes("email")) {
+        setError("email", { type: "server", message: errorMsg });
+        fieldErrorApplied = true;
+      } else if (!fieldErrorApplied && normalizedMessage.includes("password")) {
+        setError("password", { type: "server", message: errorMsg });
+        fieldErrorApplied = true;
+      }
+
+      if (!fieldErrorApplied) {
+        setError("root.server", { type: "server", message: errorMsg });
+      }
       toast.error("Provisioning Failed", { description: errorMsg });
     } finally {
       setIsLoading(false);
@@ -141,6 +183,15 @@ export function RegisterForm() {
         error={errors.password?.message}
         {...register("password")}
       />
+
+      {errors.root?.server?.message ? (
+        <p
+          role="alert"
+          className="rounded-lg border border-rose-500/25 bg-rose-500/10 px-4 py-3 text-sm text-rose-300"
+        >
+          {errors.root.server.message}
+        </p>
+      ) : null}
 
       <div className="pt-4">
         <button

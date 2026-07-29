@@ -16,6 +16,7 @@ import { login } from "../api/auth.api";
 import { loginSchema, type LoginFormValues, type LoginInputValues } from "../validations/auth.schema";
 import { getTenantId, setAuthCookies } from "@/lib/cookies";
 import { useAuthStore } from "../store/auth.store";
+import { normalizeApiError } from "@/lib/api/error";
 
 export function LoginForm() {
   const [isLoading, setIsLoading] = React.useState(false);
@@ -27,6 +28,7 @@ export function LoginForm() {
     register,
     handleSubmit,
     setError,
+    clearErrors,
     formState: { errors },
   } = useForm<LoginInputValues, unknown, LoginFormValues>({
     resolver: zodResolver(loginSchema),
@@ -39,6 +41,7 @@ export function LoginForm() {
   });
 
   const onSubmit = async (data: LoginFormValues) => {
+    clearErrors();
     const passwordLooksQuoted =
       data.password.length >= 2 &&
       ((data.password.startsWith("'") && data.password.endsWith("'")) ||
@@ -80,16 +83,31 @@ export function LoginForm() {
       const callbackUrl = searchParams.get("callbackUrl") ?? defaultPath;
       router.push(callbackUrl);
     } catch (error: unknown) {
-      const err = error as {
-        response?: { status?: number; data?: { message?: string } };
-      };
-      const errorMsg =
-        err.response?.data?.message || "Invalid credentials or tenant ID.";
+      const apiError = normalizeApiError(error);
+      const errorMsg = apiError.message || "Unable to sign in. Please try again.";
 
-      if (err.response?.status === 401 || err.response?.status === 403) {
+      if (apiError.status === 404 && apiError.code === "Workspace Not Found") {
+        setError("tenantId", {
+          type: "server",
+          message: errorMsg,
+        });
+      } else if (apiError.status === 401) {
+        setError("email", {
+          type: "server",
+          message: "Check that this email belongs to the selected workspace.",
+        });
         setError("password", {
-          type: "manual",
-          message: "Incorrect email or password. Check copied characters and try again.",
+          type: "server",
+          message: "Email or password is incorrect for this workspace.",
+        });
+      } else if (apiError.status === 403) {
+        setError("email", { type: "server", message: errorMsg });
+      } else if (apiError.status === 423) {
+        setError("password", { type: "server", message: errorMsg });
+      } else {
+        setError("root.server", {
+          type: "server",
+          message: errorMsg,
         });
       }
 
@@ -128,6 +146,15 @@ export function LoginForm() {
           {...register("password")}
         />
       </div>
+
+      {errors.root?.server?.message ? (
+        <p
+          role="alert"
+          className="rounded-lg border border-rose-500/25 bg-rose-500/10 px-4 py-3 text-sm text-rose-300"
+        >
+          {errors.root.server.message}
+        </p>
+      ) : null}
 
       <div className="flex items-center justify-between text-sm">
         <label className="flex items-center gap-2 cursor-pointer group">

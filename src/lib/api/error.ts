@@ -11,6 +11,7 @@ export type ApiClientError = Error & {
 export function normalizeApiError(input: unknown): ApiClientError {
   if (input && typeof input === "object" && "isAxiosError" in input) {
     const axiosError = input as AxiosError<{
+      error?: string;
       message?: string;
       code?: string;
       details?: unknown;
@@ -30,7 +31,10 @@ export function normalizeApiError(input: unknown): ApiClientError {
 
     const normalized = new Error(message) as ApiClientError;
     normalized.status = axiosError.response?.status;
-    normalized.code = axiosError.response?.data?.code || axiosError.code;
+    normalized.code =
+      axiosError.response?.data?.code ||
+      axiosError.response?.data?.error ||
+      axiosError.code;
     normalized.requestId = typeof requestId === "string" ? requestId : undefined;
     normalized.details = axiosError.response?.data?.details;
     normalized.cause = axiosError;
