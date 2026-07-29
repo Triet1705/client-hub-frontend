@@ -1,7 +1,5 @@
 import * as React from "react";
-import { Calendar } from "lucide-react";
-import { format } from "date-fns";
-import { cn } from "@/lib/utils";
+import { CustomDatePicker } from "@/components/ui/custom-date-picker";
 
 interface DatePickerProps {
   value: string;
@@ -12,73 +10,41 @@ interface DatePickerProps {
   className?: string;
 }
 
+function parseLocalDate(value: string): Date | undefined {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
+  if (!match) return undefined;
+
+  const [, year, month, day] = match;
+  const parsed = new Date(Number(year), Number(month) - 1, Number(day));
+  return Number.isNaN(parsed.getTime()) ? undefined : parsed;
+}
+
+function formatLocalDate(date: Date): string {
+  return [
+    date.getFullYear(),
+    String(date.getMonth() + 1).padStart(2, "0"),
+    String(date.getDate()).padStart(2, "0"),
+  ].join("-");
+}
+
 export function DatePicker({
   value,
   onChange,
-  placeholder = "Pick a date",
+  placeholder,
   isError = false,
   disabled = false,
   className,
 }: DatePickerProps) {
-  const inputRef = React.useRef<HTMLInputElement | null>(null);
-
-  const openPicker = React.useCallback(() => {
-    if (disabled) return;
-    const input = inputRef.current;
-    if (!input) return;
-
-    if (typeof input.showPicker === "function") {
-      input.showPicker();
-      return;
-    }
-
-    input.focus();
-    input.click();
-  }, [disabled]);
-
-  const displayDate = React.useMemo(() => {
-    if (!value) return null;
-    try {
-      // Add time to avoid timezone issues with pure dates
-      return format(new Date(value + "T00:00:00"), "MMM d, yyyy");
-    } catch {
-      return null;
-    }
-  }, [value]);
+  const selectedDate = React.useMemo(() => parseLocalDate(value), [value]);
 
   return (
-    <div className={cn("relative", className)}>
-      <div
-        onClick={openPicker}
-        onKeyDown={(e) => {
-          if (e.key === "Enter" || e.key === " ") {
-            e.preventDefault();
-            openPicker();
-          }
-        }}
-        role="button"
-        tabIndex={disabled ? -1 : 0}
-        className={cn(
-          "w-full bg-slate-900/50 border rounded-xl px-4 py-3 text-sm flex items-center gap-3 cursor-pointer select-none transition-all",
-          disabled && "opacity-60 cursor-not-allowed",
-          isError
-            ? "border-rose-500"
-            : "border-slate-700 hover:border-slate-600",
-          value ? "text-white" : "text-slate-600",
-        )}
-      >
-        <Calendar className="w-4 h-4 shrink-0 text-slate-500" />
-        <span className="truncate">{displayDate || placeholder}</span>
-      </div>
-      
-      <input
-        ref={inputRef}
-        type="date"
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        disabled={disabled}
-        className="absolute inset-0 w-full h-full opacity-0 pointer-events-none scheme-dark"
-      />
-    </div>
+    <CustomDatePicker
+      value={selectedDate}
+      onChange={(date) => onChange(date ? formatLocalDate(date) : "")}
+      placeholder={placeholder}
+      isError={isError}
+      disabled={disabled}
+      className={className}
+    />
   );
 }
