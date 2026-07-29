@@ -272,6 +272,7 @@ export function CreateInvoiceModal({ isOpen, onClose, defaultProjectId }: Create
               }}
               disabled={isPending}
               disabledDays={{ before: tomorrow }}
+              isError={!!fieldErrors.dueDate}
             />
             {fieldErrors.dueDate && <p className="text-xs text-rose-400 mt-2">{fieldErrors.dueDate}</p>}
           </FormField>
