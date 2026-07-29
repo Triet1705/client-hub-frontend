@@ -14,12 +14,22 @@ import { cn } from "@/lib/utils";
 
 function HealthCard({ label, component }: { label: string; component: ComponentHealth | undefined }) {
   const status = component?.status ?? "CHECKING";
+  const enabled = component
+    ? (component.enabled ?? component.status !== "DISABLED")
+    : false;
   const tone =
     status === "UP"
       ? "border-emerald-500/20 bg-emerald-500/10 text-emerald-300"
       : status === "DEGRADED"
         ? "border-amber-500/20 bg-amber-500/10 text-amber-300"
-        : "border-rose-500/20 bg-rose-500/10 text-rose-300";
+        : status === "DISABLED"
+          ? "border-slate-500/20 bg-slate-500/10 text-slate-300"
+          : "border-rose-500/20 bg-rose-500/10 text-rose-300";
+  const latency = component && enabled && component.latencyMs !== null
+    ? `${component.latencyMs}ms latency`
+    : component
+      ? "Not checked"
+      : "Waiting for health response";
 
   return (
     <div className="rounded-3xl border border-theme-border bg-surface-base/50 p-5">
@@ -33,9 +43,18 @@ function HealthCard({ label, component }: { label: string; component: ComponentH
         </span>
       </div>
       <div className="h-1.5 overflow-hidden rounded-full bg-surface-elevated">
-        <div className={cn("h-full", status === "UP" ? "w-full bg-emerald-400" : status === "DEGRADED" ? "w-1/2 bg-amber-400" : "w-1/5 bg-rose-400")} />
+        <div className={cn(
+          "h-full",
+          status === "UP"
+            ? "w-full bg-emerald-400"
+            : status === "DEGRADED"
+              ? "w-1/2 bg-amber-400"
+              : status === "DISABLED"
+                ? "w-0 bg-slate-500"
+                : "w-1/5 bg-rose-400",
+        )} />
       </div>
-      <p className="mt-3 font-mono text-xs text-content-muted">{component ? `${component.latencyMs}ms latency` : "--ms latency"}</p>
+      <p className="mt-3 font-mono text-xs text-content-muted">{latency}</p>
     </div>
   );
 }

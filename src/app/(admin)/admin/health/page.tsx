@@ -6,6 +6,7 @@ import { Cpu, HeartPulse } from "lucide-react";
 import { DashboardSkeleton } from "@/components/skeletons/page-skeletons";
 import { GaugeChart } from "@/features/admin/components/charts/gauge-chart";
 import { useSystemHealthQuery } from "@/features/admin/hooks/use-admin";
+import type { ComponentHealth } from "@/features/admin/types/admin.types";
 import { cn } from "@/lib/utils";
 
 const statusTone = {
@@ -22,7 +23,13 @@ function StatusBadge({ status }: { status: "UP" | "DEGRADED" | "DOWN" }) {
   );
 }
 
-
+function healthDetail(component: ComponentHealth) {
+  const enabled = component.enabled ?? component.status !== "DISABLED";
+  const latency = enabled && component.latencyMs !== null
+    ? `${component.latencyMs}ms latency`
+    : "Not checked";
+  return `${component.label} · ${latency}`;
+}
 
 export default function AdminHealthPage() {
   const { data: health, isLoading, isError } = useSystemHealthQuery();
@@ -67,10 +74,10 @@ export default function AdminHealthPage() {
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        <GaugeChart label="Database" status={health.database.status} subLabel={`${health.database.latencyMs}ms latency`} />
-        <GaugeChart label="Redis" status={health.redis.status} subLabel={`${health.redis.latencyMs}ms latency`} />
-        <GaugeChart label="AI Engine" status={health.aiEngine.status} subLabel={`${health.aiEngine.latencyMs}ms latency`} />
-        <GaugeChart label="Blockchain" status={health.blockchain.status} subLabel={`${health.blockchain.latencyMs}ms latency`} />
+        <GaugeChart label="Database" status={health.database.status} subLabel={healthDetail(health.database)} />
+        <GaugeChart label="Redis" status={health.redis.status} subLabel={healthDetail(health.redis)} />
+        <GaugeChart label="AI Engine" status={health.aiEngine.status} subLabel={healthDetail(health.aiEngine)} />
+        <GaugeChart label="Blockchain" status={health.blockchain.status} subLabel={healthDetail(health.blockchain)} />
       </div>
 
       <section className="rounded-lg border border-theme-border bg-surface-elevated/70 p-5 shadow-lg shadow-black/10">

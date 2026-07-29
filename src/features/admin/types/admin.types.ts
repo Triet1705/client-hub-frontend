@@ -10,10 +10,14 @@ export interface PlatformStats {
   systemHealth: string;
 }
 
+export type ComponentHealthStatus = "UP" | "DEGRADED" | "DOWN" | "DISABLED";
+
 export interface ComponentHealth {
-  status: "UP" | "DEGRADED" | "DOWN";
+  status: ComponentHealthStatus;
   label: string;
-  latencyMs: number;
+  latencyMs: number | null;
+  enabled?: boolean;
+  required?: boolean;
 }
 
 export interface AdminJvmVitals {
