@@ -46,18 +46,18 @@ export function TaskAdvancedFilters({
       <button
         aria-label="Close advanced filters"
         onClick={onClose}
-        className="fixed inset-0 z-40 bg-black/50 backdrop-blur-[1px]"
+        className="fixed inset-0 z-40 bg-[var(--overlay)] backdrop-blur-[1px]"
       />
-      <aside className="fixed right-0 top-0 z-50 h-full w-full max-w-md border-l border-white/10 bg-[#0c0c0c] shadow-2xl animate-in slide-in-from-right duration-300">
+      <aside className="fixed right-0 top-0 z-50 h-full w-full max-w-md border-l border-theme-border bg-surface shadow-2xl animate-in slide-in-from-right duration-300">
         <div className="flex h-full flex-col">
-          <div className="flex items-center justify-between border-b border-white/10 px-5 py-4">
+          <div className="flex items-center justify-between border-b border-theme-border px-5 py-4">
             <div>
-              <h3 className="text-sm font-semibold text-white">Advanced Filters</h3>
-              <p className="mt-1 text-xs text-slate-400">Refine tasks by keyword, statuses, and estimate range.</p>
+              <h3 className="text-sm font-semibold text-content-primary">Advanced Filters</h3>
+              <p className="mt-1 text-xs text-content-secondary">Refine tasks by keyword, statuses, and estimate range.</p>
             </div>
             <button
               onClick={onClose}
-              className="rounded-md border border-white/10 p-1.5 text-slate-400 transition-colors hover:border-white/20 hover:text-slate-200"
+              className="rounded-md border border-theme-border p-1.5 text-content-secondary transition-colors hover:border-theme-border hover:text-content-secondary"
             >
               <X size={14} />
             </button>
@@ -65,7 +65,7 @@ export function TaskAdvancedFilters({
 
           <div className="flex-1 space-y-6 overflow-y-auto px-5 py-5 custom-scrollbar">
             <div className="space-y-2">
-              <label className="text-xs font-semibold uppercase tracking-wide text-slate-400">Keyword</label>
+              <label className="text-xs font-semibold uppercase tracking-wide text-content-secondary">Keyword</label>
               <Input
                 value={draft.keyword}
                 onChange={(event) =>
@@ -75,12 +75,12 @@ export function TaskAdvancedFilters({
                   }))
                 }
                 placeholder="Title, description, project, assignee..."
-                className="bg-white/5 border-white/10 text-sm focus:border-emerald-400/40"
+                className="bg-surface-sunken border-theme-border text-sm focus:border-theme-accent"
               />
             </div>
 
             <div className="space-y-2">
-              <label className="text-xs font-semibold uppercase tracking-wide text-slate-400">Statuses</label>
+              <label className="text-xs font-semibold uppercase tracking-wide text-content-secondary">Statuses</label>
               <div className="grid grid-cols-2 gap-2">
                 {[
                   { label: "To Do", value: TaskStatus.TODO },
@@ -96,8 +96,8 @@ export function TaskAdvancedFilters({
                       className={cn(
                         "rounded-lg border px-3 py-2 text-left text-xs font-medium transition-colors",
                         selected
-                          ? "border-emerald-500/40 bg-emerald-500/10 text-emerald-300"
-                          : "border-white/10 bg-white/5 text-slate-300 hover:border-white/20",
+                          ? "border-theme-accent bg-action-subtle text-theme-accent"
+                          : "border-theme-border bg-surface-sunken text-content-secondary hover:border-theme-border",
                       )}
                     >
                       {option.label}
@@ -108,7 +108,7 @@ export function TaskAdvancedFilters({
             </div>
 
             <div className="space-y-2">
-              <label className="text-xs font-semibold uppercase tracking-wide text-slate-400">Estimated Hours</label>
+              <label className="text-xs font-semibold uppercase tracking-wide text-content-secondary">Estimated Hours</label>
               <div className="grid grid-cols-2 gap-2">
                 <Input
                   type="number"
@@ -122,7 +122,7 @@ export function TaskAdvancedFilters({
                     }))
                   }
                   placeholder="Min"
-                  className="bg-white/5 border-white/10 text-sm focus:border-emerald-400/40"
+                  className="bg-surface-sunken border-theme-border text-sm focus:border-theme-accent"
                 />
                 <Input
                   type="number"
@@ -136,17 +136,17 @@ export function TaskAdvancedFilters({
                     }))
                   }
                   placeholder="Max"
-                  className="bg-white/5 border-white/10 text-sm focus:border-emerald-400/40"
+                  className="bg-surface-sunken border-theme-border text-sm focus:border-theme-accent"
                 />
               </div>
             </div>
           </div>
 
-          <div className="flex items-center justify-between gap-2 border-t border-white/10 px-5 py-4">
+          <div className="flex items-center justify-between gap-2 border-t border-theme-border px-5 py-4">
             <Button
               variant="outline"
               onClick={onReset}
-              className="px-6 text-xs border-white/10 text-slate-300 hover:bg-white/5"
+              className="px-6 text-xs border-theme-border text-content-secondary hover:bg-surface-sunken"
             >
               Reset
             </Button>

@@ -14,10 +14,10 @@ interface GaugeChartProps {
 }
 
 const statusColors = {
-  UP: "text-emerald-400 drop-shadow-[0_0_8px_rgba(52,211,153,0.5)]",
-  DEGRADED: "text-amber-400 drop-shadow-[0_0_8px_rgba(251,191,36,0.5)]",
-  DOWN: "text-rose-400 drop-shadow-[0_0_8px_rgba(244,63,94,0.5)]",
-  DISABLED: "text-slate-500",
+  UP: "text-theme-accent drop-shadow-[0_0_8px_rgba(52,211,153,0.5)]",
+  DEGRADED: "text-status-warning-text drop-shadow-[0_0_8px_rgba(251,191,36,0.5)]",
+  DOWN: "text-status-danger-text drop-shadow-[0_0_8px_rgba(244,63,94,0.5)]",
+  DISABLED: "text-content-muted",
 };
 
 export function GaugeChart({
@@ -38,7 +38,7 @@ export function GaugeChart({
         : status === "DOWN"
           ? 15
           : 0;
-  
+
   let colorClass = statusColors[status];
   if (isFractional) {
     if (percent < 70) colorClass = statusColors.UP;

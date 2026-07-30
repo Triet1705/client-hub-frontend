@@ -52,7 +52,7 @@ function TrustRing({ value, isLoading }: { value: number; isLoading?: boolean })
   return (
     <div className="relative flex size-40 items-center justify-center">
       <svg className="size-full -rotate-90" viewBox="0 0 100 100" aria-hidden="true">
-        <circle cx="50" cy="50" r={radius} fill="transparent" stroke="currentColor" strokeWidth="6" className="text-slate-800" />
+        <circle cx="50" cy="50" r={radius} fill="transparent" stroke="currentColor" strokeWidth="6" className="text-theme-border" />
         <circle
           cx="50"
           cy="50"
@@ -63,12 +63,12 @@ function TrustRing({ value, isLoading }: { value: number; isLoading?: boolean })
           strokeLinecap="round"
           strokeDasharray={circumference}
           strokeDashoffset={isLoading ? circumference * 0.35 : offset}
-          className="text-emerald-400 drop-shadow-[0_0_12px_rgba(16,185,129,0.35)]"
+          className="text-theme-accent drop-shadow-[0_0_12px_rgba(16,185,129,0.35)]"
         />
       </svg>
       <div className="absolute text-center">
-        <p className="text-4xl font-bold tracking-tight text-white">{isLoading ? "--" : normalized}</p>
-        <p className="font-mono text-[10px] uppercase tracking-widest text-slate-500">Trust score</p>
+        <p className="text-4xl font-bold tracking-tight text-content-primary">{isLoading ? "--" : normalized}</p>
+        <p className="font-mono text-[10px] uppercase tracking-widest text-content-muted">Trust score</p>
       </div>
     </div>
   );
@@ -88,9 +88,9 @@ function MetricTile({
   tone?: "emerald" | "amber" | "slate";
 }) {
   const toneClass = {
-    emerald: "text-emerald-400 bg-emerald-500/10 ring-emerald-500/20",
-    amber: "text-amber-400 bg-amber-500/10 ring-amber-500/20",
-    slate: "text-slate-300 bg-slate-500/10 ring-slate-500/20",
+    emerald: "text-theme-accent bg-action-subtle ring-theme-accent",
+    amber: "text-status-warning-text bg-status-warning-surface ring-status-warning-border",
+    slate: "text-content-secondary bg-status-neutral-surface ring-status-neutral-border",
   }[tone];
 
   return (
@@ -116,18 +116,18 @@ function EmptyPanel({ title, description }: { title: string; description: string
   );
 }
 
-function ClientProfile({ 
-  me, 
-  trust, 
-  responseRate, 
-  trustLoading, 
-  responseLoading 
-}: { 
-  me: CurrentUser, 
-  trust: TrustScoreResponse | undefined, 
-  responseRate: ResponseRateResponse | undefined, 
-  trustLoading: boolean, 
-  responseLoading: boolean 
+function ClientProfile({
+  me,
+  trust,
+  responseRate,
+  trustLoading,
+  responseLoading
+}: {
+  me: CurrentUser,
+  trust: TrustScoreResponse | undefined,
+  responseRate: ResponseRateResponse | undefined,
+  trustLoading: boolean,
+  responseLoading: boolean
 }) {
   const trustScore = trust?.trustScore ?? 0;
   const responseScore = responseRate?.responseRate ?? 0;
@@ -139,7 +139,7 @@ function ClientProfile({
           <div className="flex items-start gap-4">
             <UserAvatar name={me.fullName || me.email} sizeClass="h-16 w-16 text-lg" />
             <div>
-              <p className="text-xs font-bold uppercase tracking-widest text-emerald-400">Client identity</p>
+              <p className="text-xs font-bold uppercase tracking-widest text-theme-accent">Client identity</p>
               <h1 className="mt-2 text-3xl font-bold text-content-primary">{me.fullName || me.email}</h1>
               <p className="mt-2 max-w-2xl text-content-secondary">
                 {me.profile.headline || "Add a client headline in settings so collaborators understand your project context."}
@@ -184,16 +184,16 @@ function AdminProfile({ me }: { me: CurrentUser }) {
   return (
     <div className="mx-auto max-w-4xl space-y-6">
       <section className="relative overflow-hidden rounded-3xl bg-surface-elevated/80 p-8 shadow-2xl shadow-black/20 ring-1 ring-theme-border">
-        <div className="absolute right-0 top-0 h-48 w-48 rounded-full bg-emerald-500/10 blur-3xl" />
+        <div className="absolute right-0 top-0 h-48 w-48 rounded-full bg-action-subtle blur-3xl" />
         <div className="relative flex items-start gap-5">
           <UserAvatar name={me.fullName || me.email} sizeClass="h-20 w-20 text-xl" />
           <div className="flex-1">
-            <p className="text-xs font-bold uppercase tracking-widest text-emerald-400">System Administrator</p>
-            <h1 className="mt-2 text-3xl font-bold text-white">{me.fullName || me.email}</h1>
+            <p className="text-xs font-bold uppercase tracking-widest text-theme-accent">System Administrator</p>
+            <h1 className="mt-2 text-3xl font-bold text-content-primary">{me.fullName || me.email}</h1>
             <p className="mt-2 text-content-muted">Admin account configured for system oversight and management.</p>
-            
+
             <div className="mt-6 flex flex-wrap gap-4">
-              <Link href="/admin/settings" className="inline-flex rounded-xl bg-emerald-500 px-5 py-2.5 text-sm font-semibold text-white hover:bg-emerald-600 transition-colors">
+              <Link href="/admin/settings" className="inline-flex rounded-xl bg-action-primary px-5 py-2.5 text-sm font-semibold text-action-primary-foreground hover:bg-action-primary-hover transition-colors">
                 Open Admin Portal
               </Link>
               <Link href="/dashboard" className="inline-flex rounded-xl border border-theme-border bg-surface-base px-5 py-2.5 text-sm font-semibold text-content-primary hover:bg-surface-elevated transition-colors">
@@ -203,7 +203,7 @@ function AdminProfile({ me }: { me: CurrentUser }) {
           </div>
         </div>
       </section>
-      
+
       <div className="grid gap-4 md:grid-cols-2">
         <MetricTile label="System Access" value="Full" helper="Unrestricted workspace access" icon={ShieldCheck} tone="emerald" />
         <MetricTile label="Security" value="Active" helper="Admin privileges verified" icon={BadgeCheck} tone="emerald" />
@@ -255,27 +255,27 @@ export default function ProfilePage() {
     <div className="mx-auto max-w-6xl space-y-6">
       <div className="grid gap-6 lg:grid-cols-12">
         <section className="relative overflow-hidden rounded-3xl bg-surface-elevated/80 p-8 shadow-2xl shadow-black/20 ring-1 ring-theme-border lg:col-span-8">
-          <div className="absolute right-0 top-0 h-48 w-48 rounded-full bg-emerald-500/10 blur-3xl" />
+          <div className="absolute right-0 top-0 h-48 w-48 rounded-full bg-action-subtle blur-3xl" />
           <div className="relative flex flex-col gap-8 md:flex-row">
             <div className="relative shrink-0">
               <div className="flex h-36 w-36 items-center justify-center rounded-3xl border border-theme-border bg-surface-base/70 shadow-xl shadow-black/20 md:h-40 md:w-40">
                 <UserAvatar name={displayName} sizeClass="h-28 w-28 text-3xl" />
               </div>
-              <span className="absolute -bottom-2 -right-2 rounded-full bg-emerald-500 p-2 text-white shadow-lg shadow-emerald-500/30">
+              <span className="absolute -bottom-2 -right-2 rounded-full bg-action-primary p-2 text-action-primary-foreground shadow-lg shadow-emerald-500/30">
                 <BadgeCheck className="h-5 w-5" />
               </span>
             </div>
             <div className="min-w-0 flex-1">
               <div className="flex flex-wrap items-center gap-3">
-                <span className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-emerald-300">
+                <span className="rounded-full border border-theme-accent bg-action-subtle px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-theme-accent">
                   Public Portfolio
                 </span>
                 <span className="rounded-full border border-theme-border bg-surface-base/70 px-3 py-1 font-mono text-[10px] text-content-muted">
                   {walletLabel}
                 </span>
               </div>
-              <h1 className="mt-4 text-4xl font-bold tracking-tight text-white">{displayName}</h1>
-              <p className="mt-2 text-lg font-semibold text-emerald-300">
+              <h1 className="mt-4 text-4xl font-bold tracking-tight text-content-primary">{displayName}</h1>
+              <p className="mt-2 text-lg font-semibold text-theme-accent">
                 {me.profile.headline || "Freelancer profile headline not configured"}
               </p>
               <p className="mt-4 max-w-2xl whitespace-pre-line text-sm leading-7 text-content-secondary">
@@ -291,7 +291,7 @@ export default function ProfilePage() {
                   {me.walletAddress ? "Wallet configured" : "Wallet missing"}
                 </span>
                 {me.profile.portfolioUrl ? (
-                  <Link href={me.profile.portfolioUrl} target="_blank" className="inline-flex items-center gap-2 rounded-full bg-emerald-500/10 px-3 py-1.5 text-emerald-300 ring-1 ring-emerald-500/20 hover:text-emerald-200">
+                  <Link href={me.profile.portfolioUrl} target="_blank" className="inline-flex items-center gap-2 rounded-full bg-action-subtle px-3 py-1.5 text-theme-accent ring-1 ring-theme-accent hover:text-theme-accent">
                     Portfolio <ExternalLink className="h-3.5 w-3.5" />
                   </Link>
                 ) : null}
@@ -302,12 +302,12 @@ export default function ProfilePage() {
 
         <section className="flex flex-col items-center justify-center rounded-3xl bg-surface-elevated/80 p-6 text-center shadow-2xl shadow-black/20 ring-1 ring-theme-border lg:col-span-4">
           <p className="mb-6 inline-flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-content-muted">
-            <ShieldCheck className="h-4 w-4 text-emerald-400" />
+            <ShieldCheck className="h-4 w-4 text-theme-accent" />
             Integrity Score
           </p>
           <TrustRing value={trustScore} isLoading={trustLoading} />
           <div className="mt-6 flex flex-col items-center gap-2">
-            <span className="rounded-full border border-emerald-500/20 bg-emerald-500/10 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-emerald-300">
+            <span className="rounded-full border border-theme-accent bg-action-subtle px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-theme-accent">
               {trust?.paidInvoices ?? 0}/{trust?.totalInvoices ?? 0} paid invoices
             </span>
             <span className="rounded-full border border-theme-border bg-surface-base/70 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-content-muted">
@@ -343,7 +343,7 @@ export default function ProfilePage() {
         <section className="rounded-3xl bg-surface-elevated/80 p-6 ring-1 ring-theme-border">
           <div className="mb-5 flex items-center justify-between gap-3">
             <h2 className="flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-content-primary">
-              <BadgeCheck className="h-5 w-5 text-emerald-400" />
+              <BadgeCheck className="h-5 w-5 text-theme-accent" />
               Skills & Expertise
             </h2>
             <span className="rounded-full bg-surface-base/60 px-2 py-1 font-mono text-[9px] uppercase text-content-muted ring-1 ring-theme-border">
@@ -353,9 +353,9 @@ export default function ProfilePage() {
           {skills.length > 0 ? (
             <div className="flex flex-wrap gap-3">
               {skills.map((skill) => (
-                <span key={skill} className="inline-flex items-center gap-2 rounded-xl border border-emerald-500/25 bg-emerald-500/10 px-3 py-2 font-mono text-xs font-semibold text-emerald-300">
+                <span key={skill} className="inline-flex items-center gap-2 rounded-xl border border-theme-accent bg-action-subtle px-3 py-2 font-mono text-xs font-semibold text-theme-accent">
                   {skill}
-                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+                  <span className="h-1.5 w-1.5 rounded-full bg-status-success-text" />
                 </span>
               ))}
             </div>
@@ -373,7 +373,7 @@ export default function ProfilePage() {
         <section className="rounded-3xl bg-surface-elevated/80 p-6 ring-1 ring-theme-border">
           <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <h2 className="flex items-center gap-2 text-lg font-bold text-content-primary">
-              <Award className="h-5 w-5 text-emerald-400" />
+              <Award className="h-5 w-5 text-theme-accent" />
               Verified Work Certificates
             </h2>
             <Link href="/settings" className="rounded-xl border border-theme-border px-3 py-2 text-sm font-semibold text-content-primary hover:bg-surface-elevated">

@@ -17,7 +17,7 @@ function FlagCard({ flag }: { flag: AdminFeatureFlag }) {
         </div>
         <span className={cn(
           "shrink-0 rounded-md px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest",
-          flag.enabled ? "bg-emerald-500/10 text-emerald-300" : "bg-slate-500/10 text-slate-300",
+          flag.enabled ? "bg-action-subtle text-theme-accent" : "bg-status-neutral-surface text-content-secondary",
         )}>
           {flag.status}
         </span>
@@ -48,7 +48,7 @@ export default function AdminFlagsPage() {
 
   if (isError || !flags) {
     return (
-      <div className="rounded-lg border border-rose-500/20 bg-rose-500/10 p-5 text-sm text-rose-200">
+      <div className="rounded-lg border border-status-danger-border bg-status-danger-surface p-5 text-sm text-status-danger-text">
         Feature flags are unavailable.
       </div>
     );

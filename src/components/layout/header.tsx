@@ -26,21 +26,21 @@ export function Header() {
         <div className="h-6 w-px bg-theme-border hidden md:block"></div>
 
         <div className="relative flex items-center">
-          <button 
+          <button
             onClick={() => setIsNotificationPanelOpen(!isNotificationPanelOpen)}
             className="relative rounded-full p-2 text-content-secondary hover:bg-surface-elevated hover:text-content-primary transition-colors"
           >
             <NotificationBellIcon className="h-5 w-5" />
             {unreadCount > 0 && (
-              <span className="absolute -top-1 -right-1 flex min-w-5 h-5 items-center justify-center rounded-full bg-red-500 px-1 ring-2 ring-[#020617] text-[10px] font-bold leading-none text-white">
+              <span className="absolute -top-1 -right-1 flex min-w-5 h-5 items-center justify-center rounded-full bg-action-danger px-1 ring-2 ring-surface-base text-[10px] font-bold leading-none text-action-danger-foreground">
                 {unreadCount}
               </span>
             )}
           </button>
-          
-          <NotificationPanel 
-            isOpen={isNotificationPanelOpen} 
-            onClose={() => setIsNotificationPanelOpen(false)} 
+
+          <NotificationPanel
+            isOpen={isNotificationPanelOpen}
+            onClose={() => setIsNotificationPanelOpen(false)}
           />
         </div>
 

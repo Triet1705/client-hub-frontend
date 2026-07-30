@@ -26,16 +26,16 @@ import type {
 import { cn, formatFiat } from "@/lib/utils";
 
 const statusTone = {
-  UP: "border-emerald-500/30 bg-emerald-500/10 text-emerald-300",
-  DEGRADED: "border-amber-500/30 bg-amber-500/10 text-amber-300",
-  DOWN: "border-rose-500/30 bg-rose-500/10 text-rose-300",
+  UP: "border-theme-accent bg-action-subtle text-theme-accent",
+  DEGRADED: "border-status-warning-border bg-status-warning-surface text-status-warning-text",
+  DOWN: "border-status-danger-border bg-status-danger-surface text-status-danger-text",
 };
 
 const severityTone = {
-  INFO: "border-sky-500/25 bg-sky-500/10 text-sky-300",
-  SUCCESS: "border-emerald-500/25 bg-emerald-500/10 text-emerald-300",
-  WARNING: "border-amber-500/25 bg-amber-500/10 text-amber-300",
-  CRITICAL: "border-rose-500/25 bg-rose-500/10 text-rose-300",
+  INFO: "border-status-info-border bg-status-info-surface text-status-info-text",
+  SUCCESS: "border-theme-accent bg-action-subtle text-theme-accent",
+  WARNING: "border-status-warning-border bg-status-warning-surface text-status-warning-text",
+  CRITICAL: "border-status-danger-border bg-status-danger-surface text-status-danger-text",
 };
 
 function StatusBadge({ status }: { status: "UP" | "DEGRADED" | "DOWN" }) {
@@ -147,7 +147,7 @@ function AlertsPanel({ alerts }: { alerts: AdminAlert[] }) {
       <SectionHeader title="Operational Alerts" />
       <div className="space-y-3">
         {alerts.length === 0 ? (
-          <div className="rounded-lg border border-emerald-500/20 bg-emerald-500/10 p-4 text-sm text-emerald-200">
+          <div className="rounded-lg border border-theme-accent bg-action-subtle p-4 text-sm text-theme-accent">
             No active operational alerts.
           </div>
         ) : (
@@ -161,7 +161,7 @@ function AlertsPanel({ alerts }: { alerts: AdminAlert[] }) {
                 <SeverityBadge severity={alert.severity} />
               </div>
               <div className="mt-3 flex gap-2 rounded-md bg-surface-elevated/70 p-3 text-xs text-content-secondary">
-                <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-amber-300" aria-hidden="true" />
+                <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-status-warning-text" aria-hidden="true" />
                 <span>{alert.recommendedAction}</span>
               </div>
             </div>
@@ -183,7 +183,7 @@ export default function AdminOverviewPage() {
 
   if (isError || !data) {
     return (
-      <div className="rounded-lg border border-rose-500/20 bg-rose-500/10 p-5 text-sm text-rose-200">
+      <div className="rounded-lg border border-status-danger-border bg-status-danger-surface p-5 text-sm text-status-danger-text">
         Admin control center is unavailable.
       </div>
     );

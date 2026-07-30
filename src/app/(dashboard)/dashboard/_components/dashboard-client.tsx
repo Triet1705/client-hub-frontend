@@ -77,16 +77,16 @@ export function DashboardClient() {
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div>
           {/* #3: Role-specific heading */}
-          <h1 className="text-4xl md:text-5xl font-space-grotesk font-bold text-white tracking-tight drop-shadow-sm">
+          <h1 className="text-4xl md:text-5xl font-space-grotesk font-bold text-content-primary tracking-tight drop-shadow-sm">
             {greeting}
           </h1>
-          <p className="text-slate-400 mt-2 text-sm md:text-base max-w-xl leading-relaxed">{subtitle}</p>
+          <p className="text-content-secondary mt-2 text-sm md:text-base max-w-xl leading-relaxed">{subtitle}</p>
         </div>
         <div className="flex items-center gap-3 shrink-0">
           {canCreate && (
             <Link
               href="/projects"
-              className="flex items-center gap-2 bg-emerald-500 hover:bg-emerald-400 text-white px-5 py-2.5 rounded-xl text-sm font-bold transition-all shadow-lg shadow-emerald-900/20 hover:shadow-emerald-500/25 hover:-translate-y-0.5 active:translate-y-0"
+              className="flex items-center gap-2 rounded-xl bg-action-primary px-5 py-2.5 text-sm font-bold text-action-primary-foreground shadow-[0_8px_20px_var(--shadow-color)] transition-all hover:-translate-y-0.5 hover:bg-action-primary-hover hover:shadow-[0_10px_24px_var(--shadow-color)] active:translate-y-0"
             >
               <ActionPlusIcon className="w-4 h-4" />
               New Project
@@ -107,35 +107,35 @@ export function DashboardClient() {
       {/* ── #5: Asymmetric Stat Cards (1 large + 3 compact) ── */}
       <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
         {/* Primary / Large card */}
-        <div className="md:col-span-4 relative bg-slate-900/80 backdrop-blur-xl ring-1 ring-white/10 p-8 rounded-3xl flex flex-col justify-between shadow-2xl shadow-black overflow-hidden group">
+        <div className="md:col-span-4 relative bg-surface/80 backdrop-blur-xl ring-1 ring-theme-border p-8 rounded-3xl flex flex-col justify-between shadow-2xl shadow-black overflow-hidden group">
           {/* Subtle gradient background for depth */}
-          <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 via-transparent to-transparent opacity-50 pointer-events-none" />
-          <div className="absolute -top-24 -right-24 w-48 h-48 bg-emerald-500/10 blur-3xl rounded-full pointer-events-none group-hover:bg-emerald-500/20 transition-all duration-700" />
-          
+          <div className="absolute inset-0 bg-gradient-to-br from-action-subtle via-transparent to-transparent opacity-50 pointer-events-none" />
+          <div className="absolute -top-24 -right-24 w-48 h-48 bg-action-subtle blur-3xl rounded-full pointer-events-none group-hover:bg-action-subtle transition-all duration-700" />
+
           <div className="flex justify-between items-start mb-6 relative z-10">
-            <div className="p-3 bg-slate-950/50 ring-1 ring-white/10 rounded-2xl text-emerald-400 shadow-inner">
+            <div className="p-3 bg-surface-base/50 ring-1 ring-theme-border rounded-2xl text-theme-accent shadow-inner">
               <BlockchainPendingIcon className="w-8 h-8" />
             </div>
-            <div className="flex items-center gap-1.5 bg-emerald-500/10 ring-1 ring-emerald-500/20 px-3 py-1 rounded-full">
+            <div className="flex items-center gap-1.5 bg-action-subtle ring-1 ring-theme-accent px-3 py-1 rounded-full">
               <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-status-success-text opacity-75" />
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-status-success-text" />
               </span>
-              <span className="text-[10px] uppercase tracking-widest text-emerald-400 font-bold">
+              <span className="text-[10px] uppercase tracking-widest text-theme-accent font-bold">
                 On-Chain
               </span>
             </div>
           </div>
           <div className="relative z-10 mt-auto">
-            <h3 className="text-slate-400 text-sm font-medium">Escrow Locked (USDT)</h3>
-            <p className="text-4xl lg:text-5xl font-bold text-white mt-1 font-space-grotesk tracking-tight">
+            <h3 className="text-content-secondary text-sm font-medium">Escrow Locked (USDT)</h3>
+            <p className="text-4xl lg:text-5xl font-bold text-content-primary mt-1 font-space-grotesk tracking-tight">
               {statsLoading ? (
-                <span className="inline-block w-32 h-12 rounded-lg bg-slate-800 animate-pulse" />
+                <span className="inline-block w-32 h-12 rounded-lg bg-surface-elevated animate-pulse" />
               ) : (
                 formatCurrency(statsData?.escrowLocked ?? "0")
               )}
             </p>
-            <p className="text-xs text-slate-500 mt-3 max-w-xs leading-relaxed">
+            <p className="text-xs text-content-muted mt-3 max-w-xs leading-relaxed">
               Smart contract holds release on milestone approval. Fully secured on the blockchain.
             </p>
           </div>
@@ -147,7 +147,7 @@ export function DashboardClient() {
             label="Active Projects"
             value={statsData?.activeProjects ?? "—"}
             icon={NavProjectsIcon}
-            iconClassName="text-blue-400"
+            iconClassName="text-status-info-text"
             badge={{ label: "Active", variant: "emerald" }}
             isLoading={statsLoading}
           />
@@ -156,10 +156,10 @@ export function DashboardClient() {
             label="Pending Tasks"
             value={pendingTasks}
             icon={NavTasksIcon}
-            iconClassName="text-amber-400"
-            badge={{ 
-              label: pendingTasks === 0 ? "All clear" : `${pendingTasks} open`, 
-              variant: "amber" 
+            iconClassName="text-status-warning-text"
+            badge={{
+              label: pendingTasks === 0 ? "All clear" : `${pendingTasks} open`,
+              variant: "amber"
             }}
             isLoading={statsLoading}
           />
@@ -168,10 +168,10 @@ export function DashboardClient() {
             label="Awaiting Payment"
             value={formatCurrency(awaitingPayment)}
             icon={NavInvoicesIcon}
-            iconClassName="text-rose-400"
-            badge={{ 
-              label: parseFloat(awaitingPayment) > 0 ? "Action needed" : "All clear", 
-              variant: "rose" 
+            iconClassName="text-status-danger-text"
+            badge={{
+              label: parseFloat(awaitingPayment) > 0 ? "Action needed" : "All clear",
+              variant: "rose"
             }}
             isLoading={statsLoading}
           />
@@ -182,12 +182,12 @@ export function DashboardClient() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Recent Projects (spans 2/3) */}
         <div className="lg:col-span-2 space-y-6">
-          <div className="bg-slate-900/60 backdrop-blur-xl ring-1 ring-white/5 rounded-3xl p-7 shadow-2xl shadow-black/50 transition-all hover:bg-slate-900/80">
+          <div className="bg-surface/60 backdrop-blur-xl ring-1 ring-theme-border rounded-3xl p-7 shadow-2xl shadow-black/50 transition-all hover:bg-surface/80">
             <div className="flex items-center justify-between mb-8">
-              <h2 className="text-xl font-space-grotesk font-semibold text-slate-100">Recent Projects</h2>
+              <h2 className="text-xl font-space-grotesk font-semibold text-content-primary">Recent Projects</h2>
               <Link
                 href="/projects"
-                className="text-sm text-emerald-400 hover:text-emerald-300 font-bold transition-colors group flex items-center gap-1"
+                className="text-sm text-theme-accent hover:text-theme-accent font-bold transition-colors group flex items-center gap-1"
               >
                 View Directory <span className="group-hover:translate-x-1 transition-transform">→</span>
               </Link>
@@ -198,23 +198,23 @@ export function DashboardClient() {
                 {[1, 2, 3].map((i) => (
                   <div
                     key={i}
-                    className="h-20 w-full animate-pulse rounded-2xl bg-slate-800/50"
+                    className="h-20 w-full animate-pulse rounded-2xl bg-surface-elevated/50"
                   />
                 ))}
               </div>
             ) : recentProjects.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-16 border-2 border-dashed border-white/5 bg-white/[0.02] rounded-3xl">
-                <div className="p-4 bg-slate-800/50 rounded-full mb-4 ring-1 ring-white/10">
-                  <NavProjectsIcon className="w-8 h-8 text-slate-400" />
+              <div className="flex flex-col items-center justify-center py-16 border-2 border-dashed border-theme-border bg-surface-elevated/50 rounded-3xl">
+                <div className="p-4 bg-surface-elevated/50 rounded-full mb-4 ring-1 ring-theme-border">
+                  <NavProjectsIcon className="w-8 h-8 text-content-secondary" />
                 </div>
-                <p className="text-slate-200 font-medium text-lg">No projects found</p>
-                <p className="text-slate-500 text-sm mt-2 max-w-sm text-center">
+                <p className="text-content-secondary font-medium text-lg">No projects found</p>
+                <p className="text-content-muted text-sm mt-2 max-w-sm text-center">
                   Your workspace is empty. Create a new project to start collaborating.
                 </p>
                 {canCreate && (
                    <Link
                     href="/projects"
-                    className="mt-6 flex items-center gap-2 bg-slate-800 hover:bg-slate-700 text-white px-5 py-2.5 rounded-xl text-sm font-bold transition-colors ring-1 ring-white/10"
+                    className="mt-6 flex items-center gap-2 bg-surface-elevated hover:bg-surface-sunken text-content-primary px-5 py-2.5 rounded-xl text-sm font-bold transition-colors ring-1 ring-theme-border"
                   >
                     <ActionPlusIcon className="w-4 h-4" />
                     Create First Project

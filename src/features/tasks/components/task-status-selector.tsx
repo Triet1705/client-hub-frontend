@@ -26,9 +26,9 @@ export function TaskStatusSelector({
           className={cn(
             "px-3 py-2 rounded-lg border text-[10px] font-bold uppercase tracking-wider transition-all",
             activeStatus === s
-              ? "border-emerald-500 bg-emerald-500/10 text-emerald-400"
-              : "border-[#1f2937] text-slate-500 hover:border-slate-600 hover:text-slate-300",
-            disabled && "opacity-50 cursor-not-allowed hover:border-[#1f2937] hover:text-slate-500"
+              ? "border-theme-accent bg-action-subtle text-theme-accent"
+              : "border-theme-border text-content-muted hover:border-theme-border hover:text-content-secondary",
+            disabled && "opacity-50 cursor-not-allowed hover:border-theme-border hover:text-content-muted"
           )}
         >
           {STATUS_LABELS[s]}

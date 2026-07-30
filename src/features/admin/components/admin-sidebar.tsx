@@ -124,7 +124,7 @@ export function AdminSidebar() {
         <button
           type="button"
           aria-label="Close admin navigation"
-          className="fixed inset-0 z-40 bg-black/60 md:hidden"
+          className="fixed inset-0 z-40 bg-[var(--overlay)] md:hidden"
           onClick={() => setIsMobileOpen(false)}
         />
       )}
@@ -237,7 +237,7 @@ export function AdminSidebar() {
         <button
           onClick={logout}
           className={cn(
-            "w-full flex items-center justify-center rounded-lg py-2 text-sm font-medium text-red-400 hover:bg-red-500/10 hover:text-red-300 transition-colors",
+            "w-full flex items-center justify-center rounded-lg py-2 text-sm font-medium text-status-danger-text hover:bg-status-danger-surface hover:text-status-danger-text transition-colors",
             isCollapsed ? "px-2" : "gap-2 px-3",
           )}
           title={isCollapsed ? "Terminate Session" : undefined}

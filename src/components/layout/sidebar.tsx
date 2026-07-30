@@ -103,13 +103,13 @@ export function Sidebar() {
   return (
     <aside
       className={cn(
-        "fixed inset-y-0 left-0 z-50 border-r border-slate-800 bg-[#020617]/95 backdrop-blur-xl flex flex-col transition-[width] duration-300",
+        "fixed inset-y-0 left-0 z-50 border-r border-theme-border bg-surface-base/95 backdrop-blur-xl flex flex-col transition-[width] duration-300",
         isCollapsed ? "w-20" : "w-64",
       )}
     >
       <div
         className={cn(
-          "flex h-16 shrink-0 items-center border-b border-slate-800",
+          "flex h-16 shrink-0 items-center border-b border-theme-border",
           isCollapsed ? "px-3" : "px-4",
         )}
       >
@@ -125,7 +125,7 @@ export function Sidebar() {
           type="button"
           onClick={() => setIsCollapsed((current) => !current)}
           className={cn(
-            "inline-flex h-8 w-8 items-center justify-center rounded-md border border-slate-700 bg-slate-900/70 text-slate-300 hover:border-emerald-500/40 hover:text-emerald-300 transition-colors",
+            "inline-flex h-8 w-8 items-center justify-center rounded-md border border-theme-border bg-surface/70 text-content-secondary hover:border-theme-accent hover:text-theme-accent transition-colors",
             "ml-auto",
           )}
           aria-label={isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
@@ -137,9 +137,9 @@ export function Sidebar() {
       <div className={cn("flex-1 overflow-y-auto py-4 space-y-1", isCollapsed ? "px-2" : "px-3")}>
         {!isMounted ? (
           <div className="space-y-2 px-2">
-            <div className="h-10 w-full animate-pulse rounded-lg bg-slate-800/50" />
-            <div className="h-10 w-full animate-pulse rounded-lg bg-slate-800/50" />
-            <div className="h-10 w-full animate-pulse rounded-lg bg-slate-800/50" />
+            <div className="h-10 w-full animate-pulse rounded-lg bg-surface-elevated/50" />
+            <div className="h-10 w-full animate-pulse rounded-lg bg-surface-elevated/50" />
+            <div className="h-10 w-full animate-pulse rounded-lg bg-surface-elevated/50" />
           </div>
         ) : (
           authorizedMenus.map((item) => {
@@ -156,10 +156,10 @@ export function Sidebar() {
                   "flex items-center rounded-lg py-2.5 text-sm font-medium transition-all duration-200 group",
                   isCollapsed ? "justify-center px-2" : "gap-3 px-3",
                   isPending
-                    ? "bg-slate-800/70 text-emerald-300 pointer-events-none"
+                    ? "bg-surface-elevated/70 text-theme-accent pointer-events-none"
                     : isActive
-                    ? "bg-emerald-500/10 text-emerald-400"
-                    : "text-slate-400 hover:bg-slate-800/50 hover:text-white",
+                    ? "bg-action-subtle text-theme-accent"
+                    : "text-content-secondary hover:bg-surface-elevated/50 hover:text-content-primary",
                 )}
                 aria-busy={isPending}
               >
@@ -167,10 +167,10 @@ export function Sidebar() {
                   className={cn(
                     "h-5 w-5 transition-colors",
                     isPending
-                      ? "text-emerald-300 animate-pulse"
+                      ? "text-theme-accent animate-pulse"
                       : isActive
-                      ? "text-emerald-400"
-                      : "text-slate-500 group-hover:text-slate-300",
+                      ? "text-theme-accent"
+                      : "text-content-muted group-hover:text-content-secondary",
                   )}
                   isActive={isActive}
                 />
@@ -181,23 +181,23 @@ export function Sidebar() {
         )}
       </div>
 
-      <div className="shrink-0 border-t border-slate-800 p-3">
+      <div className="shrink-0 border-t border-theme-border p-3">
         <div
           className={cn(
-            "flex items-center rounded-lg bg-slate-900/50 mb-2",
+            "flex items-center rounded-lg bg-surface/50 mb-2",
             isCollapsed ? "justify-center px-2 py-3" : "gap-3 px-3 py-2",
           )}
           title={isCollapsed && isMounted ? user?.email : undefined}
         >
-          <div className="h-8 w-8 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-500 font-bold uppercase shrink-0">
+          <div className="h-8 w-8 rounded-full bg-action-subtle flex items-center justify-center text-theme-accent font-bold uppercase shrink-0">
             {isMounted && user?.email?.charAt(0)}
           </div>
           {!isCollapsed ? (
             <div className="flex flex-col truncate">
-              <span className="text-sm font-medium text-white truncate">
+              <span className="text-sm font-medium text-content-primary truncate">
                 {isMounted ? user?.email : "Loading..."}
               </span>
-              <span className="text-[10px] uppercase tracking-wider text-slate-500 font-bold">
+              <span className="text-[10px] uppercase tracking-wider text-content-muted font-bold">
                 {isMounted ? user?.role : "SESSION"}
               </span>
             </div>
@@ -207,7 +207,7 @@ export function Sidebar() {
         <button
           onClick={logout}
           className={cn(
-            "w-full flex items-center justify-center rounded-lg py-2 text-sm font-medium text-red-400 hover:bg-red-500/10 hover:text-red-300 transition-colors",
+            "w-full flex items-center justify-center rounded-lg py-2 text-sm font-medium text-status-danger-text hover:bg-status-danger-surface hover:text-status-danger-text transition-colors",
             isCollapsed ? "px-2" : "gap-2 px-3",
           )}
           title={isCollapsed ? "Terminate Session" : undefined}

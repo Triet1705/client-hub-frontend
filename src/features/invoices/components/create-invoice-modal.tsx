@@ -173,7 +173,7 @@ export function CreateInvoiceModal({ isOpen, onClose, defaultProjectId }: Create
         variant="ghost"
         onClick={handleClose}
         disabled={isPending}
-        className="px-6 text-slate-400 hover:text-white"
+        className="px-6 text-content-secondary hover:text-content-primary"
       >
         Cancel
       </Button>
@@ -209,7 +209,7 @@ export function CreateInvoiceModal({ isOpen, onClose, defaultProjectId }: Create
             placeholder="— Select a project —"
             loading={loadingProjects}
           />
-          {fieldErrors.projectId && <p className="text-xs text-rose-400 mt-2">{fieldErrors.projectId}</p>}
+          {fieldErrors.projectId && <p className="text-xs text-status-danger-text mt-2">{fieldErrors.projectId}</p>}
         </FormField>
 
         {/* Title */}
@@ -221,7 +221,7 @@ export function CreateInvoiceModal({ isOpen, onClose, defaultProjectId }: Create
             placeholder="e.g. Phase 1 Development"
             disabled={isPending}
           />
-          {fieldErrors.title && <p className="text-xs text-rose-400 mt-2">{fieldErrors.title}</p>}
+          {fieldErrors.title && <p className="text-xs text-status-danger-text mt-2">{fieldErrors.title}</p>}
         </FormField>
 
         {/* Description */}
@@ -233,7 +233,7 @@ export function CreateInvoiceModal({ isOpen, onClose, defaultProjectId }: Create
             placeholder="Optional notes for this invoice"
             disabled={isPending}
           />
-          {fieldErrors.description && <p className="text-xs text-rose-400 mt-2">{fieldErrors.description}</p>}
+          {fieldErrors.description && <p className="text-xs text-status-danger-text mt-2">{fieldErrors.description}</p>}
         </FormField>
 
         {/* Amount + Due Date */}
@@ -250,11 +250,11 @@ export function CreateInvoiceModal({ isOpen, onClose, defaultProjectId }: Create
               disabled={isPending}
             />
             {amount && !amountIsValid ? (
-              <p className="text-xs text-rose-400 mt-2">Use whole-dollar amounts greater than zero.</p>
+              <p className="text-xs text-status-danger-text mt-2">Use whole-dollar amounts greater than zero.</p>
             ) : null}
-            {fieldErrors.amount && <p className="text-xs text-rose-400 mt-2">{fieldErrors.amount}</p>}
+            {fieldErrors.amount && <p className="text-xs text-status-danger-text mt-2">{fieldErrors.amount}</p>}
             {selectedProject?.budget ? (
-              <p className="mt-2 text-xs text-slate-500">
+              <p className="mt-2 text-xs text-content-muted">
                 Project budget: {formatFiat(selectedProject.budget)}. Existing non-refunded invoices also reserve this budget.
               </p>
             ) : null}
@@ -274,7 +274,7 @@ export function CreateInvoiceModal({ isOpen, onClose, defaultProjectId }: Create
               disabledDays={{ before: tomorrow }}
               isError={!!fieldErrors.dueDate}
             />
-            {fieldErrors.dueDate && <p className="text-xs text-rose-400 mt-2">{fieldErrors.dueDate}</p>}
+            {fieldErrors.dueDate && <p className="text-xs text-status-danger-text mt-2">{fieldErrors.dueDate}</p>}
           </FormField>
         </div>
 
@@ -287,15 +287,15 @@ export function CreateInvoiceModal({ isOpen, onClose, defaultProjectId }: Create
               onClick={() => setPaymentMethod(PaymentMethod.FIAT)}
               className={`flex flex-col items-start p-4 rounded-xl border transition-all ${
                 paymentMethod === PaymentMethod.FIAT
-                  ? "bg-slate-800/80 border-emerald-500 ring-1 ring-emerald-500/20"
-                  : "bg-slate-900/40 border-slate-700/50 hover:bg-slate-800/50 hover:border-slate-600"
+                  ? "bg-surface-elevated/80 border-theme-accent ring-1 ring-theme-accent"
+                  : "bg-surface/40 border-theme-border/50 hover:bg-surface-elevated/50 hover:border-theme-border"
               }`}
             >
-              <Building2 className={`w-5 h-5 mb-2 ${paymentMethod === PaymentMethod.FIAT ? "text-emerald-400" : "text-slate-400"}`} />
-              <span className={`text-sm font-medium ${paymentMethod === PaymentMethod.FIAT ? "text-slate-100" : "text-slate-300"}`}>
+              <Building2 className={`w-5 h-5 mb-2 ${paymentMethod === PaymentMethod.FIAT ? "text-theme-accent" : "text-content-secondary"}`} />
+              <span className={`text-sm font-medium ${paymentMethod === PaymentMethod.FIAT ? "text-content-primary" : "text-content-secondary"}`}>
                 Bank Transfer
               </span>
-              <span className="text-xs text-slate-500 mt-1">Standard FIAT payment</span>
+              <span className="text-xs text-content-muted mt-1">Standard FIAT payment</span>
             </button>
 
             {blockchainEnabled ? (
@@ -309,29 +309,29 @@ export function CreateInvoiceModal({ isOpen, onClose, defaultProjectId }: Create
                 }}
                 className={`flex flex-col items-start p-4 rounded-xl border transition-all ${
                   !canUseCrypto
-                    ? "bg-slate-900/20 border-slate-800 opacity-40 cursor-not-allowed"
+                    ? "bg-surface/20 border-theme-border opacity-40 cursor-not-allowed"
                     : paymentMethod === PaymentMethod.CRYPTO_ESCROW
-                      ? "bg-slate-800/80 border-emerald-500 ring-1 ring-emerald-500/20"
-                      : "bg-slate-900/40 border-slate-700/50 hover:bg-slate-800/50 hover:border-slate-600"
+                      ? "bg-surface-elevated/80 border-theme-accent ring-1 ring-theme-accent"
+                      : "bg-surface/40 border-theme-border/50 hover:bg-surface-elevated/50 hover:border-theme-border"
                 }`}
               >
                 <Wallet className={`w-5 h-5 mb-2 ${
                   !canUseCrypto
-                    ? "text-slate-600"
+                    ? "text-content-muted"
                     : paymentMethod === PaymentMethod.CRYPTO_ESCROW
-                      ? "text-emerald-400"
-                      : "text-slate-400"
+                      ? "text-theme-accent"
+                      : "text-content-secondary"
                 }`} />
                 <span className={`text-sm font-medium ${
                   !canUseCrypto
-                    ? "text-slate-600"
+                    ? "text-content-muted"
                     : paymentMethod === PaymentMethod.CRYPTO_ESCROW
-                      ? "text-slate-100"
-                      : "text-slate-300"
+                      ? "text-content-primary"
+                      : "text-content-secondary"
                 }`}>
                   Crypto Escrow
                 </span>
-                <span className="text-xs text-slate-500 mt-1">
+                <span className="text-xs text-content-muted mt-1">
                   {cryptoRequirementMessage}
                 </span>
               </button>
@@ -350,18 +350,18 @@ export function CreateInvoiceModal({ isOpen, onClose, defaultProjectId }: Create
                 placeholder="0x..."
                 disabled={isPending}
               />
-              <p className="text-xs text-slate-500 mt-2">
+              <p className="text-xs text-content-muted mt-2">
                 This address will receive funds when the client releases the escrow.
               </p>
               {walletAddress && !isAddress(walletAddress) ? (
-                <p className="text-xs text-rose-400 mt-2">Enter a valid Ethereum wallet address.</p>
+                <p className="text-xs text-status-danger-text mt-2">Enter a valid Ethereum wallet address.</p>
               ) : null}
               {walletAddress && isAddress(walletAddress) && !freelancerWalletIsDistinct ? (
-                <p className="text-xs text-rose-400 mt-2">
+                <p className="text-xs text-status-danger-text mt-2">
                   Freelancer wallet must be different from your bound client wallet.
                 </p>
               ) : null}
-              {fieldErrors.freelancerWalletAddress && <p className="text-xs text-rose-400 mt-2">{fieldErrors.freelancerWalletAddress}</p>}
+              {fieldErrors.freelancerWalletAddress && <p className="text-xs text-status-danger-text mt-2">{fieldErrors.freelancerWalletAddress}</p>}
             </FormField>
           </div>
         )}

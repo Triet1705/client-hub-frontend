@@ -1,11 +1,11 @@
 import { ProjectStatus } from "../types/project.types";
 
 export const PROJECT_STATUS_BADGE: Record<ProjectStatus, string> = {
-  [ProjectStatus.PLANNING]:   "text-slate-300 bg-slate-700/50 border-slate-600/40",
-  [ProjectStatus.IN_PROGRESS]:"text-emerald-400 bg-emerald-400/10 border-emerald-400/30",
-  [ProjectStatus.ON_HOLD]:    "text-amber-400 bg-amber-400/10 border-amber-400/20",
-  [ProjectStatus.COMPLETED]:  "text-blue-400 bg-blue-400/10 border-blue-400/20",
-  [ProjectStatus.CANCELLED]:  "text-rose-400 bg-rose-400/10 border-rose-400/20",
+  [ProjectStatus.PLANNING]:   "text-content-secondary bg-surface-sunken/50 border-theme-border/40",
+  [ProjectStatus.IN_PROGRESS]:"text-theme-accent bg-action-subtle border-theme-accent",
+  [ProjectStatus.ON_HOLD]:    "text-status-warning-text bg-status-warning-surface border-status-warning-border",
+  [ProjectStatus.COMPLETED]:  "text-status-info-text bg-status-info-surface border-status-info-border",
+  [ProjectStatus.CANCELLED]:  "text-status-danger-text bg-status-danger-surface border-status-danger-border",
 };
 
 export const PROJECT_STATUS_LABEL: Record<ProjectStatus, string> = {

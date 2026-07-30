@@ -28,24 +28,24 @@ export default function AdminProjectsPage() {
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="flex flex-col gap-2">
-        <h2 className="text-3xl font-bold tracking-tight text-white">Project Management</h2>
-        <p className="text-slate-400">
+        <h2 className="text-3xl font-bold tracking-tight text-content-primary">Project Management</h2>
+        <p className="text-content-secondary">
           View all projects across all tenants.
         </p>
       </div>
 
       <section className="grid grid-cols-1 xl:grid-cols-[18rem_minmax(0,1fr)] gap-6 items-start">
         <aside className="space-y-4 sticky top-24 z-10">
-          <div className="rounded-3xl bg-slate-900/60 backdrop-blur-xl ring-1 ring-white/5 shadow-2xl shadow-black/50 p-5 space-y-4">
+          <div className="rounded-3xl bg-surface/60 backdrop-blur-xl ring-1 ring-theme-border shadow-2xl shadow-black/50 p-5 space-y-4">
             <div className="flex items-center justify-between gap-3">
               <div>
-                <h2 className="text-sm font-bold uppercase tracking-widest text-slate-300">Filters</h2>
-                <p className="text-xs text-slate-500">Project controls</p>
+                <h2 className="text-sm font-bold uppercase tracking-widest text-content-secondary">Filters</h2>
+                <p className="text-xs text-content-muted">Project controls</p>
               </div>
               <button
                 type="button"
                 onClick={clearFilters}
-                className="text-[11px] font-bold text-slate-400 hover:text-white transition-colors"
+                className="text-[11px] font-bold text-content-secondary hover:text-content-primary transition-colors"
               >
                 Reset
               </button>
@@ -62,12 +62,12 @@ export default function AdminProjectsPage() {
                       onClick={() => setStatus(option.value)}
                       className={`w-full flex items-center justify-between rounded-md border px-3 py-2 text-left text-xs transition-colors ${
                         isActive
-                          ? "border-emerald-500/40 bg-emerald-500/10 text-emerald-200"
-                          : "border-slate-800 bg-slate-900/60 text-slate-300 hover:border-slate-700"
+                          ? "border-theme-accent bg-action-subtle text-theme-accent"
+                          : "border-theme-border bg-surface/60 text-content-secondary hover:border-theme-border"
                       }`}
                     >
                       <span className="inline-flex items-center gap-2">
-                        <CircleDot className={`h-3.5 w-3.5 ${isActive ? "text-emerald-300" : "text-slate-600"}`} />
+                        <CircleDot className={`h-3.5 w-3.5 ${isActive ? "text-theme-accent" : "text-content-muted"}`} />
                         {option.label}
                       </span>
                     </button>
@@ -78,13 +78,13 @@ export default function AdminProjectsPage() {
           </div>
         </aside>
 
-        <div className="bg-slate-900/60 backdrop-blur-xl ring-1 ring-white/5 shadow-2xl shadow-black/50 rounded-3xl overflow-hidden">
+        <div className="bg-surface/60 backdrop-blur-xl ring-1 ring-theme-border shadow-2xl shadow-black/50 rounded-3xl overflow-hidden">
           {hasAppliedFilters && (
-            <div className="px-6 py-3 border-b border-slate-800 bg-slate-950/40 flex items-center justify-between gap-3 flex-wrap">
-              <div className="flex items-center gap-2 flex-wrap text-xs text-slate-300">
-                <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Applied</span>
+            <div className="px-6 py-3 border-b border-theme-border bg-surface-base/40 flex items-center justify-between gap-3 flex-wrap">
+              <div className="flex items-center gap-2 flex-wrap text-xs text-content-secondary">
+                <span className="text-[10px] font-bold uppercase tracking-widest text-content-muted">Applied</span>
                 {(status as string) !== "ALL" && (
-                  <span className="px-2 py-1 rounded-md border border-emerald-500/30 bg-emerald-500/10 text-emerald-300">
+                  <span className="px-2 py-1 rounded-md border border-theme-accent bg-action-subtle text-theme-accent">
                     Status: {status}
                   </span>
                 )}
@@ -92,7 +92,7 @@ export default function AdminProjectsPage() {
               <button
                 type="button"
                 onClick={clearFilters}
-                className="text-[11px] font-bold text-slate-400 hover:text-white transition-colors"
+                className="text-[11px] font-bold text-content-secondary hover:text-content-primary transition-colors"
               >
                 Clear all
               </button>

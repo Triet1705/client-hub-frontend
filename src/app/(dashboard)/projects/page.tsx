@@ -52,7 +52,7 @@ function ProjectsPageContent() {
 
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 max-w-[1400px]">
-      
+
       <ProjectStats
         isLoading={isLoading}
         activeProjects={activeProjects}
@@ -62,13 +62,13 @@ function ProjectsPageContent() {
 
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-space-grotesk font-bold text-slate-100">Projects</h1>
-          <p className="text-slate-400 text-sm mt-1">Manage your active engagements</p>
+          <h1 className="text-2xl font-space-grotesk font-bold text-content-primary">Projects</h1>
+          <p className="text-content-secondary text-sm mt-1">Manage your active engagements</p>
         </div>
         {canCreate && (
           <button
             onClick={() => setIsCreateModalOpen(true)}
-            className="flex items-center gap-2 bg-emerald-500 hover:bg-emerald-400 text-white px-5 py-2.5 rounded-xl text-sm font-bold transition-all shadow-[0_0_20px_rgba(16,185,129,0.2)] hover:shadow-[0_0_25px_rgba(16,185,129,0.4)]"
+            className="flex items-center gap-2 bg-action-primary hover:bg-action-primary-hover text-action-primary-foreground px-5 py-2.5 rounded-xl text-sm font-bold transition-all shadow-[0_0_20px_rgba(16,185,129,0.2)] hover:shadow-[0_0_25px_rgba(16,185,129,0.4)]"
           >
             <Plus className="w-5 h-5" />
             Create Project
@@ -77,11 +77,11 @@ function ProjectsPageContent() {
       </div>
 
       {isError ? (
-        <div className="p-6 bg-rose-500/10 border border-rose-500/20 rounded-2xl text-rose-400">
+        <div className="p-6 bg-status-danger-surface border border-status-danger-border rounded-2xl text-status-danger-text">
           Failed to load projects. Please try again.
         </div>
       ) : (
-        <ProjectTable 
+        <ProjectTable
           projects={projects}
           isLoading={isLoading}
           page={page}
@@ -90,9 +90,9 @@ function ProjectsPageContent() {
           onPageChange={setPage}
         />
       )}
-      <CreateProjectModal 
-        isOpen={isCreateModalOpen} 
-        onClose={() => setIsCreateModalOpen(false)} 
+      <CreateProjectModal
+        isOpen={isCreateModalOpen}
+        onClose={() => setIsCreateModalOpen(false)}
       />
 
     </div>

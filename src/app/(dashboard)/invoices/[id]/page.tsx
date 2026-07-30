@@ -190,7 +190,7 @@ export default function InvoiceDetailPage() {
   if (isError || !invoice) {
     return (
       <div className="space-y-6 max-w-350">
-        <div className="rounded-2xl border border-rose-500/20 bg-rose-500/10 p-6 text-rose-300">
+        <div className="rounded-2xl border border-status-danger-border bg-status-danger-surface p-6 text-status-danger-text">
           Invoice not found or you do not have access.
         </div>
       </div>
@@ -203,18 +203,18 @@ export default function InvoiceDetailPage() {
         <div className="space-y-2">
           <Link
             href="/invoices"
-            className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-500 hover:text-slate-300 transition-colors"
+            className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-content-muted hover:text-content-secondary transition-colors"
           >
             <ArrowLeft size={14} />
             Back to Invoices
           </Link>
 
           <div className="flex items-center gap-3 flex-wrap">
-            <h1 className="text-2xl font-bold text-white">{invoice.title}</h1>
+            <h1 className="text-2xl font-bold text-content-primary">{invoice.title}</h1>
             <InvoiceStatusPill status={invoice.status} />
           </div>
 
-          <div className="flex items-center gap-4 text-xs text-slate-400 flex-wrap">
+          <div className="flex items-center gap-4 text-xs text-content-secondary flex-wrap">
             <span className="font-mono">#{invoice.id}</span>
             <span>{formatDateTime(invoice.dueDate)}</span>
             <span>{invoice.paymentMethod}</span>
@@ -222,62 +222,62 @@ export default function InvoiceDetailPage() {
         </div>
 
         <div className="flex items-center gap-3">
-          <span className="text-2xl font-bold font-mono text-white">{formatUsd(invoice.amount)}</span>
+          <span className="text-2xl font-bold font-mono text-content-primary">{formatUsd(invoice.amount)}</span>
         </div>
       </div>
 
       <OperationsDetailLayout
         main={(
-          <section className="rounded-2xl border border-slate-800 bg-[#0f172a]/40 overflow-hidden">
-            <div className="px-6 py-4 border-b border-slate-800">
-              <h2 className="text-sm font-bold uppercase tracking-wider text-slate-300">Invoice Overview</h2>
-              <p className="text-xs text-slate-500 mt-1">Role-aware details for review and settlement</p>
+          <section className="rounded-2xl border border-theme-border bg-surface/40 overflow-hidden">
+            <div className="px-6 py-4 border-b border-theme-border">
+              <h2 className="text-sm font-bold uppercase tracking-wider text-content-secondary">Invoice Overview</h2>
+              <p className="text-xs text-content-muted mt-1">Role-aware details for review and settlement</p>
             </div>
 
             <div className="p-6 space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="rounded-xl border border-slate-800 bg-slate-900/50 p-4">
-                  <p className="text-[10px] uppercase tracking-widest text-slate-500 font-bold">Amount</p>
-                  <p className="mt-2 text-lg font-bold text-white font-mono">{formatUsd(invoice.amount)}</p>
+                <div className="rounded-xl border border-theme-border bg-surface/50 p-4">
+                  <p className="text-[10px] uppercase tracking-widest text-content-muted font-bold">Amount</p>
+                  <p className="mt-2 text-lg font-bold text-content-primary font-mono">{formatUsd(invoice.amount)}</p>
                 </div>
-                <div className="rounded-xl border border-slate-800 bg-slate-900/50 p-4">
-                  <p className="text-[10px] uppercase tracking-widest text-slate-500 font-bold">Due Date</p>
-                  <p className="mt-2 text-sm font-semibold text-slate-200">{formatDateTime(invoice.dueDate)}</p>
+                <div className="rounded-xl border border-theme-border bg-surface/50 p-4">
+                  <p className="text-[10px] uppercase tracking-widest text-content-muted font-bold">Due Date</p>
+                  <p className="mt-2 text-sm font-semibold text-content-secondary">{formatDateTime(invoice.dueDate)}</p>
                 </div>
-                <div className="rounded-xl border border-slate-800 bg-slate-900/50 p-4">
-                  <p className="text-[10px] uppercase tracking-widest text-slate-500 font-bold">Escrow</p>
-                  <p className="mt-2 text-sm font-semibold text-slate-200">{invoice.escrowStatus ?? "-"}</p>
+                <div className="rounded-xl border border-theme-border bg-surface/50 p-4">
+                  <p className="text-[10px] uppercase tracking-widest text-content-muted font-bold">Escrow</p>
+                  <p className="mt-2 text-sm font-semibold text-content-secondary">{invoice.escrowStatus ?? "-"}</p>
                 </div>
               </div>
 
-              <div className="rounded-xl border border-slate-800 bg-slate-900/50 p-5">
-                <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400">Status History</h3>
+              <div className="rounded-xl border border-theme-border bg-surface/50 p-5">
+                <h3 className="text-xs font-bold uppercase tracking-wider text-content-secondary">Status History</h3>
                 <div className="mt-4 space-y-3">
                   <div className="flex items-center justify-between text-sm">
-                    <span className="text-slate-300">Created</span>
-                    <span className="font-mono text-slate-500">{formatDateTime(invoice.createdAt)}</span>
+                    <span className="text-content-secondary">Created</span>
+                    <span className="font-mono text-content-muted">{formatDateTime(invoice.createdAt)}</span>
                   </div>
                   <div className="flex items-center justify-between text-sm">
-                    <span className="text-slate-300">Last Updated</span>
-                    <span className="font-mono text-slate-500">{formatDateTime(invoice.updatedAt)}</span>
+                    <span className="text-content-secondary">Last Updated</span>
+                    <span className="font-mono text-content-muted">{formatDateTime(invoice.updatedAt)}</span>
                   </div>
                   <div className="flex items-center justify-between text-sm">
-                    <span className="text-slate-300">Current Status</span>
-                    <span className="font-semibold text-emerald-300">{invoice.status}</span>
+                    <span className="text-content-secondary">Current Status</span>
+                    <span className="font-semibold text-theme-accent">{invoice.status}</span>
                   </div>
                 </div>
               </div>
 
-              <div className="rounded-xl border border-slate-800 bg-slate-900/50 p-5">
-                <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400">Internal Notes / Description</h3>
-                <p className="mt-3 text-sm leading-relaxed text-slate-300 whitespace-pre-wrap">
+              <div className="rounded-xl border border-theme-border bg-surface/50 p-5">
+                <h3 className="text-xs font-bold uppercase tracking-wider text-content-secondary">Internal Notes / Description</h3>
+                <p className="mt-3 text-sm leading-relaxed text-content-secondary whitespace-pre-wrap">
                   {invoice.description ? invoice.description : "-"}
                 </p>
               </div>
 
               {/* Action Bar */}
               {canUpdateStatus && (
-                <div className="pt-4 border-t border-slate-800">
+                <div className="pt-4 border-t border-theme-border">
                   {transitionOptions.length > 0 ? (
                     <div className="flex flex-col sm:flex-row gap-3">
                       {invoice.paymentMethod === PaymentMethod.CRYPTO_ESCROW ? (
@@ -288,32 +288,32 @@ export default function InvoiceDetailPage() {
                             <>
                               {invoice.status === InvoiceStatus.DRAFT || invoice.status === InvoiceStatus.SENT || invoice.status === InvoiceStatus.CRYPTO_ESCROW_WAITING ? (
                                 <div className="flex flex-col w-full gap-4">
-                                  <div className="rounded-xl bg-slate-900/50 p-4 border border-slate-800">
-                                    <h4 className="text-xs font-bold uppercase tracking-wider text-slate-300 mb-2">Escrow Process</h4>
-                                    <div className="space-y-2 text-xs text-slate-400">
-                                      <p className="flex items-center justify-between"><span className={!hasAllowance ? "text-emerald-400 font-bold" : ""}>1. Approve {invoice.amount} mUSDT</span> <span>Gas fee only</span></p>
-                                      <p className="flex items-center justify-between"><span className={hasAllowance ? "text-emerald-400 font-bold" : ""}>2. Deposit {invoice.amount} mUSDT</span> <span>Gas fee only</span></p>
+                                  <div className="rounded-xl bg-surface/50 p-4 border border-theme-border">
+                                    <h4 className="text-xs font-bold uppercase tracking-wider text-content-secondary mb-2">Escrow Process</h4>
+                                    <div className="space-y-2 text-xs text-content-secondary">
+                                      <p className="flex items-center justify-between"><span className={!hasAllowance ? "text-theme-accent font-bold" : ""}>1. Approve {invoice.amount} mUSDT</span> <span>Gas fee only</span></p>
+                                      <p className="flex items-center justify-between"><span className={hasAllowance ? "text-theme-accent font-bold" : ""}>2. Deposit {invoice.amount} mUSDT</span> <span>Gas fee only</span></p>
                                       <p className="flex items-center justify-between"><span>3. Release Payment</span> <span>Gas fee only</span></p>
-                                      <p className="pt-2 text-[11px] text-slate-500">Wallets may display 0 ETH because this transfers ERC-20 tokens, not native ETH.</p>
+                                      <p className="pt-2 text-[11px] text-content-muted">Wallets may display 0 ETH because this transfers ERC-20 tokens, not native ETH.</p>
                                     </div>
                                   </div>
                                   <div className="flex w-full gap-3">
                                     {!escrowConfigReady ? (
-                                      <div className="rounded-xl bg-slate-900/50 p-4 text-center border border-slate-800 w-full">
-                                        <p className="text-sm text-slate-400">{escrowConfigMessage}</p>
+                                      <div className="rounded-xl bg-surface/50 p-4 text-center border border-theme-border w-full">
+                                        <p className="text-sm text-content-secondary">{escrowConfigMessage}</p>
                                       </div>
                                     ) : !hasAllowance ? (
                                       <button
                                         type="button"
                                         disabled={isApproving}
-                                        onClick={async () => { 
-                                          try { 
-                                            await approve(ESCROW_TOKEN_ADDRESS, invoice.amount, ESCROW_TOKEN_DECIMALS); 
-                                          } catch (err) { 
+                                        onClick={async () => {
+                                          try {
+                                            await approve(ESCROW_TOKEN_ADDRESS, invoice.amount, ESCROW_TOKEN_DECIMALS);
+                                          } catch (err) {
                                             toast.error("Approval failed", { description: getWeb3ErrorMessage(err) });
-                                          } 
+                                          }
                                         }}
-                                        className="flex-1 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white px-5 py-3 text-sm font-bold transition-all shadow-lg shadow-cyan-900/20 hover:shadow-cyan-500/25 disabled:opacity-50 disabled:cursor-not-allowed"
+                                        className="flex-1 rounded-xl bg-action-primary hover:bg-action-primary-hover text-action-primary-foreground px-5 py-3 text-sm font-bold transition-all shadow-lg shadow-cyan-900/20 hover:shadow-cyan-500/25 disabled:opacity-50 disabled:cursor-not-allowed"
                                       >
                                         {isApproving ? "Approving..." : "Approve Escrow Token"}
                                       </button>
@@ -321,17 +321,17 @@ export default function InvoiceDetailPage() {
                                       <button
                                         type="button"
                                         disabled={isDepositing}
-                                        onClick={async () => { 
-                                          try { 
+                                        onClick={async () => {
+                                          try {
                                             await deposit(Number(invoice.id), ESCROW_TOKEN_ADDRESS, invoice.amount, invoice.walletAddress!, ESCROW_TOKEN_DECIMALS);
                                             toast.success("Escrow funded", {
                                               description: `Client mUSDT -${invoice.amount}; escrow +${invoice.amount}. ETH is used only for gas.`,
                                             });
-                                          } catch (err) { 
+                                          } catch (err) {
                                             toast.error("Deposit failed", { description: getWeb3ErrorMessage(err) });
-                                          } 
+                                          }
                                         }}
-                                        className="flex-1 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white px-5 py-3 text-sm font-bold transition-all shadow-lg shadow-emerald-900/20 hover:shadow-emerald-500/25 disabled:opacity-50 disabled:cursor-not-allowed"
+                                        className="flex-1 rounded-xl bg-action-primary hover:bg-action-primary-hover text-action-primary-foreground px-5 py-3 text-sm font-bold transition-all shadow-lg shadow-emerald-900/20 hover:shadow-emerald-500/25 disabled:opacity-50 disabled:cursor-not-allowed"
                                       >
                                         {isDepositing ? "Processing..." : "Secure with Escrow"}
                                       </button>
@@ -358,13 +358,13 @@ export default function InvoiceDetailPage() {
                                       toast.error("Release failed", { description: getWeb3ErrorMessage(err) });
                                     }
                                   }}
-                                  className="flex-1 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white px-5 py-3 text-sm font-bold transition-all shadow-lg shadow-emerald-900/20 hover:shadow-emerald-500/25 disabled:opacity-50 disabled:cursor-not-allowed"
+                                  className="flex-1 rounded-xl bg-action-primary hover:bg-action-primary-hover text-action-primary-foreground px-5 py-3 text-sm font-bold transition-all shadow-lg shadow-emerald-900/20 hover:shadow-emerald-500/25 disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
                                   {isReleasing ? "Processing..." : "Release Payment"}
                                 </button>
                               ) : (
-                                <div className="rounded-xl bg-slate-900/50 p-4 text-center border border-slate-800 w-full">
-                                  <p className="text-sm text-slate-400">Escrow operations are handled automatically or terminal for this status.</p>
+                                <div className="rounded-xl bg-surface/50 p-4 text-center border border-theme-border w-full">
+                                  <p className="text-sm text-content-secondary">Escrow operations are handled automatically or terminal for this status.</p>
                                 </div>
                               )}
                             </>
@@ -382,7 +382,7 @@ export default function InvoiceDetailPage() {
                                 type="button"
                                 disabled={updateStatusMutation.isPending}
                                 onClick={() => setConfirmStatus(actualPrimary)}
-                                className="flex-1 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white px-5 py-3 text-sm font-bold transition-all shadow-lg shadow-emerald-900/20 hover:shadow-emerald-500/25 disabled:opacity-50 disabled:cursor-not-allowed"
+                                className="flex-1 rounded-xl bg-action-primary hover:bg-action-primary-hover text-action-primary-foreground px-5 py-3 text-sm font-bold transition-all shadow-lg shadow-emerald-900/20 hover:shadow-emerald-500/25 disabled:opacity-50 disabled:cursor-not-allowed"
                               >
                                 Mark as {INVOICE_STATUS_LABELS[actualPrimary]}
                               </button>
@@ -392,7 +392,7 @@ export default function InvoiceDetailPage() {
                                   type="button"
                                   disabled={updateStatusMutation.isPending}
                                   onClick={() => setConfirmStatus(opt)}
-                                  className="flex-1 sm:flex-none rounded-xl border border-slate-700 bg-slate-800/50 hover:bg-slate-800 hover:border-slate-600 hover:text-white text-slate-300 px-5 py-3 text-sm font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                                  className="flex-1 sm:flex-none rounded-xl border border-theme-border bg-surface-elevated/50 hover:bg-surface-elevated hover:border-theme-border hover:text-content-primary text-content-secondary px-5 py-3 text-sm font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
                                   Mark as {INVOICE_STATUS_LABELS[opt]}
                                 </button>
@@ -403,8 +403,8 @@ export default function InvoiceDetailPage() {
                       )}
                     </div>
                   ) : (
-                    <div className="rounded-xl bg-slate-900/50 p-4 text-center border border-slate-800">
-                      <p className="text-sm text-slate-400">This invoice has reached a terminal state. No further actions can be taken.</p>
+                    <div className="rounded-xl bg-surface/50 p-4 text-center border border-theme-border">
+                      <p className="text-sm text-content-secondary">This invoice has reached a terminal state. No further actions can be taken.</p>
                     </div>
                   )}
                 </div>
@@ -414,44 +414,44 @@ export default function InvoiceDetailPage() {
         )}
         sidebar={(
           <aside className="space-y-4">
-            <section className="rounded-2xl border border-slate-800 bg-[#0f172a]/40 overflow-hidden">
-              <div className="px-4 py-3 border-b border-slate-800">
-                <h3 className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-400">
+            <section className="rounded-2xl border border-theme-border bg-surface/40 overflow-hidden">
+              <div className="px-4 py-3 border-b border-theme-border">
+                <h3 className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-content-secondary">
                   <Receipt size={14} />
                   Project Context
                 </h3>
               </div>
               <div className="p-4 space-y-3 text-sm">
-                <p className="text-slate-300">Project ID</p>
-                <Link href={`/projects/${invoice.projectId}`} className="font-mono text-emerald-400 hover:text-emerald-300">
+                <p className="text-content-secondary">Project ID</p>
+                <Link href={`/projects/${invoice.projectId}`} className="font-mono text-theme-accent hover:text-theme-accent">
                   {invoice.projectId}
                 </Link>
                 <Link
                   href={`/invoices?projectId=${invoice.projectId}`}
-                  className="inline-flex text-xs font-bold text-slate-400 hover:text-white"
+                  className="inline-flex text-xs font-bold text-content-secondary hover:text-content-primary"
                 >
                   Open Project Invoices
                 </Link>
               </div>
             </section>
 
-            <section className="rounded-2xl border border-slate-800 bg-[#0f172a]/40 overflow-hidden">
-              <div className="px-4 py-3 border-b border-slate-800">
-                <h3 className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-400">
+            <section className="rounded-2xl border border-theme-border bg-surface/40 overflow-hidden">
+              <div className="px-4 py-3 border-b border-theme-border">
+                <h3 className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-content-secondary">
                   <Wallet size={14} />
                   Payment Reference
                 </h3>
               </div>
               <div className="p-4 space-y-3 text-xs">
                 <div className="space-y-1">
-                  <p className="text-slate-500 uppercase tracking-wider">Wallet</p>
-                  <div className="flex items-center justify-between gap-2 rounded-lg border border-slate-800 bg-slate-900/50 p-2">
-                    <span className="font-mono text-slate-300 truncate">{invoice.walletAddress || "-"}</span>
+                  <p className="text-content-muted uppercase tracking-wider">Wallet</p>
+                  <div className="flex items-center justify-between gap-2 rounded-lg border border-theme-border bg-surface/50 p-2">
+                    <span className="font-mono text-content-secondary truncate">{invoice.walletAddress || "-"}</span>
                     {invoice.walletAddress ? (
                       <button
                         type="button"
                         onClick={() => copyToClipboard("Wallet address", invoice.walletAddress)}
-                        className="text-slate-500 hover:text-white"
+                        className="text-content-muted hover:text-content-primary"
                       >
                         <Copy size={14} />
                       </button>
@@ -459,14 +459,14 @@ export default function InvoiceDetailPage() {
                   </div>
                 </div>
                 <div className="space-y-1">
-                  <p className="text-slate-500 uppercase tracking-wider">Payment / Escrow Transaction</p>
-                  <div className="flex items-center justify-between gap-2 rounded-lg border border-slate-800 bg-slate-900/50 p-2">
-                    <span className="font-mono text-slate-300 truncate">{invoice.txHash || "-"}</span>
+                  <p className="text-content-muted uppercase tracking-wider">Payment / Escrow Transaction</p>
+                  <div className="flex items-center justify-between gap-2 rounded-lg border border-theme-border bg-surface/50 p-2">
+                    <span className="font-mono text-content-secondary truncate">{invoice.txHash || "-"}</span>
                     {invoice.txHash ? (
                       <button
                         type="button"
                         onClick={() => copyToClipboard("Transaction hash", invoice.txHash)}
-                        className="text-slate-500 hover:text-white"
+                        className="text-content-muted hover:text-content-primary"
                       >
                         <Copy size={14} />
                       </button>
@@ -474,25 +474,25 @@ export default function InvoiceDetailPage() {
                   </div>
                 </div>
                 <div className="space-y-1">
-                  <p className="text-slate-500 uppercase tracking-wider">Smart Contract</p>
-                  <div className="rounded-lg border border-slate-800 bg-slate-900/50 p-2 font-mono text-slate-300 truncate">
+                  <p className="text-content-muted uppercase tracking-wider">Smart Contract</p>
+                  <div className="rounded-lg border border-theme-border bg-surface/50 p-2 font-mono text-content-secondary truncate">
                     {invoice.smartContractId || "-"}
                   </div>
                 </div>
               </div>
             </section>
 
-            <section className="rounded-2xl border border-slate-800 bg-[#0f172a]/40 overflow-hidden">
-              <div className="px-4 py-3 border-b border-slate-800">
-                <h3 className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-400">
+            <section className="rounded-2xl border border-theme-border bg-surface/40 overflow-hidden">
+              <div className="px-4 py-3 border-b border-theme-border">
+                <h3 className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-content-secondary">
                   <ShieldCheck size={14} />
                   Audit & Integrity
                 </h3>
               </div>
-              <div className="p-4 space-y-2 text-xs text-slate-400">
-                <p>Created at: <span className="font-mono text-slate-300">{formatDateTime(invoice.createdAt)}</span></p>
-                <p>Updated at: <span className="font-mono text-slate-300">{formatDateTime(invoice.updatedAt)}</span></p>
-                <p>Method: <span className="font-semibold text-slate-300">{invoice.paymentMethod}</span></p>
+              <div className="p-4 space-y-2 text-xs text-content-secondary">
+                <p>Created at: <span className="font-mono text-content-secondary">{formatDateTime(invoice.createdAt)}</span></p>
+                <p>Updated at: <span className="font-mono text-content-secondary">{formatDateTime(invoice.updatedAt)}</span></p>
+                <p>Method: <span className="font-semibold text-content-secondary">{invoice.paymentMethod}</span></p>
                 <div className="pt-2">
                   <IntegrityProofPanel
                     compact
@@ -514,10 +514,10 @@ export default function InvoiceDetailPage() {
         title="Confirm Status Change"
         message={
           <>
-            Change invoice status from <strong className="text-white">{INVOICE_STATUS_LABELS[invoice.status]}</strong> to{" "}
-            <strong className="text-white">{confirmStatus && INVOICE_STATUS_LABELS[confirmStatus]}</strong>?
+            Change invoice status from <strong className="text-content-primary">{INVOICE_STATUS_LABELS[invoice.status]}</strong> to{" "}
+            <strong className="text-content-primary">{confirmStatus && INVOICE_STATUS_LABELS[confirmStatus]}</strong>?
             <br />
-            <span className="text-slate-400 mt-2 block">
+            <span className="text-content-secondary mt-2 block">
               Depending on the status, this action may notify the other party and cannot be easily undone for terminal states.
             </span>
           </>

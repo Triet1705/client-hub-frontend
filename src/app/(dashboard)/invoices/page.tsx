@@ -260,13 +260,13 @@ function InvoicesPageContent() {
     <div className="space-y-6 max-w-350">
       <div className="flex items-end justify-between gap-4 flex-wrap">
         <div>
-          <h1 className="text-2xl font-bold text-white">Invoices</h1>
-          <p className="text-slate-400 text-sm">
+          <h1 className="text-2xl font-bold text-content-primary">Invoices</h1>
+          <p className="text-content-secondary text-sm">
             Track billing, payment status, and escrow progress.
           </p>
         </div>
         {projectId ? (
-          <p className="text-xs font-mono text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 rounded-lg px-3 py-2">
+          <p className="text-xs font-mono text-theme-accent bg-action-subtle border border-theme-accent rounded-lg px-3 py-2">
             Filtered by project: {projectId}
           </p>
         ) : null}
@@ -275,7 +275,7 @@ function InvoicesPageContent() {
             onClick={() => {
               setIsCreateModalOpen(true);
             }}
-            className="flex items-center gap-2 bg-emerald-500 hover:bg-emerald-400 text-white px-5 py-2.5 rounded-xl text-sm font-bold transition-all shadow-lg shadow-emerald-900/20 hover:shadow-emerald-500/25 hover:-translate-y-0.5 active:translate-y-0 ml-auto"
+            className="ml-auto flex items-center gap-2 rounded-xl bg-action-primary px-5 py-2.5 text-sm font-bold text-action-primary-foreground shadow-[0_8px_20px_var(--shadow-color)] transition-all hover:-translate-y-0.5 hover:bg-action-primary-hover hover:shadow-[0_10px_24px_var(--shadow-color)] active:translate-y-0"
           >
             Create Invoice
           </button>
@@ -305,16 +305,16 @@ function InvoicesPageContent() {
 
       <section className="grid grid-cols-1 xl:grid-cols-[18rem_minmax(0,1fr)] gap-6 items-start">
         <aside className="space-y-4 sticky top-24 z-10">
-          <div className="rounded-3xl bg-slate-900/60 backdrop-blur-xl ring-1 ring-white/5 shadow-2xl shadow-black/50 p-5 space-y-4">
+          <div className="rounded-3xl bg-surface/60 backdrop-blur-xl ring-1 ring-theme-border shadow-2xl shadow-black/50 p-5 space-y-4">
             <div className="flex items-center justify-between gap-3">
               <div>
-                <h2 className="text-sm font-bold uppercase tracking-widest text-slate-300">Filters</h2>
-                <p className="text-xs text-slate-500">Section-based invoice controls</p>
+                <h2 className="text-sm font-bold uppercase tracking-widest text-content-secondary">Filters</h2>
+                <p className="text-xs text-content-muted">Section-based invoice controls</p>
               </div>
               <button
                 type="button"
                 onClick={clearFilters}
-                className="text-[11px] font-bold text-slate-400 hover:text-white transition-colors"
+                className="text-[11px] font-bold text-content-secondary hover:text-content-primary transition-colors"
               >
                 Reset
               </button>
@@ -332,7 +332,7 @@ function InvoicesPageContent() {
                   setKeyword(event.target.value);
                   setPage(0);
                 }}
-                className="h-9 rounded-md border-slate-700 bg-slate-950/70 focus:border-emerald-500/50 focus:ring-emerald-500/50"
+                className="h-9 rounded-md border-theme-border bg-surface-base/70 focus:border-theme-accent focus:ring-theme-accent"
               />
             </FilterSection>
 
@@ -354,15 +354,15 @@ function InvoicesPageContent() {
                       }}
                       className={`w-full flex items-center justify-between rounded-md border px-3 py-2 text-left text-xs transition-colors ${
                         isActive
-                          ? "border-emerald-500/40 bg-emerald-500/10 text-emerald-200"
-                          : "border-slate-800 bg-slate-900/60 text-slate-300 hover:border-slate-700"
+                          ? "border-theme-accent bg-action-subtle text-theme-accent"
+                          : "border-theme-border bg-surface/60 text-content-secondary hover:border-theme-border"
                       }`}
                     >
                       <span className="inline-flex items-center gap-2">
-                        <CircleDot className={`h-3.5 w-3.5 ${isActive ? "text-emerald-300" : "text-slate-600"}`} />
+                        <CircleDot className={`h-3.5 w-3.5 ${isActive ? "text-theme-accent" : "text-content-muted"}`} />
                         {option.label}
                       </span>
-                      <span className="text-[11px] text-slate-500">{option.count}</span>
+                      <span className="text-[11px] text-content-muted">{option.count}</span>
                     </button>
                   );
                 })}
@@ -387,15 +387,15 @@ function InvoicesPageContent() {
                       }}
                       className={`w-full flex items-center justify-between rounded-md border px-3 py-2 text-left text-xs transition-colors ${
                         isActive
-                          ? "border-cyan-500/40 bg-cyan-500/10 text-cyan-200"
-                          : "border-slate-800 bg-slate-900/60 text-slate-300 hover:border-slate-700"
+                          ? "border-status-info-border bg-status-info-surface text-status-info-text"
+                          : "border-theme-border bg-surface/60 text-content-secondary hover:border-theme-border"
                       }`}
                     >
                       <span className="inline-flex items-center gap-2">
-                        <CircleDot className={`h-3.5 w-3.5 ${isActive ? "text-cyan-300" : "text-slate-600"}`} />
+                        <CircleDot className={`h-3.5 w-3.5 ${isActive ? "text-status-info-text" : "text-content-muted"}`} />
                         {option.label}
                       </span>
-                      <span className="text-[11px] text-slate-500">{option.count}</span>
+                      <span className="text-[11px] text-content-muted">{option.count}</span>
                     </button>
                   );
                 })}
@@ -409,19 +409,19 @@ function InvoicesPageContent() {
             >
               {projectId ? (
                 <div className="space-y-2">
-                  <p className="rounded-md border border-violet-500/30 bg-violet-500/10 px-3 py-2 text-xs text-violet-200">
+                  <p className="rounded-md border border-status-web3-border bg-status-web3-surface px-3 py-2 text-xs text-status-web3-text">
                     Scoped by project: <span className="font-mono">{projectId}</span>
                   </p>
                   <button
                     type="button"
                     onClick={() => router.push("/invoices")}
-                    className="text-[11px] font-bold text-violet-400 hover:text-white transition-colors"
+                    className="text-[11px] font-bold text-status-web3-text hover:text-content-primary transition-colors"
                   >
                     × Clear project scope
                   </button>
                 </div>
               ) : (
-                <p className="rounded-md border border-slate-800 bg-slate-900/60 px-3 py-2 text-xs text-slate-400">
+                <p className="rounded-md border border-theme-border bg-surface/60 px-3 py-2 text-xs text-content-secondary">
                   No project scope from query params.
                 </p>
               )}
@@ -429,7 +429,7 @@ function InvoicesPageContent() {
           </div>
         </aside>
 
-        <div className="bg-slate-900/60 backdrop-blur-xl ring-1 ring-white/5 shadow-2xl shadow-black/50 rounded-3xl overflow-hidden">
+        <div className="bg-surface/60 backdrop-blur-xl ring-1 ring-theme-border shadow-2xl shadow-black/50 rounded-3xl overflow-hidden">
           <DataTableToolbar
             title="All Invoices"
             resultCount={filteredInvoices.length}
@@ -442,26 +442,26 @@ function InvoicesPageContent() {
           />
 
         {hasAppliedFilters && (
-          <div className="px-6 py-3 border-b border-slate-800 bg-slate-950/40 flex items-center justify-between gap-3 flex-wrap">
-            <div className="flex items-center gap-2 flex-wrap text-xs text-slate-300">
-              <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Applied</span>
+          <div className="px-6 py-3 border-b border-theme-border bg-surface-base/40 flex items-center justify-between gap-3 flex-wrap">
+            <div className="flex items-center gap-2 flex-wrap text-xs text-content-secondary">
+              <span className="text-[10px] font-bold uppercase tracking-widest text-content-muted">Applied</span>
               {statusFilter !== "ALL" && (
-                <span className="px-2 py-1 rounded-md border border-emerald-500/30 bg-emerald-500/10 text-emerald-300">
+                <span className="px-2 py-1 rounded-md border border-theme-accent bg-action-subtle text-theme-accent">
                   Status: {statusFilter}
                 </span>
               )}
               {methodFilter !== "ALL" && (
-                <span className="px-2 py-1 rounded-md border border-cyan-500/30 bg-cyan-500/10 text-cyan-300">
+                <span className="px-2 py-1 rounded-md border border-status-info-border bg-status-info-surface text-status-info-text">
                   Payment: {methodFilter}
                 </span>
               )}
               {keyword.trim().length > 0 && (
-                <span className="px-2 py-1 rounded-md border border-slate-500/30 bg-slate-500/10 text-slate-300">
+                <span className="px-2 py-1 rounded-md border border-content-muted/30 bg-status-neutral-surface text-content-secondary">
                   Search: {keyword}
                 </span>
               )}
               {projectId && (
-                <span className="px-2 py-1 rounded-md border border-violet-500/30 bg-violet-500/10 text-violet-300">
+                <span className="px-2 py-1 rounded-md border border-status-web3-border bg-status-web3-surface text-status-web3-text">
                   Project scoped
                 </span>
               )}
@@ -469,7 +469,7 @@ function InvoicesPageContent() {
             <button
               type="button"
               onClick={clearFilters}
-              className="text-[11px] font-bold text-slate-400 hover:text-white transition-colors"
+              className="text-[11px] font-bold text-content-secondary hover:text-content-primary transition-colors"
             >
               Clear all
             </button>
@@ -478,61 +478,61 @@ function InvoicesPageContent() {
 
         <div className="overflow-x-auto custom-scrollbar">
           {isError ? (
-            <div className="p-6 text-sm text-rose-300 bg-rose-500/10 border-b border-rose-500/20">
+            <div className="p-6 text-sm text-status-danger-text bg-status-danger-surface border-b border-status-danger-border">
               Failed to load invoices. Please refresh and try again.
             </div>
           ) : null}
 
           <table className="w-full min-w-270 text-left">
-            <thead className="border-b border-white/5 bg-slate-900/80">
+            <thead className="border-b border-theme-border bg-surface/80">
               <tr>
-                {visibleColumns.invoice && <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-500">Invoice</th>}
-                {visibleColumns.title && <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-500">Title</th>}
-                {visibleColumns.amount && <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-500">Amount</th>}
-                {visibleColumns.dueDate && <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-500">Due Date</th>}
-                {visibleColumns.status && <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-500">Status</th>}
-                {visibleColumns.payment && <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-500">Payment</th>}
-                {visibleColumns.reference && <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-500">Reference</th>}
-                {visibleColumns.action && <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-500 text-right">Action</th>}
+                {visibleColumns.invoice && <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-content-muted">Invoice</th>}
+                {visibleColumns.title && <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-content-muted">Title</th>}
+                {visibleColumns.amount && <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-content-muted">Amount</th>}
+                {visibleColumns.dueDate && <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-content-muted">Due Date</th>}
+                {visibleColumns.status && <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-content-muted">Status</th>}
+                {visibleColumns.payment && <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-content-muted">Payment</th>}
+                {visibleColumns.reference && <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-content-muted">Reference</th>}
+                {visibleColumns.action && <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-content-muted text-right">Action</th>}
               </tr>
             </thead>
 
-            <tbody className="divide-y divide-slate-800">
+            <tbody className="divide-y divide-theme-border">
               {isLoading ? (
                 Array.from({ length: 6 }).map((_, index) => (
                   <tr key={index}>
                     <td className="px-4 py-4" colSpan={visibleColumnCount}>
-                      <div className="h-6 w-full rounded bg-slate-800/50 animate-pulse" />
+                      <div className="h-6 w-full rounded bg-surface-elevated/50 animate-pulse" />
                     </td>
                   </tr>
                 ))
               ) : visibleInvoices.length === 0 ? (
                 <tr>
-                  <td colSpan={visibleColumnCount} className="px-4 py-8 text-center text-sm text-slate-400">
+                  <td colSpan={visibleColumnCount} className="px-4 py-8 text-center text-sm text-content-secondary">
                     No invoices found for current filters.
                   </td>
                 </tr>
               ) : (
                 visibleInvoices.map((invoice) => {
                   return (
-                    <tr key={invoice.id} className="group bg-slate-800/20 hover:bg-slate-800/60 ring-1 ring-transparent hover:ring-white/10 hover:-translate-y-px transition-all duration-300 hover:shadow-xl hover:z-10 relative">
+                    <tr key={invoice.id} className="group bg-surface-elevated/20 hover:bg-surface-elevated/60 ring-1 ring-transparent hover:ring-theme-border hover:-translate-y-px transition-all duration-300 hover:shadow-xl hover:z-10 relative">
                       {visibleColumns.invoice && (
-                        <td className="px-6 py-5 text-xs font-mono text-slate-200">
-                          <Link href={`/invoices/${invoice.id}`} className="hover:text-emerald-300 transition-colors">
+                        <td className="px-6 py-5 text-xs font-mono text-content-secondary">
+                          <Link href={`/invoices/${invoice.id}`} className="hover:text-theme-accent transition-colors">
                             {formatInvoiceId(invoice.id)}
                           </Link>
                         </td>
                       )}
                       {visibleColumns.title && (
-                        <td className="px-6 py-5 text-sm font-medium text-white">
-                          <Link href={`/invoices/${invoice.id}`} className="hover:text-emerald-300 transition-colors">
+                        <td className="px-6 py-5 text-sm font-medium text-content-primary">
+                          <Link href={`/invoices/${invoice.id}`} className="hover:text-theme-accent transition-colors">
                             {invoice.title}
                           </Link>
                         </td>
                       )}
-                      {visibleColumns.amount && <td className="px-6 py-5 text-sm font-semibold text-white">{formatUsd(invoice.amount)}</td>}
+                      {visibleColumns.amount && <td className="px-6 py-5 text-sm font-semibold text-content-primary">{formatUsd(invoice.amount)}</td>}
                       {visibleColumns.dueDate && (
-                        <td className="px-6 py-5 text-xs text-slate-300">
+                        <td className="px-6 py-5 text-xs text-content-secondary">
                           {invoice.dueDate ? format(new Date(invoice.dueDate), "dd/MM/yy") : "-"}
                         </td>
                       )}
@@ -548,9 +548,9 @@ function InvoicesPageContent() {
                           />
                         </td>
                       )}
-                      {visibleColumns.payment && <td className="px-6 py-5 text-xs text-slate-300">{PAYMENT_METHOD_LABELS[invoice.paymentMethod] ?? invoice.paymentMethod}</td>}
+                      {visibleColumns.payment && <td className="px-6 py-5 text-xs text-content-secondary">{PAYMENT_METHOD_LABELS[invoice.paymentMethod] ?? invoice.paymentMethod}</td>}
                       {visibleColumns.reference && (
-                        <td className="px-6 py-5 text-xs font-mono text-slate-400">
+                        <td className="px-6 py-5 text-xs font-mono text-content-secondary">
                           {invoice.txHash || invoice.smartContractId || "-"}
                         </td>
                       )}

@@ -109,14 +109,14 @@ export function TaskDetailSlideover({
       <button
         onClick={handleSave}
         disabled={isSaving}
-        className="flex-1 py-3 bg-emerald-500 hover:bg-emerald-600 disabled:opacity-50 text-black font-bold text-xs rounded-xl uppercase tracking-widest transition-colors"
+        className="flex-1 rounded-xl bg-action-primary py-3 text-xs font-bold uppercase tracking-widest text-action-primary-foreground transition-colors hover:bg-action-primary-hover disabled:opacity-50"
       >
         {isSaving ? "Saving..." : "Save Changes"}
       </button>
       {isClient && (
         <button
           onClick={handleDelete}
-          className="px-4 py-3 border border-red-500/30 text-red-400 hover:bg-red-500/10 font-bold text-xs rounded-xl uppercase tracking-wider transition-colors flex items-center gap-2"
+          className="px-4 py-3 border border-status-danger-border text-status-danger-text hover:bg-status-danger-surface font-bold text-xs rounded-xl uppercase tracking-wider transition-colors flex items-center gap-2"
         >
           <Trash2 size={14} />
           Delete
@@ -142,17 +142,17 @@ export function TaskDetailSlideover({
       {activeTab === "details" ? (
         <>
           <section>
-            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-3">
+            <p className="text-[10px] font-bold text-content-muted uppercase tracking-widest mb-3">
               Update Status
             </p>
             <TaskStatusSelector activeStatus={activeStatus} onStatusChange={handleStatusClick} />
           </section>
 
-          <div className="border-t border-[#1f2937]" />
+          <div className="border-t border-theme-border" />
 
           <section className="space-y-4">
             <div>
-              <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-2">
+              <label className="text-[10px] font-bold text-content-muted uppercase tracking-widest block mb-2">
                 Assigned To
               </label>
               {isClient ? (
@@ -163,16 +163,16 @@ export function TaskDetailSlideover({
                   placeholder="Select assignee"
                 />
               ) : (
-                <div className="flex items-center gap-2 px-4 py-3 bg-slate-900/50 border border-[#1f2937] rounded-xl">
+                <div className="flex items-center gap-2 px-4 py-3 bg-surface/50 border border-theme-border rounded-xl">
                   <UserAvatar name={currentAssigneeName} />
-                  <span className="text-sm text-slate-300">{currentAssigneeName}</span>
+                  <span className="text-sm text-content-secondary">{currentAssigneeName}</span>
                 </div>
               )}
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-2">
+                <label className="text-[10px] font-bold text-content-muted uppercase tracking-widest block mb-2">
                   Due Date
                 </label>
                 {isClient ? (
@@ -180,16 +180,16 @@ export function TaskDetailSlideover({
                     type="date"
                     value={dueDate}
                     onChange={(e) => setDueDate(e.target.value)}
-                    className="w-full bg-slate-900/50 border border-[#1f2937] rounded-xl px-4 py-3 text-sm text-slate-300 focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 outline-none"
+                    className="w-full bg-surface/50 border border-theme-border rounded-xl px-4 py-3 text-sm text-content-secondary focus:ring-1 focus:ring-theme-accent focus:border-theme-accent outline-none"
                   />
                 ) : (
-                  <div className="px-4 py-3 bg-slate-900/50 border border-[#1f2937] rounded-xl text-sm text-slate-500 italic">
+                  <div className="px-4 py-3 bg-surface/50 border border-theme-border rounded-xl text-sm text-content-muted italic">
                     {dueDate || "No due date"}
                   </div>
                 )}
               </div>
               <div>
-                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-2">
+                <label className="text-[10px] font-bold text-content-muted uppercase tracking-widest block mb-2">
                   Priority
                 </label>
                 {isClient ? (
@@ -199,7 +199,7 @@ export function TaskDetailSlideover({
                     onChange={setPriority}
                   />
                 ) : (
-                  <div className="px-4 py-3 bg-slate-900/50 border border-[#1f2937] rounded-xl flex items-center">
+                  <div className="px-4 py-3 bg-surface/50 border border-theme-border rounded-xl flex items-center">
                     <TaskPriorityBadge priority={priority} />
                   </div>
                 )}
@@ -208,7 +208,7 @@ export function TaskDetailSlideover({
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-2">
+                <label className="text-[10px] font-bold text-content-muted uppercase tracking-widest block mb-2">
                   Est. Hours
                 </label>
                 {isClient ? (
@@ -218,17 +218,17 @@ export function TaskDetailSlideover({
                     step="0.5"
                     value={estimatedHours}
                     onChange={(e) => setEstimatedHours(e.target.value)}
-                    className="w-full bg-slate-900/50 border border-[#1f2937] rounded-xl px-4 py-3 text-sm text-slate-300 font-mono focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 outline-none"
+                    className="w-full bg-surface/50 border border-theme-border rounded-xl px-4 py-3 text-sm text-content-secondary font-mono focus:ring-1 focus:ring-theme-accent focus:border-theme-accent outline-none"
                     placeholder="0.0"
                   />
                 ) : (
-                  <div className="px-4 py-3 bg-slate-900/50 border border-[#1f2937] rounded-xl text-sm text-slate-500 italic font-mono">
+                  <div className="px-4 py-3 bg-surface/50 border border-theme-border rounded-xl text-sm text-content-muted italic font-mono">
                     {estimatedHours ? `${estimatedHours}h (Locked)` : "—"}
                   </div>
                 )}
               </div>
               <div>
-                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-2">
+                <label className="text-[10px] font-bold text-content-muted uppercase tracking-widest block mb-2">
                   Act. Hours
                 </label>
                 <input
@@ -237,17 +237,17 @@ export function TaskDetailSlideover({
                   step="0.5"
                   value={actualHours}
                   onChange={(e) => setActualHours(e.target.value)}
-                  className="w-full bg-slate-900/50 border border-[#1f2937] rounded-xl px-4 py-3 text-sm text-emerald-400 font-mono focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 outline-none"
+                  className="w-full bg-surface/50 border border-theme-border rounded-xl px-4 py-3 text-sm text-theme-accent font-mono focus:ring-1 focus:ring-theme-accent focus:border-theme-accent outline-none"
                   placeholder="0.0"
                 />
               </div>
             </div>
           </section>
 
-          <div className="border-t border-[#1f2937]" />
+          <div className="border-t border-theme-border" />
 
           <section>
-            <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest block mb-2">
+            <label className="text-[10px] font-bold text-content-muted uppercase tracking-widest block mb-2">
               Description
             </label>
             {isClient ? (
@@ -255,24 +255,24 @@ export function TaskDetailSlideover({
                 rows={5}
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                className="w-full bg-slate-900/50 border border-[#1f2937] rounded-xl px-4 py-3 text-sm text-slate-300 focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 outline-none resize-none custom-scrollbar"
+                className="w-full bg-surface/50 border border-theme-border rounded-xl px-4 py-3 text-sm text-content-secondary focus:ring-1 focus:ring-theme-accent focus:border-theme-accent outline-none resize-none custom-scrollbar"
                 placeholder="Add a description…"
               />
             ) : (
-              <p className="text-sm text-slate-400 leading-relaxed min-h-15">
-                {description || <span className="italic text-slate-600">No description.</span>}
+              <p className="text-sm text-content-secondary leading-relaxed min-h-15">
+                {description || <span className="italic text-content-muted">No description.</span>}
               </p>
             )}
           </section>
 
-          <div className="border-t border-[#1f2937]" />
+          <div className="border-t border-theme-border" />
 
           <section className="space-y-2">
-            <p className="text-[10px] text-slate-500">
-              Created by <span className="text-slate-300">{task?.createdBy ?? "Unknown"}</span>
+            <p className="text-[10px] text-content-muted">
+              Created by <span className="text-content-secondary">{task?.createdBy ?? "Unknown"}</span>
             </p>
-            <p className="text-[10px] text-slate-500">
-              Last updated by <span className="text-slate-300">{task?.lastModifiedBy ?? "Unknown"}</span>
+            <p className="text-[10px] text-content-muted">
+              Last updated by <span className="text-content-secondary">{task?.lastModifiedBy ?? "Unknown"}</span>
             </p>
           </section>
         </>

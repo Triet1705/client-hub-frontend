@@ -138,7 +138,7 @@ export function CreateTaskModal({
         variant="ghost"
         onClick={handleClose}
         disabled={isPending}
-        className="px-6 text-slate-400 hover:text-white"
+        className="px-6 text-content-secondary hover:text-content-primary"
       >
         Cancel
       </Button>

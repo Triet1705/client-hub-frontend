@@ -12,31 +12,31 @@ export function ProjectRow({ project }: { project: Project }) {
 
   // Derive a one-line insight
   let insightText = "";
-  let insightCls  = "text-slate-500";
+  let insightCls  = "text-content-muted";
   if (isOverdue) {
     insightText = "Deadline passed — action required";
-    insightCls  = "text-rose-400 font-medium";
+    insightCls  = "text-status-danger-text font-medium";
   } else if (project.status === ProjectStatus.ON_HOLD) {
     insightText = "Stalled — waiting for decision";
-    insightCls  = "text-amber-400";
+    insightCls  = "text-status-warning-text";
   } else if (isDueSoon) {
     insightText = `Due in ${days}d — final stretch`;
-    insightCls  = "text-amber-300";
+    insightCls  = "text-status-warning-text";
   } else if (project.status === ProjectStatus.COMPLETED) {
     insightText = "Completed successfully ✓";
-    insightCls  = "text-emerald-400";
+    insightCls  = "text-theme-accent";
   } else if (project.status === ProjectStatus.IN_PROGRESS) {
     insightText = "Active runway · Moving forward";
-    insightCls  = "text-blue-400";
+    insightCls  = "text-status-info-text";
   }
 
   return (
     <Link href={`/projects/${project.id}`} className="block">
-      <div className="flex items-center justify-between p-4 rounded-2xl bg-slate-900/40 ring-1 ring-white/5 hover:bg-slate-800/60 hover:ring-white/10 hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300 group">
+      <div className="flex items-center justify-between p-4 rounded-2xl bg-surface/40 ring-1 ring-theme-border hover:bg-surface-elevated/60 hover:ring-theme-border hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300 group">
         <div className="flex items-center gap-4 min-w-0">
-          <div className="w-1.5 h-10 bg-gradient-to-b from-blue-400 to-indigo-500 rounded-full shrink-0 shadow-[0_0_8px_rgba(59,130,246,0.5)] group-hover:shadow-[0_0_12px_rgba(59,130,246,0.8)] transition-all" />
+          <div className="h-10 w-1.5 shrink-0 rounded-full bg-gradient-to-b from-status-info-text to-status-web3-text shadow-[0_0_8px_var(--shadow-color)] transition-all group-hover:shadow-[0_0_12px_var(--shadow-color)]" />
           <div className="min-w-0">
-            <p className="text-base font-bold text-white truncate group-hover:text-blue-50 transition-colors">{project.title}</p>
+            <p className="text-base font-bold text-content-primary truncate group-hover:text-status-info-text transition-colors">{project.title}</p>
             {insightText && (
               <p className={cn("text-xs truncate mt-1 flex items-center gap-1.5", insightCls)}>
                 {insightText}
@@ -54,7 +54,7 @@ export function ProjectRow({ project }: { project: Project }) {
             {PROJECT_STATUS_LABEL[project.status]}
           </span>
           <div className="text-right">
-            <p className="text-sm font-mono text-slate-200 font-medium">
+            <p className="text-sm font-mono text-content-secondary font-medium">
               {formatCurrency(project.budget)}
             </p>
             <div className="mt-1 flex justify-end">

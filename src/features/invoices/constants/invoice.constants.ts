@@ -85,16 +85,16 @@ export const INVOICE_STATUS_LABELS: Record<InvoiceStatus, string> = {
 };
 
 export const INVOICE_STATUS_PILL_CLASS: Record<InvoiceStatus, string> = {
-  [InvoiceStatus.DRAFT]: "bg-slate-500/10 text-slate-300 border-slate-500/30",
-  [InvoiceStatus.SENT]: "bg-blue-500/10 text-blue-300 border-blue-500/30",
-  [InvoiceStatus.CRYPTO_ESCROW_WAITING]: "bg-amber-500/10 text-amber-300 border-amber-500/30",
-  [InvoiceStatus.DEPOSIT_DETECTED]: "bg-cyan-500/10 text-cyan-300 border-cyan-500/30",
-  [InvoiceStatus.LOCKED]: "bg-violet-500/10 text-violet-300 border-violet-500/30",
-  [InvoiceStatus.DISPUTED]: "bg-rose-500/10 text-rose-300 border-rose-500/30",
-  [InvoiceStatus.PAID]: "bg-emerald-500/10 text-emerald-300 border-emerald-500/30",
+  [InvoiceStatus.DRAFT]: "bg-status-neutral-surface text-content-secondary border-content-muted/30",
+  [InvoiceStatus.SENT]: "bg-status-info-surface text-status-info-text border-status-info-border",
+  [InvoiceStatus.CRYPTO_ESCROW_WAITING]: "bg-status-warning-surface text-status-warning-text border-status-warning-border",
+  [InvoiceStatus.DEPOSIT_DETECTED]: "bg-status-info-surface text-status-info-text border-status-info-border",
+  [InvoiceStatus.LOCKED]: "bg-status-web3-surface text-status-web3-text border-status-web3-border",
+  [InvoiceStatus.DISPUTED]: "bg-status-danger-surface text-status-danger-text border-status-danger-border",
+  [InvoiceStatus.PAID]: "bg-action-subtle text-theme-accent border-theme-accent",
   [InvoiceStatus.REFUNDED]: "bg-fuchsia-500/10 text-fuchsia-300 border-fuchsia-500/30",
-  [InvoiceStatus.OVERDUE]: "bg-red-500/10 text-red-300 border-red-500/30",
-  [InvoiceStatus.EXPIRED]: "bg-orange-500/10 text-orange-300 border-orange-500/30",
+  [InvoiceStatus.OVERDUE]: "bg-status-danger-surface text-status-danger-text border-status-danger-border",
+  [InvoiceStatus.EXPIRED]: "bg-status-warning-surface text-status-warning-text border-status-warning-border",
 };
 
 export const PAYMENT_METHOD_LABELS: Record<PaymentMethod, string> = {

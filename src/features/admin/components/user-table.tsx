@@ -34,7 +34,7 @@ export function UserTable({ keyword, role, status }: UserTableProps) {
     <div className="flex flex-col gap-4">
       <div className="overflow-x-auto custom-scrollbar">
         <table className="w-full text-left text-sm whitespace-nowrap">
-          <thead className="bg-slate-950/40 text-[10px] font-bold uppercase tracking-widest text-slate-500 border-b border-white/5">
+          <thead className="bg-surface-base/40 text-[10px] font-bold uppercase tracking-widest text-content-muted border-b border-theme-border">
               <tr>
                 <th className="px-6 py-4 font-medium">User</th>
                 <th className="px-6 py-4 font-medium">Role</th>
@@ -44,55 +44,55 @@ export function UserTable({ keyword, role, status }: UserTableProps) {
                 <th className="px-6 py-4 font-medium text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-800">
+            <tbody className="divide-y divide-theme-border">
               {isLoading ? (
                 Array.from({ length: 8 }).map((_, index) => (
                   <tr key={index}>
                     <td colSpan={6} className="px-6 py-4">
-                      <div className="h-6 w-full animate-pulse rounded bg-slate-800/50" />
+                      <div className="h-6 w-full animate-pulse rounded bg-surface-elevated/50" />
                     </td>
                   </tr>
                 ))
               ) : data?.content.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="px-6 py-8 text-center text-slate-500">
+                  <td colSpan={6} className="px-6 py-8 text-center text-content-muted">
                     No users found matching the current filters.
                   </td>
                 </tr>
               ) : (
                 data?.content.map((u) => (
-                  <tr key={u.id} className="group bg-slate-800/20 hover:bg-slate-800/60 ring-1 ring-transparent hover:ring-white/10 hover:-translate-y-px transition-all duration-300 hover:shadow-xl hover:z-10 relative cursor-pointer" onClick={() => setSelectedUser(u)}>
+                  <tr key={u.id} className="group bg-surface-elevated/20 hover:bg-surface-elevated/60 ring-1 ring-transparent hover:ring-theme-border hover:-translate-y-px transition-all duration-300 hover:shadow-xl hover:z-10 relative cursor-pointer" onClick={() => setSelectedUser(u)}>
                     <td className="px-6 py-4 flex items-center gap-4">
-                        <div className="h-10 w-10 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center text-xs font-bold text-slate-400 uppercase">
+                        <div className="h-10 w-10 rounded-xl bg-surface-elevated border border-theme-border flex items-center justify-center text-xs font-bold text-content-secondary uppercase">
                           {(u.fullName || u.email).substring(0, 2)}
                         </div>
                         <div>
-                          <p className="text-sm font-bold text-white group-hover:text-emerald-400 transition-colors">{u.fullName || "—"}</p>
-                          <p className="text-xs text-slate-500 font-medium">{u.email}</p>
+                          <p className="text-sm font-bold text-content-primary group-hover:text-theme-accent transition-colors">{u.fullName || "—"}</p>
+                          <p className="text-xs text-content-muted font-medium">{u.email}</p>
                         </div>
                     </td>
                     <td className="px-6 py-4"><RoleBadge role={u.role} /></td>
-                    <td className="px-6 py-4 text-slate-400 font-mono text-xs">{u.tenantId || "default"}</td>
+                    <td className="px-6 py-4 text-content-secondary font-mono text-xs">{u.tenantId || "default"}</td>
                     <td className="px-6 py-4">
                       {u.active ? (
                         <div className="flex items-center gap-2">
-                          <div className="h-2 w-2 rounded-full bg-emerald-500" />
-                          <span className="text-xs font-bold text-emerald-500 tracking-wider uppercase">Active</span>
+                          <div className="h-2 w-2 rounded-full bg-status-success-text" />
+                          <span className="text-xs font-bold text-theme-accent tracking-wider uppercase">Active</span>
                         </div>
                       ) : (
                         <div className="flex items-center gap-2">
-                          <div className="h-2 w-2 rounded-full bg-slate-600" />
-                          <span className="text-xs font-bold text-slate-500 tracking-wider uppercase">Inactive</span>
+                          <div className="h-2 w-2 rounded-full bg-surface-sunken" />
+                          <span className="text-xs font-bold text-content-muted tracking-wider uppercase">Inactive</span>
                         </div>
                       )}
                     </td>
-                    <td className="px-6 py-4 text-xs text-slate-500">
+                    <td className="px-6 py-4 text-xs text-content-muted">
                       {format(new Date(u.createdAt), "MMM d, yyyy")}
                     </td>
                     <td className="px-6 py-4 text-right">
-                      <button 
+                      <button
                         onClick={(e) => { e.stopPropagation(); setSelectedUser(u); }}
-                        className="text-emerald-400 hover:text-emerald-300 text-xs font-bold uppercase tracking-wider opacity-0 group-hover:opacity-100 transition-opacity"
+                        className="text-theme-accent hover:text-theme-accent text-xs font-bold uppercase tracking-wider opacity-0 group-hover:opacity-100 transition-opacity"
                       >
                         Manage
                       </button>
@@ -103,7 +103,7 @@ export function UserTable({ keyword, role, status }: UserTableProps) {
             </tbody>
           </table>
         </div>
-        
+
       {/* Pagination */}
       {data && data.totalPages > 1 && (
         <div className="mt-2">
@@ -117,10 +117,10 @@ export function UserTable({ keyword, role, status }: UserTableProps) {
         </div>
       )}
       {selectedUser && (
-        <UserDetailSlideover 
-          userId={selectedUser.id} 
-          isOpen={!!selectedUser} 
-          onClose={() => setSelectedUser(null)} 
+        <UserDetailSlideover
+          userId={selectedUser.id}
+          isOpen={!!selectedUser}
+          onClose={() => setSelectedUser(null)}
         />
       )}
     </div>
