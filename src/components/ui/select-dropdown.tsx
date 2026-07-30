@@ -56,32 +56,32 @@ export function SelectDropdown<T extends string = string>({
         disabled={disabled || loading}
         onClick={() => setOpen((o) => !o)}
         className={cn(
-          "w-full bg-slate-900/50 border text-white flex items-center justify-between transition-all focus:outline-none disabled:opacity-60 disabled:cursor-not-allowed",
+          "flex w-full items-center justify-between border bg-surface text-content-primary transition-all focus:outline-none disabled:cursor-not-allowed disabled:opacity-60",
           size === "sm" ? "h-8 rounded-md px-2 text-xs" : "rounded-xl px-4 py-3 text-sm",
           open
-            ? "border-emerald-500 ring-2 ring-emerald-500/20"
+            ? "border-focus-ring ring-2 ring-focus-ring/20"
             : isError
-              ? "border-rose-500 hover:border-rose-400"
-              : "border-slate-700 hover:border-slate-600",
+              ? "border-status-danger-border hover:border-status-danger-text"
+              : "border-theme-border hover:border-content-muted",
         )}
       >
         {loading ? (
-          <span className="text-slate-500 italic">Loading…</span>
+          <span className="text-content-muted italic">Loading…</span>
         ) : selected ? (
-          <span className={selected.color ?? "text-white"}>{selected.label}</span>
+          <span className={selected.color ?? "text-content-primary"}>{selected.label}</span>
         ) : (
-          <span className="text-slate-500">{placeholder}</span>
+          <span className="text-content-muted">{placeholder}</span>
         )}
         <ChevronDown
           className={cn(
-            "w-4 h-4 text-slate-500 transition-transform duration-200 shrink-0",
+            "h-4 w-4 shrink-0 text-content-muted transition-transform duration-200",
             open && "rotate-180",
           )}
         />
       </button>
 
       {open && (
-        <div className="absolute top-full left-0 right-0 mt-1.5 bg-slate-900 border border-slate-700 rounded-xl overflow-hidden z-50 shadow-2xl animate-in fade-in slide-in-from-top-1 duration-150">
+        <div className="absolute left-0 right-0 top-full z-50 mt-1.5 animate-in overflow-hidden rounded-xl border border-theme-border bg-popover text-popover-foreground shadow-2xl fade-in slide-in-from-top-1 duration-150">
           <div className="max-h-52 overflow-y-auto custom-scrollbar">
             {options.map((opt) => (
               <button
@@ -92,12 +92,12 @@ export function SelectDropdown<T extends string = string>({
                   setOpen(false);
                 }}
                 className={cn(
-                  "w-full flex items-center justify-between px-4 transition-colors hover:bg-slate-800",
+                  "flex w-full items-center justify-between px-4 transition-colors hover:bg-surface-sunken",
                   size === "sm" ? "py-2 text-xs first:rounded-t-md last:rounded-b-md" : "py-3 text-sm first:rounded-t-xl last:rounded-b-xl"
                 )}
               >
-                <span className={opt.color ?? "text-white"}>{opt.label}</span>
-                {value === opt.value && <Check className="w-4 h-4 text-emerald-400 shrink-0" />}
+                <span className={opt.color ?? "text-content-primary"}>{opt.label}</span>
+                {value === opt.value && <Check className="h-4 w-4 shrink-0 text-theme-accent" />}
               </button>
             ))}
           </div>

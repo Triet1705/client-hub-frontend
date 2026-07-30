@@ -21,18 +21,18 @@ export function StatusActivityDot({ category, status, className }: StatusActivit
     if (category === "INVOICE") {
       switch (status) {
         case "PAID":
-          return "bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)]";
+          return "bg-status-success-text shadow-[0_0_8px_rgba(16,185,129,0.65)]";
         case "OVERDUE":
-          return "bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.8)]";
+          return "bg-status-danger-text shadow-[0_0_8px_rgba(244,63,94,0.65)]";
         case "PENDING":
         case "SENT":
-          return "bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.8)]";
+          return "bg-status-warning-text shadow-[0_0_8px_rgba(245,158,11,0.65)]";
         default:
-          return "bg-slate-500 shadow-[0_0_8px_rgba(100,116,139,0.8)]";
+          return "bg-status-neutral-text";
       }
     }
-    
-    return "bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)]";
+
+    return "bg-status-success-text shadow-[0_0_8px_rgba(16,185,129,0.65)]";
   }, [category, status]);
 
   if (!isVisible) return null;
@@ -40,7 +40,7 @@ export function StatusActivityDot({ category, status, className }: StatusActivit
   return (
     <span
       className={cn(
-        "absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full border-2 border-[#0A0E17]",
+        "absolute -right-1 -top-1 h-2.5 w-2.5 rounded-full border-2 border-surface",
         dotClass,
         className
       )}

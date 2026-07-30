@@ -28,6 +28,7 @@ export function CustomSelect({
 }: CustomSelectProps) {
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
   const [dropdownCoords, setDropdownCoords] = useState({ top: 0, left: 0, width: 0 });
   const [mounted, setMounted] = useState(false);
 
@@ -42,12 +43,13 @@ export function CustomSelect({
       // Simple approach: just rely on the portal click handling or overlay
       if (
         containerRef.current &&
-        !containerRef.current.contains(event.target as Node)
+        !containerRef.current.contains(event.target as Node) &&
+        !dropdownRef.current?.contains(event.target as Node)
       ) {
         setIsOpen(false);
       }
     };
-    
+
     // We bind to document to capture all clicks
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
@@ -70,7 +72,8 @@ export function CustomSelect({
 
   const dropdown = (
     <div
-      className="absolute z-[9999] bg-slate-900 border border-slate-700/50 rounded-xl shadow-2xl py-1"
+      ref={dropdownRef}
+      className="absolute z-[9999] rounded-xl border border-theme-border bg-popover py-1 text-popover-foreground shadow-2xl"
       style={{
         top: dropdownCoords.top,
         left: dropdownCoords.left,
@@ -87,8 +90,8 @@ export function CustomSelect({
               type="button"
               className={`w-full flex items-center justify-between px-3 py-2.5 text-sm rounded-lg transition-colors ${
                 isSelected
-                  ? "bg-emerald-500/10 text-emerald-400 font-medium"
-                  : "text-slate-300 hover:bg-slate-800/80 hover:text-white"
+                  ? "bg-action-subtle text-action-subtle-foreground font-medium"
+                  : "text-content-secondary hover:bg-surface-sunken hover:text-content-primary"
               }`}
               onClick={() => {
                 onChange(option.value);
@@ -96,7 +99,7 @@ export function CustomSelect({
               }}
             >
               <span>{option.label}</span>
-              {isSelected && <Check className="w-4 h-4 text-emerald-500" />}
+              {isSelected && <Check className="h-4 w-4 text-theme-accent" />}
             </button>
           );
         })}
@@ -110,14 +113,14 @@ export function CustomSelect({
         type="button"
         disabled={disabled}
         onClick={toggleDropdown}
-        className={`w-full flex items-center justify-between px-4 py-3 bg-slate-900/50 border border-slate-700/50 rounded-xl text-left transition-colors ${
-          disabled ? "opacity-50 cursor-not-allowed" : "hover:border-slate-600 focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
+        className={`flex w-full items-center justify-between rounded-xl border border-theme-border bg-surface px-4 py-3 text-left transition-colors ${
+          disabled ? "cursor-not-allowed opacity-50" : "hover:border-content-muted focus:outline-none focus:ring-2 focus:ring-focus-ring/50"
         }`}
       >
-        <span className={`block truncate ${!selectedOption ? "text-slate-400" : "text-slate-100"}`}>
+        <span className={`block truncate ${!selectedOption ? "text-content-muted" : "text-content-primary"}`}>
           {selectedOption ? selectedOption.label : placeholder}
         </span>
-        <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform ${isOpen ? "rotate-180" : ""}`} />
+        <ChevronDown className={`h-4 w-4 text-content-muted transition-transform ${isOpen ? "rotate-180" : ""}`} />
       </button>
 
       {mounted && isOpen && createPortal(dropdown, document.body)}

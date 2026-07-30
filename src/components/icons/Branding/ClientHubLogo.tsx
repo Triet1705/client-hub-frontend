@@ -83,18 +83,18 @@ export function ClientHubLogo({
             cy="32"
             r="3"
             fill="rgb(255 255 255 / 0.8)"
-            className="dark:fill-slate-100"
+            className="fill-toggle-thumb/80"
           />
         </svg>
       </div>
 
       {showText && (
         <div className="flex flex-col -space-y-1">
-          <span className="text-lg font-extrabold text-blue-900 dark:text-blue-100 tracking-tighter uppercase">
+          <span className="text-lg font-extrabold uppercase tracking-tighter text-content-primary">
             Client
-            <span className="text-emerald-600 dark:text-emerald-400">Hub</span>
+            <span className="text-theme-accent">Hub</span>
           </span>
-          <span className="text-[10px] font-medium text-slate-500 dark:text-slate-400 uppercase tracking-[0.2em]">
+          <span className="text-[10px] font-medium uppercase tracking-[0.2em] text-content-muted">
             Trustless Infrastructure
           </span>
         </div>
@@ -120,7 +120,7 @@ export function HeaderWithLogo() {
               <p className="text-xs text-accent">0x742d...8F4a</p>
             </div>
             <div className="w-8 h-8 rounded-full bg-linear-to-br from-primary to-accent flex items-center justify-center">
-              <span className="text-xs font-bold text-white">W</span>
+              <span className="text-xs font-bold text-action-primary-foreground">W</span>
             </div>
           </div>
         </div>

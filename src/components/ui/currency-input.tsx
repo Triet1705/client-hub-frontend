@@ -10,7 +10,7 @@ export const CurrencyInput = React.forwardRef<HTMLInputElement, CurrencyInputPro
   ({ symbol = "$", className, ...props }, ref) => {
     return (
       <div className="relative">
-        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 text-sm font-mono pointer-events-none">
+        <span className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 font-mono text-sm text-content-muted">
           {symbol}
         </span>
         <Input

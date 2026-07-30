@@ -32,8 +32,8 @@ export function FilterPills<T extends string = string>({
           className={cn(
             "px-4 py-1.5 rounded-full text-[11px] font-bold transition-colors",
             value === opt.value
-              ? "bg-emerald-500 text-white"
-              : "border border-slate-700 hover:bg-white/5 text-slate-400",
+              ? "bg-action-primary text-action-primary-foreground"
+              : "border border-theme-border text-content-secondary hover:bg-surface-sunken",
           )}
         >
           {opt.label}

@@ -41,7 +41,7 @@ export function RowActionMenu({ items, align = "right" }: RowActionMenuProps) {
       <button
         type="button"
         onClick={() => setIsOpen((current) => !current)}
-        className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-slate-700 bg-slate-950 text-slate-300 transition-colors hover:border-slate-600 hover:text-white"
+        className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-theme-border bg-surface text-content-secondary transition-colors hover:border-content-muted hover:text-content-primary"
         aria-label="Open row actions"
       >
         <MoreHorizontal className="h-4 w-4" />
@@ -49,11 +49,11 @@ export function RowActionMenu({ items, align = "right" }: RowActionMenuProps) {
 
       {isOpen ? (
         <div
-          className={`absolute ${alignmentClass} top-10 z-20 min-w-44 rounded-md border border-slate-700 bg-[#020617] p-1 shadow-xl flex flex-col gap-0.5`}
+          className={`absolute ${alignmentClass} top-10 z-20 flex min-w-44 flex-col gap-0.5 rounded-md border border-theme-border bg-popover p-1 text-popover-foreground shadow-xl`}
           role="menu"
         >
           {items.map((item) => {
-            const commonClass = "block w-full rounded-sm px-3 py-2 text-left text-xs whitespace-nowrap text-slate-200 transition-colors hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50";
+            const commonClass = "block w-full whitespace-nowrap rounded-sm px-3 py-2 text-left text-xs text-content-secondary transition-colors hover:bg-surface-sunken hover:text-content-primary disabled:cursor-not-allowed disabled:opacity-50";
 
             if (item.href) {
               return (

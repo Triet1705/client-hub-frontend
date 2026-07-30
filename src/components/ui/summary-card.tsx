@@ -16,13 +16,13 @@ interface SummaryCardProps {
 
 export function SummaryCard({ label, value, icon: Icon, iconClassName, badge, className, isLoading }: SummaryCardProps) {
   const variantClasses = {
-    amber:   "bg-amber-500/10   text-amber-400   bg-amber-500/5   ring-amber-500/20",
-    emerald: "bg-emerald-500/10 text-emerald-400 bg-emerald-500/5 ring-emerald-500/20",
-    cyan:    "bg-cyan-500/10    text-cyan-400    bg-cyan-500/5    ring-cyan-500/20",
-    rose:    "bg-rose-500/10    text-rose-400    bg-rose-500/5    ring-rose-500/20",
-    indigo:  "bg-indigo-500/10  text-indigo-400  bg-indigo-500/5  ring-indigo-500/20",
-    blue:    "bg-blue-500/10    text-blue-400    bg-blue-500/5    ring-blue-500/20",
-    slate:   "bg-slate-500/10   text-slate-400   bg-slate-500/5   ring-slate-500/20",
+    amber:   "bg-status-warning-surface text-status-warning-text bg-status-warning-surface ring-status-warning-border",
+    emerald: "bg-status-success-surface text-status-success-text bg-status-success-surface ring-status-success-border",
+    cyan:    "bg-status-info-surface text-status-info-text bg-status-info-surface ring-status-info-border",
+    rose:    "bg-status-danger-surface text-status-danger-text bg-status-danger-surface ring-status-danger-border",
+    indigo:  "bg-status-web3-surface text-status-web3-text bg-status-web3-surface ring-status-web3-border",
+    blue:    "bg-status-info-surface text-status-info-text bg-status-info-surface ring-status-info-border",
+    slate:   "bg-status-neutral-surface text-status-neutral-text bg-status-neutral-surface ring-status-neutral-border",
   };
 
   return (
