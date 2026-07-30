@@ -43,15 +43,15 @@ export function ChangeColumnTablePopup({
       <button
         type="button"
         onClick={() => setIsOpen((current) => !current)}
-        className="inline-flex h-8 items-center gap-2 rounded-md border border-slate-700 bg-slate-900/80 px-2.5 text-xs font-bold text-slate-300 transition-colors hover:border-slate-600 hover:text-white"
+        className="inline-flex h-8 items-center gap-2 rounded-md border border-theme-border bg-surface px-2.5 text-xs font-bold text-content-secondary transition-colors hover:border-content-muted hover:text-content-primary"
       >
         <Settings2 className="h-3.5 w-3.5" />
         Columns
       </button>
 
       {isOpen ? (
-        <div className="absolute right-0 top-10 z-30 min-w-60 rounded-xl border border-slate-700 bg-slate-900/95 backdrop-blur-xl p-3 shadow-2xl">
-          <p className="pb-3 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+        <div className="absolute right-0 top-10 z-30 min-w-60 rounded-xl border border-theme-border bg-popover p-3 text-popover-foreground shadow-2xl backdrop-blur-xl">
+          <p className="pb-3 text-[10px] font-bold uppercase tracking-wider text-content-muted">
             Visible Columns
           </p>
 
@@ -63,7 +63,7 @@ export function ChangeColumnTablePopup({
                 return (
                   <span
                     key={column.key}
-                    className="inline-flex items-center rounded-full px-3 py-1.5 text-xs font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 opacity-80 cursor-default"
+                    className="inline-flex cursor-default items-center rounded-full border border-status-success-border bg-status-success-surface px-3 py-1.5 text-xs font-semibold text-status-success-text opacity-80"
                   >
                     {column.label}
                   </span>
@@ -77,8 +77,8 @@ export function ChangeColumnTablePopup({
                   onClick={() => onToggleColumn(column.key)}
                   className={`inline-flex items-center rounded-full px-3 py-1.5 text-xs font-semibold border transition-colors ${
                     checked
-                      ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/40"
-                      : "bg-slate-900/50 text-slate-400 border-slate-700 hover:border-slate-500 hover:text-slate-300"
+                      ? "border-status-success-border bg-status-success-surface text-status-success-text"
+                      : "border-theme-border bg-surface text-content-secondary hover:border-content-muted hover:text-content-primary"
                   }`}
                 >
                   {column.label}
@@ -94,7 +94,7 @@ export function ChangeColumnTablePopup({
                 onResetColumns();
                 setIsOpen(false);
               }}
-              className="mt-4 w-full rounded-lg border border-slate-700 bg-slate-800/50 px-3 py-2 text-xs font-bold text-slate-300 transition-colors hover:border-slate-600 hover:bg-slate-800 hover:text-white"
+              className="mt-4 w-full rounded-lg border border-theme-border bg-surface-sunken/60 px-3 py-2 text-xs font-bold text-content-secondary transition-colors hover:border-content-muted hover:bg-surface-sunken hover:text-content-primary"
             >
               Reset Columns
             </button>

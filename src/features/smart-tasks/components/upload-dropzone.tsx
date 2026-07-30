@@ -41,7 +41,7 @@ export function UploadDropzone({ onUpload, isUploading }: UploadDropzoneProps) {
   const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
     setIsDragOver(false);
-    
+
     if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
       const file = e.dataTransfer.files[0];
       if (validateFile(file)) {
@@ -75,12 +75,12 @@ export function UploadDropzone({ onUpload, isUploading }: UploadDropzoneProps) {
 
   return (
     <div className="w-full">
-      <input 
-        type="file" 
-        accept=".pdf" 
+      <input
+        type="file"
+        accept=".pdf"
         ref={inputRef}
         onChange={handleFileChange}
-        className="hidden" 
+        className="hidden"
       />
 
       {!selectedFile ? (
@@ -91,60 +91,60 @@ export function UploadDropzone({ onUpload, isUploading }: UploadDropzoneProps) {
           onClick={() => inputRef.current?.click()}
           className={cn(
             "border-2 border-dashed rounded-2xl p-12 text-center cursor-pointer transition-all duration-200",
-            isDragOver 
-              ? "border-emerald-500 bg-emerald-500/10" 
-              : "border-slate-800 bg-slate-900/50 hover:border-slate-700 hover:bg-slate-800/50"
+            isDragOver
+              ? "border-theme-accent bg-action-subtle"
+              : "border-theme-border bg-surface/50 hover:border-theme-border hover:bg-surface-elevated/50"
           )}
         >
           <div className="flex flex-col items-center justify-center space-y-4">
             <div className={cn(
               "w-16 h-16 rounded-full flex items-center justify-center transition-colors",
-              isDragOver ? "bg-emerald-500/20 text-emerald-400" : "bg-slate-800 text-slate-400"
+              isDragOver ? "bg-action-subtle text-theme-accent" : "bg-surface-elevated text-content-secondary"
             )}>
               <UploadCloud className="w-8 h-8" />
             </div>
-            
+
             <div className="space-y-1">
-              <h3 className="text-lg font-medium text-slate-200">
+              <h3 className="text-lg font-medium text-content-secondary">
                 Upload Project Document
               </h3>
-              <p className="text-sm text-slate-500">
+              <p className="text-sm text-content-muted">
                 Drag and drop your PDF here, or click to browse
               </p>
             </div>
-            
-            <div className="text-xs text-slate-600 font-medium">
+
+            <div className="text-xs text-content-muted font-medium">
               Supported formats: PDF (Max 10MB)
             </div>
           </div>
         </div>
       ) : (
-        <div className="border border-slate-800 bg-slate-900/50 rounded-2xl p-6">
+        <div className="border border-theme-border bg-surface/50 rounded-2xl p-6">
           <div className="flex items-center gap-4 mb-6">
-            <div className="w-12 h-12 rounded-xl bg-red-500/20 text-red-400 flex items-center justify-center shrink-0">
+            <div className="w-12 h-12 rounded-xl bg-status-danger-surface text-status-danger-text flex items-center justify-center shrink-0">
               <FileType className="w-6 h-6" />
             </div>
             <div className="flex-1 min-w-0">
-              <h4 className="text-sm font-medium text-slate-200 truncate">
+              <h4 className="text-sm font-medium text-content-secondary truncate">
                 {selectedFile.name}
               </h4>
-              <p className="text-xs text-slate-500">
+              <p className="text-xs text-content-muted">
                 {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
               </p>
             </div>
             <button
               onClick={handleClear}
               disabled={isUploading}
-              className="p-2 text-slate-400 hover:text-slate-200 hover:bg-slate-800 rounded-lg transition-colors disabled:opacity-50"
+              className="p-2 text-content-secondary hover:text-content-secondary hover:bg-surface-elevated rounded-lg transition-colors disabled:opacity-50"
             >
               <X className="w-5 h-5" />
             </button>
           </div>
-          
+
           <button
             onClick={handleStartExtraction}
             disabled={isUploading}
-            className="w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl font-medium flex items-center justify-center gap-2 transition-colors disabled:opacity-50 disabled:hover:bg-emerald-600"
+            className="w-full py-3 bg-action-primary hover:bg-action-primary-hover text-action-primary-foreground rounded-xl font-medium flex items-center justify-center gap-2 transition-colors disabled:opacity-50 disabled:hover:bg-action-primary-hover"
           >
             {isUploading ? (
               <>
@@ -159,9 +159,9 @@ export function UploadDropzone({ onUpload, isUploading }: UploadDropzoneProps) {
       )}
 
       {error && (
-        <div className="mt-4 p-4 rounded-xl bg-red-500/10 border border-red-500/20 flex items-start gap-3">
-          <AlertCircle className="w-5 h-5 text-red-400 shrink-0 mt-0.5" />
-          <p className="text-sm text-red-400">{error}</p>
+        <div className="mt-4 p-4 rounded-xl bg-status-danger-surface border border-status-danger-border flex items-start gap-3">
+          <AlertCircle className="w-5 h-5 text-status-danger-text shrink-0 mt-0.5" />
+          <p className="text-sm text-status-danger-text">{error}</p>
         </div>
       )}
     </div>

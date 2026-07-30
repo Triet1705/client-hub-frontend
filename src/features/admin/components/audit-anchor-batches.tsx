@@ -9,11 +9,11 @@ import { Pagination } from "@/components/ui/pagination";
 import type { AuditAnchorBatch } from "../types/admin.types";
 
 const STATUS_STYLE: Record<string, string> = {
-  CONFIRMED: "border-emerald-500/30 bg-emerald-500/10 text-emerald-300",
-  SUBMITTED: "border-sky-500/30 bg-sky-500/10 text-sky-300",
-  READY: "border-amber-500/30 bg-amber-500/10 text-amber-300",
-  BUILDING: "border-amber-500/30 bg-amber-500/10 text-amber-300",
-  FAILED: "border-rose-500/30 bg-rose-500/10 text-rose-300",
+  CONFIRMED: "border-theme-accent bg-action-subtle text-theme-accent",
+  SUBMITTED: "border-status-info-border bg-status-info-surface text-status-info-text",
+  READY: "border-status-warning-border bg-status-warning-surface text-status-warning-text",
+  BUILDING: "border-status-warning-border bg-status-warning-surface text-status-warning-text",
+  FAILED: "border-status-danger-border bg-status-danger-surface text-status-danger-text",
 };
 
 export function AuditAnchorBatches() {
@@ -29,7 +29,7 @@ export function AuditAnchorBatches() {
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h3 id="anchor-batches-heading" className="flex items-center gap-2 text-sm font-semibold text-content-primary">
-            <ShieldCheck className="h-4 w-4 text-emerald-400" />
+            <ShieldCheck className="h-4 w-4 text-theme-accent" />
             Blockchain proof batches
           </h3>
           <p className="mt-1 text-xs text-content-muted">Recent Merkle roots submitted by the audit anchoring service.</p>
@@ -39,7 +39,7 @@ export function AuditAnchorBatches() {
         </Button>
       </div>
 
-      {runMutation.isError && <p className="text-xs text-rose-300">Anchoring could not be started. Check blockchain readiness.</p>}
+      {runMutation.isError && <p className="text-xs text-status-danger-text">Anchoring could not be started. Check blockchain readiness.</p>}
       {runMutation.isSuccess && !runMutation.data && <p className="text-xs text-content-muted">No unanchored audit records are waiting.</p>}
 
       <div className="flex flex-wrap gap-2" aria-label="Batch status filter">
@@ -51,7 +51,7 @@ export function AuditAnchorBatches() {
             className={cn(
               "h-8 rounded-md border px-3 text-xs font-semibold transition-colors",
               status === value
-                ? "border-emerald-500/40 bg-emerald-500/10 text-emerald-200"
+                ? "border-theme-accent bg-action-subtle text-theme-accent"
                 : "border-theme-border bg-surface-elevated text-content-muted hover:text-content-primary",
             )}
           >
@@ -64,7 +64,7 @@ export function AuditAnchorBatches() {
         {isLoading ? (
           <div className="h-20 animate-pulse bg-surface-sunken" />
         ) : isError ? (
-          <div className="px-4 py-5 text-sm text-rose-300">Batch history is temporarily unavailable.</div>
+          <div className="px-4 py-5 text-sm text-status-danger-text">Batch history is temporarily unavailable.</div>
         ) : !data?.content.length ? (
           <div className="flex items-center gap-3 px-4 py-5 text-sm text-content-muted">
             <Database className="h-4 w-4" /> No audit roots have been created yet.
@@ -78,7 +78,7 @@ export function AuditAnchorBatches() {
                 </span>
                 <div className="min-w-0">
                   <p className="truncate font-mono text-xs text-content-secondary" title={batch.merkleRoot}>{batch.merkleRoot}</p>
-                  {batch.lastError && <p className="mt-1 truncate text-xs text-rose-300">{batch.lastError}</p>}
+                  {batch.lastError && <p className="mt-1 truncate text-xs text-status-danger-text">{batch.lastError}</p>}
                 </div>
                 <span className="text-xs text-content-muted">{batch.recordCount} records</span>
                 <span className="text-xs text-content-muted">{batch.confirmations} confirmations</span>

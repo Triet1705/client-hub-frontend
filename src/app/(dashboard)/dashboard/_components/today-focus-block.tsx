@@ -28,7 +28,7 @@ export function TodayFocusBlock({
       label: `${overdueProjects.length} overdue project${overdueProjects.length > 1 ? "s" : ""}`,
       sub: "Require immediate attention",
       href: "/projects",
-      cls: "ring-rose-500/40 hover:ring-rose-500/80 bg-rose-500/5 hover:bg-rose-500/10 shadow-[inset_0_0_20px_rgba(244,63,94,0.05)]",
+      cls: "ring-status-danger-border hover:ring-status-danger-border bg-status-danger-surface hover:bg-status-danger-surface shadow-[inset_0_0_20px_rgba(244,63,94,0.05)]",
       urgent: true,
     });
   }
@@ -38,7 +38,7 @@ export function TodayFocusBlock({
       label: `${pendingTasks} task${pendingTasks > 1 ? "s" : ""} on deck`,
       sub: role === "FREELANCER" ? "Assigned to you" : "Across all active projects",
       href: "/projects",
-      cls: "ring-amber-500/40 hover:ring-amber-500/80 bg-amber-500/5 hover:bg-amber-500/10 shadow-[inset_0_0_20px_rgba(245,158,11,0.05)]",
+      cls: "ring-status-warning-border hover:ring-status-warning-border bg-status-warning-surface hover:bg-status-warning-surface shadow-[inset_0_0_20px_rgba(245,158,11,0.05)]",
       urgent: false,
     });
   }
@@ -48,7 +48,7 @@ export function TodayFocusBlock({
       label: `${formatCurrency(awaitingPayment)} awaits`,
       sub: "Invoices ready for processing",
       href: "/invoices",
-      cls: "ring-blue-500/40 hover:ring-blue-500/80 bg-blue-500/5 hover:bg-blue-500/10 shadow-[inset_0_0_20px_rgba(59,130,246,0.05)]",
+      cls: "ring-status-info-border hover:ring-status-info-border bg-status-info-surface hover:bg-status-info-surface shadow-[inset_0_0_20px_rgba(59,130,246,0.05)]",
       urgent: false,
     });
   }
@@ -58,7 +58,7 @@ export function TodayFocusBlock({
       label: `${stalledProjects.length} stalled project${stalledProjects.length > 1 ? "s" : ""}`,
       sub: "Pending decisions or hold",
       href: "/projects",
-      cls: "ring-slate-600/60 hover:ring-slate-500 bg-slate-800/30 hover:bg-slate-800/50 shadow-[inset_0_0_20px_rgba(255,255,255,0.02)]",
+      cls: "ring-theme-border/60 hover:ring-theme-border bg-surface-elevated/30 hover:bg-surface-elevated/50 shadow-[inset_0_0_20px_var(--shadow-color)]",
       urgent: false,
     });
   }
@@ -66,9 +66,9 @@ export function TodayFocusBlock({
   if (ctas.length === 0 || isLoading) return null;
 
   return (
-    <div className="bg-slate-900/60 backdrop-blur-xl ring-1 ring-white/5 rounded-3xl p-6 shadow-2xl shadow-black/50">
-      <p className="text-[11px] font-bold uppercase tracking-widest text-slate-500 mb-4 flex items-center gap-2">
-        <span className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)] animate-pulse" />
+    <div className="bg-surface/60 backdrop-blur-xl ring-1 ring-theme-border rounded-3xl p-6 shadow-2xl shadow-theme">
+      <p className="text-[11px] font-bold uppercase tracking-widest text-content-muted mb-4 flex items-center gap-2">
+        <span className="w-2 h-2 rounded-full bg-status-success-text shadow-[0_0_8px_rgba(16,185,129,0.8)] animate-pulse" />
         Today&apos;s Focus
       </p>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -83,16 +83,16 @@ export function TodayFocusBlock({
           >
             {cta.urgent && (
               <span className="relative flex h-3 w-3 shrink-0">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75" />
-                <span className="relative inline-flex rounded-full h-3 w-3 bg-rose-500" />
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-status-danger-text opacity-75" />
+                <span className="relative inline-flex rounded-full h-3 w-3 bg-status-danger-text" />
               </span>
             )}
             <div className="min-w-0">
-              <p className="text-sm font-bold text-white truncate transition-colors group-hover:text-white">{cta.label}</p>
-              <p className="text-xs text-slate-400 mt-1 transition-colors group-hover:text-slate-300">{cta.sub}</p>
+              <p className="text-sm font-bold text-content-primary truncate transition-colors group-hover:text-content-primary">{cta.label}</p>
+              <p className="text-xs text-content-secondary mt-1 transition-colors group-hover:text-content-secondary">{cta.sub}</p>
             </div>
             <div className="ml-auto opacity-0 group-hover:opacity-100 transition-all -translate-x-2 group-hover:translate-x-0">
-              <span className="text-white/70">→</span>
+              <span className="text-content-primary/70">→</span>
             </div>
           </Link>
         ))}

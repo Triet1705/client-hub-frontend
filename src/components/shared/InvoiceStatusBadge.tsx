@@ -179,20 +179,20 @@ export function CryptoPaymentProgress({
                 <div
                   className={`p-3 rounded-full border-2 ${
                     step.completed
-                      ? "bg-green-100 border-green-500"
+                      ? "bg-status-success-text border-theme-accent"
                       : step.active
                         ? `${config.bgClass} ${config.borderClass}`
-                        : "bg-gray-100 border-gray-300"
+                        : "bg-status-neutral-surface border-status-neutral-border"
                   }`}
                 >
                   <Icon
                     className={`w-6 h-6 ${step.active && config.shouldAnimate ? "animate-pulse" : ""}`}
                     primaryColor={
                       step.completed
-                        ? "#10b981"
+                        ? "var(--status-success-text)"
                         : step.active
                           ? config.primaryColor
-                          : "#94a3b8"
+                          : "var(--status-neutral-text)"
                     }
                     accentColor={config.accentColor}
                     confirmations={
@@ -207,8 +207,8 @@ export function CryptoPaymentProgress({
                     step.active
                       ? config.textClass
                       : step.completed
-                        ? "text-green-700"
-                        : "text-gray-500"
+                        ? "text-theme-accent"
+                        : "text-status-neutral-text"
                   }`}
                 >
                   {step.label}
@@ -216,10 +216,10 @@ export function CryptoPaymentProgress({
               </div>
 
               {index < steps.length - 1 && (
-                <div className="flex-1 h-0.5 bg-gray-300 relative">
+                <div className="flex-1 h-0.5 bg-status-neutral-border relative">
                   <div
                     className={`absolute top-0 left-0 h-full transition-all ${
-                      step.completed ? "bg-green-500 w-full" : "w-0"
+                      step.completed ? "bg-status-success-text w-full" : "w-0"
                     }`}
                   />
                 </div>
@@ -230,11 +230,11 @@ export function CryptoPaymentProgress({
       </div>
 
       {showDetails && status === InvoiceStatus.DEPOSIT_DETECTED && (
-        <div className="mt-2 p-3 bg-amber-50 border border-amber-300 rounded-lg">
-          <p className="text-sm text-amber-800">
+        <div className="mt-2 p-3 bg-status-warning-text border border-status-warning-border rounded-lg">
+          <p className="text-sm text-status-warning-text">
             <strong>Confirmations:</strong> {confirmations}/12
           </p>
-          <p className="text-xs text-amber-600 mt-1">
+          <p className="text-xs text-status-warning-text mt-1">
             Estimated time: ~{Math.max(0, (12 - confirmations) * 15)} seconds
             remaining
           </p>

@@ -21,14 +21,14 @@ interface AuditLogTableProps {
 export function AuditLogTable({ action, entityType, tenantId, anchored, anchorStatus }: AuditLogTableProps = {}) {
   const [page, setPage] = React.useState(0);
   const [selectedLog, setSelectedLog] = React.useState<AdminAuditLogResponse | null>(null);
-  
+
   // Reset page when filters change
   React.useEffect(() => {
     setPage(0);
   }, [action, entityType, tenantId, anchored, anchorStatus]);
 
-  const { data: logs, isLoading } = useAdminAuditLogsQuery({ 
-    page, 
+  const { data: logs, isLoading } = useAdminAuditLogsQuery({
+    page,
     size: 20,
     action: action || undefined,
     entityType: entityType || undefined,
@@ -39,7 +39,7 @@ export function AuditLogTable({ action, entityType, tenantId, anchored, anchorSt
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="rounded-3xl border border-white/5 bg-slate-900/60 backdrop-blur-xl ring-1 ring-white/5 shadow-2xl shadow-black/50 overflow-hidden">
+      <div className="rounded-3xl border border-theme-border bg-surface/60 backdrop-blur-xl ring-1 ring-theme-border shadow-2xl shadow-theme overflow-hidden">
         <div className="overflow-x-auto custom-scrollbar">
           <table className="w-full text-left text-sm whitespace-nowrap">
             <thead className="border-b border-theme-border text-[10px] font-bold uppercase tracking-widest text-content-muted">
@@ -90,7 +90,7 @@ export function AuditLogTable({ action, entityType, tenantId, anchored, anchorSt
                     </td>
                     <td className="px-6 py-4">
                       {log.entityType ? (
-                        <span className="px-2.5 py-1 rounded-full text-[10px] font-bold tracking-wider bg-sky-500/10 text-sky-400 uppercase">
+                        <span className="px-2.5 py-1 rounded-full text-[10px] font-bold tracking-wider bg-status-info-surface text-status-info-text uppercase">
                           {log.entityType}
                         </span>
                       ) : (
@@ -126,10 +126,10 @@ export function AuditLogTable({ action, entityType, tenantId, anchored, anchorSt
         </div>
       )}
 
-      <AuditLogDetailSlideover 
-        log={selectedLog} 
-        isOpen={!!selectedLog} 
-        onClose={() => setSelectedLog(null)} 
+      <AuditLogDetailSlideover
+        log={selectedLog}
+        isOpen={!!selectedLog}
+        onClose={() => setSelectedLog(null)}
       />
     </div>
   );

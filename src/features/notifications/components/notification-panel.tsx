@@ -35,25 +35,25 @@ function formatRelativeTime(dateString: string) {
   if (diffInHours < 24) return `${diffInHours}h ago`;
   const diffInDays = Math.floor(diffInHours / 24);
   if (diffInDays < 7) return `${diffInDays}d ago`;
-  
+
   return new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric" }).format(date);
 }
 
 function getIconForType(type: string) {
   switch (type) {
     case "NEW_COMMENT":
-      return <NavCommunicationIcon className="w-5 h-5 text-emerald-400" />;
+      return <NavCommunicationIcon className="w-5 h-5 text-theme-accent" primaryColor="currentColor" accentColor="currentColor" />;
     case "TASK_ASSIGNED":
     case "TASK_COMPLETED":
-      return <NavTasksIcon className="w-5 h-5 text-blue-400" />;
+      return <NavTasksIcon className="w-5 h-5 text-status-info-text" primaryColor="currentColor" accentColor="currentColor" />;
     case "PROJECT_COMPLETED":
     case "PROJECT_INVITE":
-      return <NavProjectsIcon className="w-5 h-5 text-purple-400" />;
+      return <NavProjectsIcon className="w-5 h-5 text-status-web3-text" primaryColor="currentColor" accentColor="currentColor" />;
     case "INVOICE_PAID":
     case "INVOICE_STATUS_CHANGE":
-      return <NavInvoicesIcon className="w-5 h-5 text-amber-400" />;
+      return <NavInvoicesIcon className="w-5 h-5 text-status-warning-text" primaryColor="currentColor" accentColor="currentColor" />;
     default:
-      return <Bell className="w-5 h-5 text-slate-400" />;
+      return <Bell className="w-5 h-5 text-content-secondary" />;
   }
 }
 
@@ -79,7 +79,7 @@ export function NotificationPanel({ isOpen, onClose }: NotificationPanelProps) {
     if (!isRead) {
       markRead.mutate(id);
     }
-    
+
     onClose();
 
     if (referenceType && referenceId) {
@@ -106,26 +106,26 @@ export function NotificationPanel({ isOpen, onClose }: NotificationPanelProps) {
 
   return (
     <>
-      <div 
+      <div
         className="fixed inset-0 z-40"
         onClick={onClose}
       />
-      
-      <div className="absolute right-0 top-full mt-2 w-80 sm:w-96 bg-[#111827] border border-slate-800 rounded-xl shadow-2xl z-50 overflow-hidden flex flex-col max-h-[32rem]">
-        <div className="flex items-center justify-between p-4 border-b border-slate-800 shrink-0">
-          <h3 className="font-bold text-white">Notifications</h3>
+
+      <div className="absolute right-0 top-full mt-2 w-80 sm:w-96 bg-surface border border-theme-border rounded-xl shadow-2xl z-50 overflow-hidden flex flex-col max-h-[32rem]">
+        <div className="flex items-center justify-between p-4 border-b border-theme-border shrink-0">
+          <h3 className="font-bold text-content-primary">Notifications</h3>
           <div className="flex items-center gap-3">
             <button
               onClick={() => markAllRead.mutate()}
               disabled={markAllRead.isPending || notifications.every(n => n.read)}
-              className="text-xs text-slate-400 hover:text-emerald-400 disabled:opacity-50 disabled:hover:text-slate-400 transition-colors flex items-center gap-1"
+              className="text-xs text-content-secondary hover:text-theme-accent disabled:opacity-50 disabled:hover:text-content-secondary transition-colors flex items-center gap-1"
             >
               <CheckCircle className="w-3 h-3" />
               Mark all read
             </button>
             <button
               onClick={onClose}
-              className="text-slate-500 hover:text-slate-300 transition-colors"
+              className="text-content-muted hover:text-content-secondary transition-colors"
             >
               <X className="w-4 h-4" />
             </button>
@@ -137,63 +137,63 @@ export function NotificationPanel({ isOpen, onClose }: NotificationPanelProps) {
             <div className="p-4 space-y-4">
               {[1, 2, 3].map(i => (
                 <div key={i} className="flex gap-3 animate-pulse">
-                  <div className="w-10 h-10 rounded-full bg-slate-800 shrink-0" />
+                  <div className="w-10 h-10 rounded-full bg-surface-elevated shrink-0" />
                   <div className="space-y-2 flex-1">
-                    <div className="h-4 bg-slate-800 rounded w-full" />
-                    <div className="h-3 bg-slate-800 rounded w-24" />
+                    <div className="h-4 bg-surface-elevated rounded w-full" />
+                    <div className="h-3 bg-surface-elevated rounded w-24" />
                   </div>
                 </div>
               ))}
             </div>
           ) : notifications.length === 0 ? (
-            <div className="flex flex-col items-center justify-center p-8 text-center text-slate-500 space-y-3">
-              <div className="w-12 h-12 rounded-full bg-slate-800/50 flex items-center justify-center">
-                <Bell className="w-6 h-6 text-slate-600" />
+            <div className="flex flex-col items-center justify-center p-8 text-center text-content-muted space-y-3">
+              <div className="w-12 h-12 rounded-full bg-surface-elevated/50 flex items-center justify-center">
+                <Bell className="w-6 h-6 text-content-muted" />
               </div>
               <p className="text-sm">No notifications yet</p>
             </div>
           ) : (
-            <div className="divide-y divide-slate-800/50">
+            <div className="divide-y divide-theme-border/50">
               {notifications.map(notification => (
                 <button
                   key={notification.id}
                   onClick={() => handleNotificationClick(
-                    notification.id, 
-                    notification.referenceType, 
+                    notification.id,
+                    notification.referenceType,
                     notification.referenceId,
                     notification.read
                   )}
                   className={cn(
-                    "w-full text-left p-4 hover:bg-slate-800/30 transition-colors flex items-start gap-3 relative group",
-                    !notification.read ? "bg-slate-800/10" : ""
+                    "w-full text-left p-4 hover:bg-surface-elevated/30 transition-colors flex items-start gap-3 relative group",
+                    !notification.read ? "bg-surface-elevated/10" : ""
                   )}
                 >
                   {!notification.read && (
-                    <div className="absolute left-1.5 top-5 w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                    <div className="absolute left-1.5 top-5 w-1.5 h-1.5 rounded-full bg-status-success-text" />
                   )}
-                  
+
                   <div className={cn(
                     "w-10 h-10 rounded-full flex items-center justify-center shrink-0 border",
-                    !notification.read ? "bg-slate-800 border-slate-700" : "bg-transparent border-slate-800"
+                    !notification.read ? "bg-surface-elevated border-theme-border" : "bg-transparent border-theme-border"
                   )}>
                     {getIconForType(notification.type)}
                   </div>
-                  
+
                   <div className="flex-1 min-w-0 pr-4">
                     <p className={cn(
                       "text-sm leading-snug",
-                      !notification.read ? "text-slate-200 font-medium" : "text-slate-400"
+                      !notification.read ? "text-content-secondary font-medium" : "text-content-secondary"
                     )}>
                       {notification.message}
                     </p>
-                    <p className="text-xs text-slate-500 mt-1">
+                    <p className="text-xs text-content-muted mt-1">
                       {formatRelativeTime(notification.createdAt)}
                     </p>
                   </div>
 
                   {notification.referenceId && (
-                    <div className="opacity-0 group-hover:opacity-100 transition-opacity absolute right-4 top-1/2 -translate-y-1/2 text-slate-500">
-                      <ActionViewIcon className="w-4 h-4" />
+                    <div className="opacity-0 group-hover:opacity-100 transition-opacity absolute right-4 top-1/2 -translate-y-1/2 text-content-muted">
+                      <ActionViewIcon className="w-4 h-4" primaryColor="currentColor" accentColor="currentColor" />
                     </div>
                   )}
                 </button>

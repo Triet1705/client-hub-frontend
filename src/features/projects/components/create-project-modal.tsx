@@ -21,9 +21,9 @@ import { SelectDropdown, type SelectOption } from "@/components/ui/select-dropdo
 import { Button } from "@/components/ui/button";
 
 const STATUS_OPTIONS: SelectOption<ProjectStatus>[] = [
-  { value: ProjectStatus.PLANNING,    label: "Planning",    color: "text-slate-300" },
-  { value: ProjectStatus.IN_PROGRESS, label: "In Progress", color: "text-blue-400"  },
-  { value: ProjectStatus.ON_HOLD,     label: "On Hold",     color: "text-amber-400" },
+  { value: ProjectStatus.PLANNING,    label: "Planning",    color: "text-content-secondary" },
+  { value: ProjectStatus.IN_PROGRESS, label: "In Progress", color: "text-status-info-text"  },
+  { value: ProjectStatus.ON_HOLD,     label: "On Hold",     color: "text-status-warning-text" },
 ];
 
 interface CreateProjectModalProps {
@@ -74,7 +74,7 @@ export function CreateProjectModal({ isOpen, onClose }: CreateProjectModalProps)
         variant="ghost"
         onClick={handleClose}
         disabled={isPending}
-        className="px-6 text-slate-400 hover:text-white"
+        className="px-6 text-content-secondary hover:text-content-primary"
       >
         Cancel
       </Button>
@@ -117,7 +117,7 @@ export function CreateProjectModal({ isOpen, onClose }: CreateProjectModalProps)
           />
         </FormField>
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <FormField label="Budget (USD)" error={errors.budget?.message}>
             <CurrencyInput
               {...register("budget")}

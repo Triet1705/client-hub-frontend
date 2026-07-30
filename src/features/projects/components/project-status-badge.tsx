@@ -7,11 +7,11 @@ interface ProjectStatusBadgeProps {
 }
 
 const STATUS_CONFIG: Record<ProjectStatus, { label: string; color: string; bg: string; dot: string }> = {
-  [ProjectStatus.PLANNING]:    { label: "Planning",    color: "text-slate-400",   bg: "bg-slate-500/10 border-slate-500/20",   dot: "bg-slate-400"   },
-  [ProjectStatus.IN_PROGRESS]: { label: "In Progress", color: "text-blue-400",    bg: "bg-blue-500/10 border-blue-400/20",     dot: "bg-blue-400"    },
-  [ProjectStatus.ON_HOLD]:     { label: "On Hold",     color: "text-amber-400",   bg: "bg-amber-500/10 border-amber-400/20",   dot: "bg-amber-400"   },
-  [ProjectStatus.COMPLETED]:   { label: "Completed",   color: "text-emerald-400", bg: "bg-emerald-500/10 border-emerald-400/20", dot: "bg-emerald-400" },
-  [ProjectStatus.CANCELLED]:   { label: "Cancelled",   color: "text-rose-400",    bg: "bg-rose-500/10 border-rose-400/20",     dot: "bg-rose-400"    },
+  [ProjectStatus.PLANNING]:    { label: "Planning",    color: "text-content-secondary",   bg: "bg-status-neutral-surface border-content-muted/20",   dot: "bg-status-neutral-text"   },
+  [ProjectStatus.IN_PROGRESS]: { label: "In Progress", color: "text-status-info-text",    bg: "bg-status-info-surface border-status-info-border",     dot: "bg-status-info-text"    },
+  [ProjectStatus.ON_HOLD]:     { label: "On Hold",     color: "text-status-warning-text",   bg: "bg-status-warning-surface border-status-warning-border",   dot: "bg-status-warning-text"   },
+  [ProjectStatus.COMPLETED]:   { label: "Completed",   color: "text-theme-accent", bg: "bg-action-subtle border-theme-accent", dot: "bg-status-success-text" },
+  [ProjectStatus.CANCELLED]:   { label: "Cancelled",   color: "text-status-danger-text",    bg: "bg-status-danger-surface border-status-danger-border",     dot: "bg-status-danger-text"    },
 };
 
 export function ProjectStatusBadge({ status, className }: ProjectStatusBadgeProps) {

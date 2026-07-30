@@ -136,10 +136,10 @@ function sourceLabel(sourceType: string) {
 
 function activityTone(entityType: string) {
   const normalized = entityType.toUpperCase();
-  if (normalized === "INVOICE") return "text-amber-300 bg-amber-500/10 border-amber-500/20";
-  if (normalized === "TASK") return "text-emerald-300 bg-emerald-500/10 border-emerald-500/20";
-  if (normalized === "COMMENT") return "text-sky-300 bg-sky-500/10 border-sky-500/20";
-  return "text-slate-300 bg-slate-500/10 border-slate-500/20";
+  if (normalized === "INVOICE") return "text-status-warning-text bg-status-warning-surface border-status-warning-border";
+  if (normalized === "TASK") return "text-theme-accent bg-action-subtle border-theme-accent";
+  if (normalized === "COMMENT") return "text-status-info-text bg-status-info-surface border-status-info-border";
+  return "text-content-secondary bg-status-neutral-surface border-content-muted/20";
 }
 
 function isInvoiceStatus(value: string): value is InvoiceStatus {
@@ -154,7 +154,7 @@ function MetricTile({
   label,
   value,
   icon: Icon,
-  tone = "text-slate-300",
+  tone = "text-content-secondary",
 }: {
   label: string;
   value: string;
@@ -162,12 +162,12 @@ function MetricTile({
   tone?: string;
 }) {
   return (
-    <div className="rounded-2xl border border-white/10 bg-slate-900/60 p-4">
+    <div className="rounded-2xl border border-theme-border bg-surface/60 p-4">
       <div className="mb-3 flex items-center justify-between gap-3">
-        <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500">{label}</span>
+        <span className="text-[10px] font-bold uppercase tracking-widest text-content-muted">{label}</span>
         <Icon className={cn("h-4 w-4", tone)} />
       </div>
-      <p className="text-2xl font-bold tracking-tight text-white">{value}</p>
+      <p className="text-2xl font-bold tracking-tight text-content-primary">{value}</p>
     </div>
   );
 }
@@ -182,10 +182,10 @@ function EmptyState({
   description: string;
 }) {
   return (
-    <div className="flex min-h-64 flex-col items-center justify-center rounded-2xl border border-dashed border-white/10 bg-slate-900/40 p-8 text-center">
-      <Icon className="mb-4 h-10 w-10 text-slate-600" />
-      <p className="font-semibold text-slate-300">{title}</p>
-      <p className="mt-1 max-w-md text-sm text-slate-500">{description}</p>
+    <div className="flex min-h-64 flex-col items-center justify-center rounded-2xl border border-dashed border-theme-border bg-surface/40 p-8 text-center">
+      <Icon className="mb-4 h-10 w-10 text-content-muted" />
+      <p className="font-semibold text-content-secondary">{title}</p>
+      <p className="mt-1 max-w-md text-sm text-content-muted">{description}</p>
     </div>
   );
 }
@@ -200,10 +200,10 @@ function TabErrorState({
   description: string;
 }) {
   return (
-    <div className="flex min-h-48 flex-col items-center justify-center rounded-2xl border border-rose-500/20 bg-rose-500/10 p-8 text-center text-rose-200">
-      <Icon className="mb-4 h-10 w-10 text-rose-300" />
-      <p className="font-semibold text-rose-100">{title}</p>
-      <p className="mt-1 max-w-md text-sm text-rose-200/80">{description}</p>
+    <div className="flex min-h-48 flex-col items-center justify-center rounded-2xl border border-status-danger-border bg-status-danger-surface p-8 text-center text-status-danger-text">
+      <Icon className="mb-4 h-10 w-10 text-status-danger-text" />
+      <p className="font-semibold text-status-danger-text">{title}</p>
+      <p className="mt-1 max-w-md text-sm text-status-danger-text/80">{description}</p>
     </div>
   );
 }
@@ -232,21 +232,21 @@ function ProjectFilesList({ files }: { files: ProjectFileItem[] }) {
             fileName: file.fileName,
           })}
           disabled={downloadAttachment.isPending}
-          className="group rounded-2xl border border-white/10 bg-slate-900/60 p-4 text-left transition hover:border-emerald-500/30 hover:bg-slate-900 disabled:opacity-50"
+          className="group rounded-2xl border border-theme-border bg-surface/60 p-4 text-left transition hover:border-theme-accent hover:bg-surface disabled:opacity-50"
         >
           <div className="flex items-start gap-3">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-300 ring-1 ring-emerald-500/20">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-action-subtle text-theme-accent ring-1 ring-theme-accent">
               <Paperclip className="h-5 w-5" />
             </div>
             <div className="min-w-0 flex-1">
               <div className="flex items-start gap-2">
-                <p className="truncate text-sm font-bold text-white group-hover:text-emerald-200">{file.fileName}</p>
-                <ExternalLink className="mt-0.5 h-3.5 w-3.5 shrink-0 text-slate-600 group-hover:text-emerald-300" />
+                <p className="truncate text-sm font-bold text-content-primary group-hover:text-theme-accent">{file.fileName}</p>
+                <ExternalLink className="mt-0.5 h-3.5 w-3.5 shrink-0 text-content-muted group-hover:text-theme-accent" />
               </div>
-              <p className="mt-1 text-xs text-slate-500">
+              <p className="mt-1 text-xs text-content-muted">
                 {sourceLabel(file.sourceType)} message by {file.authorName}
               </p>
-              <p className="mt-3 text-[10px] font-bold uppercase tracking-widest text-slate-600">
+              <p className="mt-3 text-[10px] font-bold uppercase tracking-widest text-content-muted">
                 {formatDate(file.createdAt, { day: "2-digit", month: "short", year: "numeric" })}
               </p>
             </div>
@@ -269,7 +269,7 @@ function ActivityProof({ projectId, item }: { projectId: string; item: ProjectAc
       <button
         type="button"
         onClick={() => setOpen((value) => !value)}
-        className="text-xs font-semibold text-emerald-300 hover:text-emerald-200"
+        className="text-xs font-semibold text-theme-accent hover:text-theme-accent"
       >
         {open ? "Hide integrity proof" : "View integrity proof"}
       </button>
@@ -301,7 +301,7 @@ function ProjectActivityList({ projectId, activity }: { projectId: string; activ
   }
 
   return (
-    <div className="divide-y divide-white/10 overflow-hidden rounded-2xl border border-white/10 bg-slate-900/60">
+    <div className="divide-y divide-theme-border overflow-hidden rounded-2xl border border-theme-border bg-surface/60">
       {activity.map((item, index) => (
         <div key={`${item.id ?? item.entityId}-${index}`} className="flex gap-4 p-4">
           <div className={cn("mt-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border", activityTone(item.entityType))}>
@@ -309,22 +309,22 @@ function ProjectActivityList({ projectId, activity }: { projectId: string; activ
           </div>
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center gap-2">
-              <p className="font-semibold text-slate-100">{item.label}</p>
-              <span className="rounded-md border border-white/10 bg-white/5 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+              <p className="font-semibold text-content-primary">{item.label}</p>
+              <span className="rounded-md border border-theme-border bg-surface-sunken px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-content-muted">
                 {sourceLabel(item.entityType)}
               </span>
               <span className={cn(
                 "rounded-md border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider",
-                item.proofStatus === "VERIFIED" && "border-emerald-500/30 bg-emerald-500/10 text-emerald-300",
-                item.proofStatus === "PENDING" && "border-amber-500/30 bg-amber-500/10 text-amber-300",
-                item.proofStatus === "TAMPERED" && "border-rose-500/30 bg-rose-500/10 text-rose-300",
-                item.proofStatus === "CHAIN_UNAVAILABLE" && "border-sky-500/30 bg-sky-500/10 text-sky-300",
-                item.proofStatus === "NOT_ANCHORED" && "border-slate-700 bg-slate-800/60 text-slate-400",
+                item.proofStatus === "VERIFIED" && "border-theme-accent bg-action-subtle text-theme-accent",
+                item.proofStatus === "PENDING" && "border-status-warning-border bg-status-warning-surface text-status-warning-text",
+                item.proofStatus === "TAMPERED" && "border-status-danger-border bg-status-danger-surface text-status-danger-text",
+                item.proofStatus === "CHAIN_UNAVAILABLE" && "border-status-info-border bg-status-info-surface text-status-info-text",
+                item.proofStatus === "NOT_ANCHORED" && "border-theme-border bg-surface-elevated/60 text-content-secondary",
               )}>
                 {item.proofStatus === "NOT_ANCHORED" ? "Waiting for anchor" : item.proofStatus.replace(/_/g, " ")}
               </span>
             </div>
-            <p className="mt-1 text-sm text-slate-500">
+            <p className="mt-1 text-sm text-content-muted">
               {item.actorName} - {formatDate(item.createdAt, { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" })}
             </p>
             <ActivityProof projectId={projectId} item={item} />
@@ -356,7 +356,7 @@ function InvoiceRows({
           <button
             type="button"
             onClick={onCreateInvoice}
-            className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-bold text-white transition hover:bg-emerald-500"
+            className="inline-flex items-center gap-2 rounded-xl bg-action-primary px-4 py-2.5 text-sm font-bold text-action-primary-foreground transition hover:bg-action-primary-hover"
           >
             <Plus className="h-4 w-4" />
             Create Invoice
@@ -367,39 +367,39 @@ function InvoiceRows({
   }
 
   return (
-    <div className="overflow-hidden rounded-2xl border border-white/10 bg-slate-900/60">
+    <div className="overflow-hidden rounded-2xl border border-theme-border bg-surface/60">
       <div className="overflow-x-auto custom-scrollbar">
         <table className="w-full min-w-[720px] text-left">
-          <thead className="border-b border-white/10 bg-slate-950/50">
+          <thead className="border-b border-theme-border bg-surface-base/50">
             <tr>
-              <th className="px-5 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-500">Invoice</th>
-              <th className="px-5 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-500">Amount</th>
-              <th className="px-5 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-500">Status</th>
-              <th className="px-5 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-500">Payment</th>
-              <th className="px-5 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-500">Due</th>
+              <th className="px-5 py-4 text-[10px] font-bold uppercase tracking-widest text-content-muted">Invoice</th>
+              <th className="px-5 py-4 text-[10px] font-bold uppercase tracking-widest text-content-muted">Amount</th>
+              <th className="px-5 py-4 text-[10px] font-bold uppercase tracking-widest text-content-muted">Status</th>
+              <th className="px-5 py-4 text-[10px] font-bold uppercase tracking-widest text-content-muted">Payment</th>
+              <th className="px-5 py-4 text-[10px] font-bold uppercase tracking-widest text-content-muted">Due</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-white/10">
+          <tbody className="divide-y divide-theme-border">
             {invoices.map((invoice) => {
               const status = isInvoiceStatus(invoice.status) ? invoice.status : InvoiceStatus.DRAFT;
               const paymentMethod = isPaymentMethod(invoice.paymentMethod) ? invoice.paymentMethod : undefined;
 
               return (
-                <tr key={invoice.id} className="transition hover:bg-slate-800/40">
+                <tr key={invoice.id} className="transition hover:bg-surface-elevated/40">
                   <td className="px-5 py-4">
-                    <Link href={`/invoices/${invoice.id}`} className="font-mono text-sm font-bold text-slate-200 hover:text-emerald-300">
+                    <Link href={`/invoices/${invoice.id}`} className="font-mono text-sm font-bold text-content-secondary hover:text-theme-accent">
                       {formatInvoiceId(invoice.id)}
                     </Link>
-                    {invoice.title ? <p className="mt-1 max-w-xs truncate text-xs text-slate-500">{invoice.title}</p> : null}
+                    {invoice.title ? <p className="mt-1 max-w-xs truncate text-xs text-content-muted">{invoice.title}</p> : null}
                   </td>
-                  <td className="px-5 py-4 font-mono text-sm font-bold text-white">{formatFiat(invoice.amount)}</td>
+                  <td className="px-5 py-4 font-mono text-sm font-bold text-content-primary">{formatFiat(invoice.amount)}</td>
                   <td className="px-5 py-4">
                     <InvoiceStatusPill status={status} />
                   </td>
-                  <td className="px-5 py-4 text-sm text-slate-400">
+                  <td className="px-5 py-4 text-sm text-content-secondary">
                     {paymentMethod ? PAYMENT_METHOD_LABELS[paymentMethod] : "Payment method pending"}
                   </td>
-                  <td className="px-5 py-4 text-sm text-slate-400">
+                  <td className="px-5 py-4 text-sm text-content-secondary">
                     {formatDate(invoice.dueDate, { day: "2-digit", month: "short", year: "numeric" })}
                   </td>
                 </tr>
@@ -517,10 +517,10 @@ export default function ProjectDetailPage() {
 
   if (isProjectError || !project) {
     return (
-      <div className="mx-auto mt-20 max-w-2xl rounded-2xl border border-rose-500/20 bg-rose-500/10 p-8 text-center text-rose-300 ring-1 ring-rose-500/30">
-        <h2 className="mb-2 text-xl font-bold tracking-tight text-rose-100">Access Denied or Project Missing</h2>
+      <div className="mx-auto mt-20 max-w-2xl rounded-2xl border border-status-danger-border bg-status-danger-surface p-8 text-center text-status-danger-text ring-1 ring-status-danger-border">
+        <h2 className="mb-2 text-xl font-bold tracking-tight text-status-danger-text">Access Denied or Project Missing</h2>
         <p className="text-sm">The requested project could not be loaded for your workspace.</p>
-        <Link href="/projects" className="mt-6 inline-block rounded-xl bg-rose-500/20 px-5 py-2.5 text-sm font-bold text-rose-100 transition-colors hover:bg-rose-500/30">
+        <Link href="/projects" className="mt-6 inline-block rounded-xl bg-status-danger-surface px-5 py-2.5 text-sm font-bold text-status-danger-text transition-colors hover:bg-status-danger-surface">
           Return to Projects
         </Link>
       </div>
@@ -529,44 +529,44 @@ export default function ProjectDetailPage() {
 
   return (
     <div className="w-full max-w-[1600px] space-y-6 font-body">
-      <Link href="/projects" className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-slate-500 transition-colors hover:text-emerald-400">
+      <Link href="/projects" className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-content-muted transition-colors hover:text-theme-accent">
         <ArrowLeft className="h-3.5 w-3.5" />
         Back to Projects
       </Link>
 
-      <section className="rounded-2xl border border-white/10 bg-slate-900/60 p-6 shadow-xl shadow-black/20">
+      <section className="rounded-2xl border border-theme-border bg-surface/60 p-4 shadow-xl shadow-theme sm:p-6">
         <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
           <div className="min-w-0 space-y-4">
             <div className="flex flex-wrap items-center gap-3">
-              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-300 ring-1 ring-emerald-500/20">
+              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-action-subtle text-theme-accent ring-1 ring-theme-accent">
                 <FolderGit2 className="h-5 w-5" />
               </div>
               <ProjectStatusBadge status={project.status} />
-              <span className="rounded-md border border-white/10 bg-white/5 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+              <span className="rounded-md border border-theme-border bg-surface-sunken px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-content-muted">
                 {progress?.progressPercent ?? 0}% Complete
               </span>
             </div>
 
             <div>
-              <h1 className="text-3xl font-bold tracking-tight text-white md:text-4xl">{project.title}</h1>
+              <h1 className="text-3xl font-bold tracking-tight text-content-primary md:text-4xl">{project.title}</h1>
               {project.description ? (
-                <p className="mt-3 max-w-4xl text-sm leading-6 text-slate-400">{project.description}</p>
+                <p className="mt-3 max-w-4xl text-sm leading-6 text-content-secondary">{project.description}</p>
               ) : null}
             </div>
 
-            <div className="flex flex-wrap items-center gap-3 text-sm text-slate-400">
-              <span className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-slate-950/50 px-3 py-2">
-                <Calendar className="h-4 w-4 text-slate-500" />
+            <div className="flex flex-wrap items-center gap-3 text-sm text-content-secondary">
+              <span className="inline-flex items-center gap-2 rounded-xl border border-theme-border bg-surface-base/50 px-3 py-2">
+                <Calendar className="h-4 w-4 text-content-muted" />
                 {formatDate(project.deadline, { day: "2-digit", month: "short", year: "numeric" })}
               </span>
               {canManageProject ? (
-                <span className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-slate-950/50 px-3 py-2">
-                  <DollarSign className="h-4 w-4 text-emerald-300" />
+                <span className="inline-flex items-center gap-2 rounded-xl border border-theme-border bg-surface-base/50 px-3 py-2">
+                  <DollarSign className="h-4 w-4 text-theme-accent" />
                   {formatFiat(project.budget)}
                 </span>
               ) : null}
-              <span className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-slate-950/50 px-3 py-2">
-                <Users className="h-4 w-4 text-sky-300" />
+              <span className="inline-flex items-center gap-2 rounded-xl border border-theme-border bg-surface-base/50 px-3 py-2">
+                <Users className="h-4 w-4 text-status-info-text" />
                 Owner: {project.ownerName || project.ownerEmail}
               </span>
             </div>
@@ -576,7 +576,7 @@ export default function ProjectDetailPage() {
             <button
               type="button"
               onClick={() => setIsSmartUploadOpen(true)}
-              className="inline-flex items-center gap-2 rounded-xl border border-indigo-500/30 bg-indigo-600/20 px-4 py-2.5 text-sm font-bold text-indigo-200 transition hover:border-indigo-400/50 hover:bg-indigo-600/30"
+              className="inline-flex items-center gap-2 rounded-xl border border-status-web3-border bg-status-web3-surface px-4 py-2.5 text-sm font-bold text-status-web3-text transition hover:border-status-web3-border hover:bg-status-web3-surface"
             >
               <Sparkles className="h-4 w-4" />
               Smart Upload
@@ -584,7 +584,7 @@ export default function ProjectDetailPage() {
             <button
               type="button"
               onClick={() => handleAddTask(TaskStatus.TODO)}
-              className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-bold text-white transition hover:bg-emerald-500"
+              className="inline-flex items-center gap-2 rounded-xl bg-action-primary px-4 py-2.5 text-sm font-bold text-action-primary-foreground transition hover:bg-action-primary-hover"
             >
               <Plus className="h-4 w-4" />
               Add Task
@@ -594,7 +594,7 @@ export default function ProjectDetailPage() {
       </section>
 
       <div className="overflow-x-auto custom-scrollbar">
-        <div className="flex min-w-max gap-2 rounded-2xl border border-white/10 bg-slate-950/50 p-2">
+        <div className="flex min-w-max gap-2 rounded-2xl border border-theme-border bg-surface-base/50 p-2">
           {PROJECT_PORTAL_TABS.map((tab) => {
             const Icon = tab.icon;
             const isActive = activeTab === tab.id;
@@ -607,8 +607,8 @@ export default function ProjectDetailPage() {
                 className={cn(
                   "inline-flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-bold transition",
                   isActive
-                    ? "bg-emerald-500/15 text-emerald-200 ring-1 ring-emerald-500/30"
-                    : "text-slate-500 hover:bg-white/5 hover:text-slate-200",
+                    ? "bg-action-subtle text-theme-accent ring-1 ring-theme-accent"
+                    : "text-content-muted hover:bg-surface-sunken hover:text-content-secondary",
                 )}
               >
                 <Icon className="h-4 w-4" />
@@ -623,19 +623,19 @@ export default function ProjectDetailPage() {
         <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_24rem]">
           <div className="space-y-6">
             <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-              <MetricTile label="Progress" value={`${progress?.progressPercent ?? 0}%`} icon={CheckCircle2} tone="text-emerald-300" />
-              <MetricTile label="Open Tasks" value={String(openTasks.length)} icon={ListTodo} tone="text-sky-300" />
-              <MetricTile label="Open Invoices" value={String(openInvoices.length)} icon={Receipt} tone="text-amber-300" />
-              <MetricTile label="Files" value={String(files.length)} icon={Paperclip} tone="text-indigo-300" />
+              <MetricTile label="Progress" value={`${progress?.progressPercent ?? 0}%`} icon={CheckCircle2} tone="text-theme-accent" />
+              <MetricTile label="Open Tasks" value={String(openTasks.length)} icon={ListTodo} tone="text-status-info-text" />
+              <MetricTile label="Open Invoices" value={String(openInvoices.length)} icon={Receipt} tone="text-status-warning-text" />
+              <MetricTile label="Files" value={String(files.length)} icon={Paperclip} tone="text-status-web3-text" />
             </div>
 
             {(isFilesError || isActivityError) ? (
-              <div className="rounded-2xl border border-amber-500/20 bg-amber-500/10 p-4 text-sm text-amber-100">
+              <div className="rounded-2xl border border-status-warning-border bg-status-warning-surface p-4 text-sm text-status-warning-text">
                 <div className="flex items-start gap-3">
-                  <AlertCircle className="mt-0.5 h-5 w-5 shrink-0 text-amber-300" />
+                  <AlertCircle className="mt-0.5 h-5 w-5 shrink-0 text-status-warning-text" />
                   <div>
                     <p className="font-bold">Some portal panels did not load.</p>
-                    <p className="mt-1 text-amber-100/80">
+                    <p className="mt-1 text-status-warning-text/80">
                       Project details are still available. Check the Files or Activity tab for the failed panel and retry after the API is healthy.
                     </p>
                   </div>
@@ -643,78 +643,78 @@ export default function ProjectDetailPage() {
               </div>
             ) : null}
 
-            <section className="rounded-2xl border border-white/10 bg-slate-900/60 p-5">
+            <section className="rounded-2xl border border-theme-border bg-surface/60 p-5">
               <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
                 <div>
-                  <h2 className="font-bold text-white">Task Snapshot</h2>
-                  <p className="mt-1 text-sm text-slate-500">
+                  <h2 className="font-bold text-content-primary">Task Snapshot</h2>
+                  <p className="mt-1 text-sm text-content-muted">
                     {doneTasks.length} of {progress?.totalTasks ?? tasks.length} tasks completed
                   </p>
                 </div>
                 <button
                   type="button"
                   onClick={() => handleTabChange("tasks")}
-                  className="text-sm font-bold text-emerald-300 transition hover:text-emerald-200"
+                  className="text-sm font-bold text-theme-accent transition hover:text-theme-accent"
                 >
                   View Tasks
                 </button>
               </div>
               <div className="grid gap-3 md:grid-cols-3">
-                <div className="rounded-xl border border-white/10 bg-slate-950/40 p-4">
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Waiting</p>
-                  <p className="mt-2 text-2xl font-bold text-white">{tasks.filter((task) => task.status === TaskStatus.TODO).length}</p>
+                <div className="rounded-xl border border-theme-border bg-surface-base/40 p-4">
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-content-muted">Waiting</p>
+                  <p className="mt-2 text-2xl font-bold text-content-primary">{tasks.filter((task) => task.status === TaskStatus.TODO).length}</p>
                 </div>
-                <div className="rounded-xl border border-white/10 bg-slate-950/40 p-4">
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Overdue</p>
-                  <p className="mt-2 text-2xl font-bold text-rose-300">{overdueTasks.length}</p>
+                <div className="rounded-xl border border-theme-border bg-surface-base/40 p-4">
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-content-muted">Overdue</p>
+                  <p className="mt-2 text-2xl font-bold text-status-danger-text">{overdueTasks.length}</p>
                 </div>
-                <div className="rounded-xl border border-white/10 bg-slate-950/40 p-4">
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Urgent</p>
-                  <p className="mt-2 text-2xl font-bold text-amber-300">{urgentTasks.length}</p>
+                <div className="rounded-xl border border-theme-border bg-surface-base/40 p-4">
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-content-muted">Urgent</p>
+                  <p className="mt-2 text-2xl font-bold text-status-warning-text">{urgentTasks.length}</p>
                 </div>
               </div>
             </section>
 
-            <section className="rounded-2xl border border-white/10 bg-slate-900/60 p-5">
+            <section className="rounded-2xl border border-theme-border bg-surface/60 p-5">
               <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
                 <div>
-                  <h2 className="font-bold text-white">Invoice Summary</h2>
-                  <p className="mt-1 text-sm text-slate-500">{formatFiat(invoiceTotal)} across {invoices.length} invoices</p>
+                  <h2 className="font-bold text-content-primary">Invoice Summary</h2>
+                  <p className="mt-1 text-sm text-content-muted">{formatFiat(invoiceTotal)} across {invoices.length} invoices</p>
                 </div>
                 <button
                   type="button"
                   onClick={() => handleTabChange("invoices")}
-                  className="text-sm font-bold text-emerald-300 transition hover:text-emerald-200"
+                  className="text-sm font-bold text-theme-accent transition hover:text-theme-accent"
                 >
                   View Invoices
                 </button>
               </div>
               <div className="grid gap-3 md:grid-cols-3">
-                <div className="rounded-xl border border-white/10 bg-slate-950/40 p-4">
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Paid</p>
-                  <p className="mt-2 text-2xl font-bold text-emerald-300">{paidInvoices.length}</p>
+                <div className="rounded-xl border border-theme-border bg-surface-base/40 p-4">
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-content-muted">Paid</p>
+                  <p className="mt-2 text-2xl font-bold text-theme-accent">{paidInvoices.length}</p>
                 </div>
-                <div className="rounded-xl border border-white/10 bg-slate-950/40 p-4">
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Open</p>
-                  <p className="mt-2 text-2xl font-bold text-amber-300">{openInvoices.length}</p>
+                <div className="rounded-xl border border-theme-border bg-surface-base/40 p-4">
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-content-muted">Open</p>
+                  <p className="mt-2 text-2xl font-bold text-status-warning-text">{openInvoices.length}</p>
                 </div>
-                <div className="rounded-xl border border-white/10 bg-slate-950/40 p-4">
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Total</p>
-                  <p className="mt-2 text-2xl font-bold text-white">{formatFiat(invoiceTotal)}</p>
+                <div className="rounded-xl border border-theme-border bg-surface-base/40 p-4">
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-content-muted">Total</p>
+                  <p className="mt-2 text-2xl font-bold text-content-primary">{formatFiat(invoiceTotal)}</p>
                 </div>
               </div>
             </section>
           </div>
 
           <aside className="space-y-6">
-            <section className="rounded-2xl border border-white/10 bg-slate-900/60 p-5">
+            <section className="rounded-2xl border border-theme-border bg-surface/60 p-5">
               <div className="mb-4 flex items-center justify-between gap-3">
-                <h2 className="font-bold text-white">Members</h2>
+                <h2 className="font-bold text-content-primary">Members</h2>
                 {canManageMembers ? (
                   <button
                     type="button"
                     onClick={() => setIsAddMemberOpen(true)}
-                    className="rounded-lg bg-emerald-500/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest text-emerald-300 ring-1 ring-emerald-500/20"
+                    className="rounded-lg bg-action-subtle px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest text-theme-accent ring-1 ring-theme-accent"
                   >
                     Add
                   </button>
@@ -722,17 +722,17 @@ export default function ProjectDetailPage() {
               </div>
               <div className="space-y-3">
                 {isMembersLoading ? (
-                  [1, 2, 3].map((item) => <div key={item} className="h-14 animate-pulse rounded-xl bg-white/5" />)
+                  [1, 2, 3].map((item) => <div key={item} className="h-14 animate-pulse rounded-xl bg-surface-sunken" />)
                 ) : members.length === 0 ? (
-                  <p className="rounded-xl border border-dashed border-white/10 p-4 text-center text-sm text-slate-500">No project members yet.</p>
+                  <p className="rounded-xl border border-dashed border-theme-border p-4 text-center text-sm text-content-muted">No project members yet.</p>
                 ) : (
                   members.map((member) => (
-                    <div key={member.userId} className="flex items-center justify-between gap-3 rounded-xl border border-white/10 bg-slate-950/40 p-3">
+                    <div key={member.userId} className="flex items-center justify-between gap-3 rounded-xl border border-theme-border bg-surface-base/40 p-3">
                       <div className="flex min-w-0 items-center gap-3">
                         <UserAvatar name={member.fullName || member.email} sizeClass="h-9 w-9 text-[10px]" />
                         <div className="min-w-0">
-                          <p className="truncate text-sm font-bold text-white">{member.fullName || member.email}</p>
-                          <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500">{member.role}</p>
+                          <p className="truncate text-sm font-bold text-content-primary">{member.fullName || member.email}</p>
+                          <p className="text-[10px] font-bold uppercase tracking-widest text-content-muted">{member.role}</p>
                         </div>
                       </div>
                       {canManageMembers && member.role === "FREELANCER" ? (
@@ -741,7 +741,7 @@ export default function ProjectDetailPage() {
                           aria-label="Remove member"
                           onClick={() => removeMember(member.userId)}
                           disabled={isRemovingMember}
-                          className="rounded-lg p-2 text-slate-500 transition hover:bg-rose-500/10 hover:text-rose-300 disabled:opacity-50"
+                          className="rounded-lg p-2 text-content-muted transition hover:bg-status-danger-surface hover:text-status-danger-text disabled:opacity-50"
                         >
                           <Trash2 className="h-4 w-4" />
                         </button>
@@ -752,28 +752,28 @@ export default function ProjectDetailPage() {
               </div>
             </section>
 
-            <section className="rounded-2xl border border-white/10 bg-slate-900/60 p-5">
+            <section className="rounded-2xl border border-theme-border bg-surface/60 p-5">
               <div className="mb-4 flex items-center justify-between gap-3">
-                <h2 className="font-bold text-white">Latest Messages</h2>
+                <h2 className="font-bold text-content-primary">Latest Messages</h2>
                 <button
                   type="button"
                   onClick={() => handleTabChange("messages")}
-                  className="text-xs font-bold text-emerald-300 transition hover:text-emerald-200"
+                  className="text-xs font-bold text-theme-accent transition hover:text-theme-accent"
                 >
                   Open
                 </button>
               </div>
               <div className="space-y-3">
                 {projectMessages.slice(0, 3).map((message) => (
-                  <div key={message.id} className="rounded-xl border border-white/10 bg-slate-950/40 p-3">
-                    <p className="line-clamp-2 text-sm text-slate-300">{message.content}</p>
-                    <p className="mt-2 text-xs text-slate-600">
+                  <div key={message.id} className="rounded-xl border border-theme-border bg-surface-base/40 p-3">
+                    <p className="line-clamp-2 text-sm text-content-secondary">{message.content}</p>
+                    <p className="mt-2 text-xs text-content-muted">
                       {message.author.fullName || message.author.email} - {formatDate(message.createdAt)}
                     </p>
                   </div>
                 ))}
                 {projectMessages.length === 0 ? (
-                  <p className="rounded-xl border border-dashed border-white/10 p-4 text-center text-sm text-slate-500">No project messages yet.</p>
+                  <p className="rounded-xl border border-dashed border-theme-border p-4 text-center text-sm text-content-muted">No project messages yet.</p>
                 ) : null}
               </div>
             </section>
@@ -782,12 +782,12 @@ export default function ProjectDetailPage() {
       ) : null}
 
       {activeTab === "tasks" ? (
-        <section className="min-h-[650px] overflow-hidden rounded-2xl border border-white/10 bg-slate-900/60">
-          <div className="space-y-4 border-b border-white/10 bg-slate-950/40 px-5 py-4">
+        <section className="min-h-[650px] overflow-hidden rounded-2xl border border-theme-border bg-surface/60">
+          <div className="space-y-4 border-b border-theme-border bg-surface-base/40 px-5 py-4">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div>
-                <h2 className="font-bold text-white">Tasks</h2>
-                <p className="mt-1 text-sm text-slate-500">
+                <h2 className="font-bold text-content-primary">Tasks</h2>
+                <p className="mt-1 text-sm text-content-muted">
                   {filteredTasks.length} shown from {tasks.length} total - {openTasks.length} open, {doneTasks.length} completed
                 </p>
               </div>
@@ -795,7 +795,7 @@ export default function ProjectDetailPage() {
                 <button
                   type="button"
                   onClick={() => setIsSmartUploadOpen(true)}
-                  className="inline-flex items-center gap-2 rounded-xl border border-indigo-500/30 bg-indigo-600/20 px-4 py-2.5 text-sm font-bold text-indigo-200 transition hover:border-indigo-400/50 hover:bg-indigo-600/30"
+                  className="inline-flex items-center gap-2 rounded-xl border border-status-web3-border bg-status-web3-surface px-4 py-2.5 text-sm font-bold text-status-web3-text transition hover:border-status-web3-border hover:bg-status-web3-surface"
                 >
                   <Sparkles className="h-4 w-4" />
                   Smart Upload
@@ -803,7 +803,7 @@ export default function ProjectDetailPage() {
                 <button
                   type="button"
                   onClick={() => handleAddTask(TaskStatus.TODO)}
-                  className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-bold text-white transition hover:bg-emerald-500"
+                  className="inline-flex items-center gap-2 rounded-xl bg-action-primary px-4 py-2.5 text-sm font-bold text-action-primary-foreground transition hover:bg-action-primary-hover"
                 >
                   <Plus className="h-4 w-4" />
                   Add Task
@@ -811,13 +811,13 @@ export default function ProjectDetailPage() {
               </div>
             </div>
             <div className="flex flex-wrap items-center gap-2">
-              <div className="flex items-center gap-0.5 rounded-lg border border-white/10 bg-white/5 p-1">
+              <div className="flex items-center gap-0.5 rounded-lg border border-theme-border bg-surface-sunken p-1">
                 <button
                   type="button"
                   onClick={() => setTasksViewMode("kanban")}
                   className={cn(
                     "inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors",
-                    tasksViewMode === "kanban" ? "bg-white/10 text-white" : "text-slate-500 hover:text-slate-300",
+                    tasksViewMode === "kanban" ? "bg-surface-sunken text-content-primary" : "text-content-muted hover:text-content-secondary",
                   )}
                 >
                   <LayoutGrid className="h-3.5 w-3.5" />
@@ -828,7 +828,7 @@ export default function ProjectDetailPage() {
                   onClick={() => setTasksViewMode("list")}
                   className={cn(
                     "inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors",
-                    tasksViewMode === "list" ? "bg-white/10 text-white" : "text-slate-500 hover:text-slate-300",
+                    tasksViewMode === "list" ? "bg-surface-sunken text-content-primary" : "text-content-muted hover:text-content-secondary",
                   )}
                 >
                   <List className="h-3.5 w-3.5" />
@@ -869,14 +869,14 @@ export default function ProjectDetailPage() {
                 className={cn(
                   "inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs transition-colors",
                   hasActiveAdvancedFilters
-                    ? "border-emerald-500/30 bg-emerald-500/12 text-emerald-300"
-                    : "border-white/10 bg-white/5 text-slate-400 hover:border-white/20 hover:text-slate-200",
+                    ? "border-theme-accent bg-action-subtle text-theme-accent"
+                    : "border-theme-border bg-surface-sunken text-content-secondary hover:border-theme-border hover:text-content-secondary",
                 )}
               >
-                <SlidersHorizontal className={cn("h-3 w-3", hasActiveAdvancedFilters ? "text-emerald-300" : "text-slate-500")} />
+                <SlidersHorizontal className={cn("h-3 w-3", hasActiveAdvancedFilters ? "text-theme-accent" : "text-content-muted")} />
                 Advanced
                 {hasActiveAdvancedFilters ? (
-                  <span className="inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-emerald-400/20 px-1 text-[10px] font-semibold text-emerald-300">
+                  <span className="inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-action-subtle px-1 text-[10px] font-semibold text-theme-accent">
                     ON
                   </span>
                 ) : null}
@@ -884,12 +884,12 @@ export default function ProjectDetailPage() {
             </div>
           </div>
           {isTasksError ? (
-            <div className="m-6 rounded-2xl border border-rose-500/20 bg-rose-500/10 p-5 text-center text-sm text-rose-300">
+            <div className="m-6 rounded-2xl border border-status-danger-border bg-status-danger-surface p-5 text-center text-sm text-status-danger-text">
               Failed to load tasks for this project.
             </div>
           ) : isTasksLoading ? (
             <div className="flex h-full gap-4 p-6">
-              {[1, 2, 3, 4].map((item) => <div key={item} className="h-[32rem] flex-1 animate-pulse rounded-2xl bg-slate-800/50" />)}
+              {[1, 2, 3, 4].map((item) => <div key={item} className="h-[32rem] flex-1 animate-pulse rounded-2xl bg-surface-elevated/50" />)}
             </div>
           ) : tasksViewMode === "list" ? (
             <div className="px-5 pb-5">
@@ -902,10 +902,10 @@ export default function ProjectDetailPage() {
       ) : null}
 
       {activeTab === "messages" ? (
-        <section className="overflow-hidden rounded-2xl border border-white/10 bg-slate-900/60">
-          <div className="border-b border-white/10 bg-slate-950/40 px-5 py-4">
-            <h2 className="font-bold text-white">Messages</h2>
-            <p className="mt-1 text-sm text-slate-500">Project-level conversation for everyone with access.</p>
+        <section className="overflow-hidden rounded-2xl border border-theme-border bg-surface/60">
+          <div className="border-b border-theme-border bg-surface-base/40 px-5 py-4">
+            <h2 className="font-bold text-content-primary">Messages</h2>
+            <p className="mt-1 text-sm text-content-muted">Project-level conversation for everyone with access.</p>
           </div>
           <ContextualDiscussion
             targetType="PROJECT"
@@ -921,17 +921,17 @@ export default function ProjectDetailPage() {
         <section className="space-y-5">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
-              <h2 className="font-bold text-white">Files</h2>
-              <p className="mt-1 text-sm text-slate-500">Attachments collected from project, task, and invoice messages.</p>
+              <h2 className="font-bold text-content-primary">Files</h2>
+              <p className="mt-1 text-sm text-content-muted">Attachments collected from project, task, and invoice messages.</p>
             </div>
-            <span className="rounded-md border border-white/10 bg-white/5 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+            <span className="rounded-md border border-theme-border bg-surface-sunken px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-content-muted">
               {files.length} Files
             </span>
           </div>
           <ProjectFileUploadZone projectId={projectId} />
           {isFilesLoading ? (
             <div className="grid gap-3 lg:grid-cols-2">
-              {[1, 2, 3, 4].map((item) => <div key={item} className="h-24 animate-pulse rounded-2xl bg-slate-900/60" />)}
+              {[1, 2, 3, 4].map((item) => <div key={item} className="h-24 animate-pulse rounded-2xl bg-surface/60" />)}
             </div>
           ) : isFilesError ? (
             <TabErrorState
@@ -949,8 +949,8 @@ export default function ProjectDetailPage() {
         <section className="space-y-5">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
-              <h2 className="font-bold text-white">Invoices</h2>
-              <p className="mt-1 text-sm text-slate-500">
+              <h2 className="font-bold text-content-primary">Invoices</h2>
+              <p className="mt-1 text-sm text-content-muted">
                 {paidInvoices.length} paid, {openInvoices.length} open, {formatFiat(invoiceTotal)} total
               </p>
             </div>
@@ -959,20 +959,20 @@ export default function ProjectDetailPage() {
                 <button
                   type="button"
                   onClick={() => setIsCreateInvoiceOpen(true)}
-                  className="inline-flex items-center gap-2 rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-bold text-white transition hover:bg-emerald-500"
+                  className="inline-flex items-center gap-2 rounded-xl bg-action-primary px-4 py-2.5 text-sm font-bold text-action-primary-foreground transition hover:bg-action-primary-hover"
                 >
                   <Plus className="h-4 w-4" />
                   Create Invoice
                 </button>
               ) : null}
-              <Link href={`/invoices?projectId=${projectId}`} className="inline-flex items-center gap-2 rounded-xl border border-white/10 px-4 py-2.5 text-sm font-bold text-slate-300 transition hover:bg-white/5 hover:text-white">
+              <Link href={`/invoices?projectId=${projectId}`} className="inline-flex items-center gap-2 rounded-xl border border-theme-border px-4 py-2.5 text-sm font-bold text-content-secondary transition hover:bg-surface-sunken hover:text-content-primary">
                 View All
                 <ExternalLink className="h-4 w-4" />
               </Link>
             </div>
           </div>
           {isInvoicesLoading ? (
-            <div className="h-72 animate-pulse rounded-2xl bg-slate-900/60" />
+            <div className="h-72 animate-pulse rounded-2xl bg-surface/60" />
           ) : (
             <InvoiceRows invoices={invoices} onCreateInvoice={() => setIsCreateInvoiceOpen(true)} canManageProject={canManageProject} />
           )}
@@ -983,17 +983,17 @@ export default function ProjectDetailPage() {
         <section className="space-y-5">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
-              <h2 className="font-bold text-white">Activity</h2>
-              <p className="mt-1 text-sm text-slate-500">Client-friendly history from project audit events.</p>
+              <h2 className="font-bold text-content-primary">Activity</h2>
+              <p className="mt-1 text-sm text-content-muted">Client-friendly history from project audit events.</p>
             </div>
-            <span className="inline-flex items-center gap-2 rounded-md border border-white/10 bg-white/5 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+            <span className="inline-flex items-center gap-2 rounded-md border border-theme-border bg-surface-sunken px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-content-muted">
               <Clock3 className="h-3.5 w-3.5" />
               Latest 20
             </span>
           </div>
           {isActivityLoading ? (
             <div className="space-y-3">
-              {[1, 2, 3, 4].map((item) => <div key={item} className="h-20 animate-pulse rounded-2xl bg-slate-900/60" />)}
+              {[1, 2, 3, 4].map((item) => <div key={item} className="h-20 animate-pulse rounded-2xl bg-surface/60" />)}
             </div>
           ) : isActivityError ? (
             <TabErrorState
@@ -1008,7 +1008,7 @@ export default function ProjectDetailPage() {
       ) : null}
 
       {overdueTasks.length > 0 && activeTab === "overview" ? (
-        <div className="flex items-center gap-3 rounded-2xl border border-rose-500/20 bg-rose-500/10 p-4 text-sm text-rose-200">
+        <div className="flex items-center gap-3 rounded-2xl border border-status-danger-border bg-status-danger-surface p-4 text-sm text-status-danger-text">
           <AlertCircle className="h-5 w-5 shrink-0" />
           {overdueTasks.length} open task{overdueTasks.length === 1 ? " is" : "s are"} past the due date.
         </div>

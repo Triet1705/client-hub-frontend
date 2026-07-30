@@ -56,7 +56,7 @@ export function InvoiceStatusDropdown({
 
   React.useEffect(() => {
     if (!open) return;
-    
+
     const handleOutsideClick = (e: MouseEvent) => {
       if (
         buttonRef.current && !buttonRef.current.contains(e.target as Node) &&
@@ -70,7 +70,7 @@ export function InvoiceStatusDropdown({
 
     document.addEventListener("mousedown", handleOutsideClick);
     window.addEventListener("scroll", handleScroll, true);
-    
+
     return () => {
       document.removeEventListener("mousedown", handleOutsideClick);
       window.removeEventListener("scroll", handleScroll, true);
@@ -95,7 +95,7 @@ export function InvoiceStatusDropdown({
         {isEditable && (
           <ChevronDown
             className={cn(
-              "w-3 h-3 text-slate-400 transition-transform duration-200",
+              "w-3 h-3 text-content-secondary transition-transform duration-200",
               open && "rotate-180"
             )}
           />
@@ -107,11 +107,11 @@ export function InvoiceStatusDropdown({
         <div
           ref={dropdownRef}
           style={{ top: coords.top, left: coords.left }}
-          className="fixed w-48 bg-slate-900 border border-slate-700 rounded-xl overflow-hidden z-[100] shadow-2xl animate-in fade-in slide-in-from-top-1 duration-150"
+          className="fixed w-48 bg-surface border border-theme-border rounded-xl overflow-hidden z-[100] shadow-2xl animate-in fade-in slide-in-from-top-1 duration-150"
         >
           <div className="flex flex-col py-1">
-            <div className="px-3 py-2 border-b border-slate-800 flex items-center gap-2 text-xs text-slate-400">
-              <Check className="w-3.5 h-3.5 text-emerald-500" />
+            <div className="px-3 py-2 border-b border-theme-border flex items-center gap-2 text-xs text-content-secondary">
+              <Check className="w-3.5 h-3.5 text-theme-accent" />
               <span>Current: {INVOICE_STATUS_LABELS[status]}</span>
             </div>
             <div className="max-h-52 overflow-y-auto custom-scrollbar">
@@ -123,7 +123,7 @@ export function InvoiceStatusDropdown({
                     setConfirmStatus(opt);
                     setOpen(false);
                   }}
-                  className="w-full text-left px-4 py-2 text-xs font-medium text-slate-300 hover:bg-slate-800 hover:text-white transition-colors"
+                  className="w-full text-left px-4 py-2 text-xs font-medium text-content-secondary hover:bg-surface-elevated hover:text-content-primary transition-colors"
                 >
                   {INVOICE_STATUS_LABELS[opt]}
                 </button>
@@ -140,10 +140,10 @@ export function InvoiceStatusDropdown({
         title="Confirm Status Change"
         message={
           <>
-            Change invoice status from <strong className="text-white">{INVOICE_STATUS_LABELS[status]}</strong> to{" "}
-            <strong className="text-white">{confirmStatus && INVOICE_STATUS_LABELS[confirmStatus]}</strong>?
+            Change invoice status from <strong className="text-content-primary">{INVOICE_STATUS_LABELS[status]}</strong> to{" "}
+            <strong className="text-content-primary">{confirmStatus && INVOICE_STATUS_LABELS[confirmStatus]}</strong>?
             <br />
-            <span className="text-slate-400 mt-2 block">
+            <span className="text-content-secondary mt-2 block">
               Depending on the status, this action may notify the other party and cannot be easily undone for terminal states.
             </span>
           </>

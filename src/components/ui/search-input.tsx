@@ -10,11 +10,11 @@ interface SearchInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
 export function SearchInput({ className, iconClassName, ...props }: SearchInputProps) {
   return (
     <div className="relative">
-      <Search className={cn("absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500", iconClassName)} />
+      <Search className={cn("absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-content-muted", iconClassName)} />
       <input
         {...props}
         className={cn(
-          "w-full bg-slate-950/60 border border-white/10 rounded-xl pl-10 pr-3 py-2 text-sm text-slate-200 placeholder:text-slate-600 focus:outline-none focus:ring-1 focus:ring-indigo-500/50 transition-all font-body",
+          "w-full rounded-xl border border-theme-border bg-surface py-2 pl-10 pr-3 font-body text-sm text-content-primary placeholder:text-content-muted transition-all focus:outline-none focus:ring-2 focus:ring-focus-ring/30",
           className
         )}
       />

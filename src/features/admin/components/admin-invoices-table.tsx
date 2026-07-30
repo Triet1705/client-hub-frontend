@@ -36,7 +36,7 @@ export function AdminInvoicesTable({ status }: AdminInvoicesTableProps) {
       <div className="flex flex-col gap-4">
         <div className="overflow-x-auto custom-scrollbar">
           <table className="w-full text-left text-sm whitespace-nowrap">
-            <thead className="bg-slate-950/40 text-[10px] font-bold uppercase tracking-widest text-slate-500 border-b border-white/5">
+            <thead className="bg-surface-base/40 text-[10px] font-bold uppercase tracking-widest text-content-muted border-b border-theme-border">
               <tr>
                 <th className="px-6 py-4 font-medium">Invoice</th>
                 <th className="px-6 py-4 font-medium">Amount</th>
@@ -47,12 +47,12 @@ export function AdminInvoicesTable({ status }: AdminInvoicesTableProps) {
                 <th className="px-6 py-4 font-medium text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-800">
+            <tbody className="divide-y divide-theme-border">
               {isLoading ? (
                 Array.from({ length: 8 }).map((_, index) => (
                   <tr key={index}>
                     <td colSpan={7} className="px-6 py-4">
-                      <div className="h-6 w-full animate-pulse rounded bg-slate-800/50" />
+                      <div className="h-6 w-full animate-pulse rounded bg-surface-elevated/50" />
                     </td>
                   </tr>
                 ))
@@ -60,12 +60,12 @@ export function AdminInvoicesTable({ status }: AdminInvoicesTableProps) {
                 <tr>
                   <td colSpan={7} className="px-6 py-12 text-center">
                     <div className="flex flex-col items-center gap-3">
-                      <p className="text-sm font-medium text-slate-400">
+                      <p className="text-sm font-medium text-content-secondary">
                         Failed to load data
                       </p>
                       <button
                         onClick={() => window.location.reload()}
-                        className="text-xs font-bold text-emerald-400 hover:text-emerald-300 transition-colors"
+                        className="text-xs font-bold text-theme-accent hover:text-theme-accent transition-colors"
                       >
                         Try again
                       </button>
@@ -74,43 +74,43 @@ export function AdminInvoicesTable({ status }: AdminInvoicesTableProps) {
                 </tr>
               ) : filteredInvoices.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="px-6 py-8 text-center text-slate-500">
+                  <td colSpan={7} className="px-6 py-8 text-center text-content-muted">
                     No invoices found.
                   </td>
                 </tr>
               ) : (
                 filteredInvoices.map((inv) => (
-                  <tr 
-                    key={inv.id} 
+                  <tr
+                    key={inv.id}
                     onClick={() => setSelectedInvoice(inv)}
-                    className="group bg-slate-800/20 hover:bg-slate-800/60 ring-1 ring-transparent hover:ring-white/10 hover:-translate-y-px transition-all duration-300 hover:shadow-xl hover:z-10 relative cursor-pointer"
+                    className="group bg-surface-elevated/20 hover:bg-surface-elevated/60 ring-1 ring-transparent hover:ring-theme-border hover:-translate-y-px transition-all duration-300 hover:shadow-xl hover:z-10 relative cursor-pointer"
                   >
                     <td className="px-6 py-5">
-                      <p className="text-sm font-bold text-white group-hover:text-emerald-400 transition-colors">INV-{inv.id}</p>
-                      <p className="text-xs text-slate-500 mt-0.5">{format(new Date(inv.createdAt), "MMM d, yyyy")}</p>
+                      <p className="text-sm font-bold text-content-primary group-hover:text-theme-accent transition-colors">INV-{inv.id}</p>
+                      <p className="text-xs text-content-muted mt-0.5">{format(new Date(inv.createdAt), "MMM d, yyyy")}</p>
                     </td>
-                    <td className="px-6 py-5 font-mono text-sm font-bold text-white">
+                    <td className="px-6 py-5 font-mono text-sm font-bold text-content-primary">
                       ${Number(inv.amount).toLocaleString(undefined, { minimumFractionDigits: 2 })}
                     </td>
                     <td className="px-6 py-5">
                       <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold tracking-wider uppercase ring-1 ${
-                        inv.status === "PAID" ? "bg-emerald-500/10 text-emerald-400 ring-emerald-500/30" :
-                        inv.status === "DRAFT" ? "bg-slate-500/10 text-slate-400 ring-slate-500/30" :
-                        inv.status === "DISPUTED" ? "bg-red-500/10 text-red-400 ring-red-500/30" :
-                        "bg-amber-500/10 text-amber-400 ring-amber-500/30"
+                        inv.status === "PAID" ? "bg-action-subtle text-theme-accent ring-theme-accent" :
+                        inv.status === "DRAFT" ? "bg-status-neutral-surface text-content-secondary ring-status-neutral-border" :
+                        inv.status === "DISPUTED" ? "bg-status-danger-surface text-status-danger-text ring-status-danger-border" :
+                        "bg-status-warning-surface text-status-warning-text ring-status-warning-border"
                       }`}>
                         {inv.status.replace(/_/g, " ")}
                       </span>
                     </td>
                     <td className="px-6 py-5">
-                      <p className="text-sm font-medium text-slate-300 max-w-[200px] truncate">{inv.projectTitle}</p>
+                      <p className="text-sm font-medium text-content-secondary max-w-[200px] truncate">{inv.projectTitle}</p>
                     </td>
-                    <td className="px-6 py-5 text-slate-500 font-mono text-xs">{inv.tenantId}</td>
-                    <td className="px-6 py-5 text-slate-500 text-xs">{inv.createdByEmail || "—"}</td>
+                    <td className="px-6 py-5 text-content-muted font-mono text-xs">{inv.tenantId}</td>
+                    <td className="px-6 py-5 text-content-muted text-xs">{inv.createdByEmail || "—"}</td>
                     <td className="px-6 py-5 text-right">
-                      <button 
+                      <button
                         onClick={(e) => { e.stopPropagation(); setInvoiceForForceStatus(inv); }}
-                        className="text-red-500 hover:text-red-400 font-bold tracking-wider opacity-0 group-hover:opacity-100 transition-opacity bg-red-500/10 px-3 py-1.5 rounded-lg border border-red-500/20 text-[10px] uppercase"
+                        className="text-status-danger-text hover:text-status-danger-text font-bold tracking-wider opacity-0 group-hover:opacity-100 transition-opacity bg-status-danger-surface px-3 py-1.5 rounded-lg border border-status-danger-border text-[10px] uppercase"
                       >
                         Force Status
                       </button>
@@ -122,7 +122,7 @@ export function AdminInvoicesTable({ status }: AdminInvoicesTableProps) {
           </table>
         </div>
       </div>
-        
+
         {/* Pagination */}
         {data && data.totalPages > 1 && (
           <Pagination

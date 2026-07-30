@@ -29,13 +29,13 @@ export function Pagination({
   return (
     <div
       className={cn(
-        "px-6 py-4 border-t border-slate-800 flex items-center justify-between",
+        "flex items-center justify-between border-t border-theme-border px-6 py-4",
         className,
       )}
     >
-      <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">
+      <p className="text-[10px] font-bold uppercase tracking-widest text-content-muted">
         Page {page + 1} of {totalPages}{" "}
-        <span className="text-slate-600 normal-case font-normal">
+        <span className="font-normal normal-case text-content-muted">
           ({totalElements} {label})
         </span>
       </p>
@@ -44,14 +44,14 @@ export function Pagination({
         <button
           disabled={page === 0}
           onClick={() => onPageChange(page - 1)}
-          className="px-3 h-8 flex items-center justify-center rounded hover:bg-white/5 text-slate-400 text-xs font-bold disabled:opacity-40 transition-colors"
+          className="flex h-8 items-center justify-center rounded px-3 text-xs font-bold text-content-secondary transition-colors hover:bg-surface-sunken disabled:opacity-40"
         >
           Prev
         </button>
         <button
           disabled={page >= totalPages - 1}
           onClick={() => onPageChange(page + 1)}
-          className="px-3 h-8 flex items-center justify-center rounded hover:bg-white/5 text-slate-400 text-xs font-bold disabled:opacity-40 transition-colors"
+          className="flex h-8 items-center justify-center rounded px-3 text-xs font-bold text-content-secondary transition-colors hover:bg-surface-sunken disabled:opacity-40"
         >
           Next
         </button>

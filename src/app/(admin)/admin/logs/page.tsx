@@ -40,17 +40,17 @@ export default function AdminAuditLogsPage() {
   return (
     <div className="space-y-5 animate-in fade-in duration-300">
       <header className="flex flex-col gap-2">
-        <h1 className="text-2xl font-bold text-white">Audit Console</h1>
-        <p className="text-sm text-slate-400">Inspect compliance records and the blockchain batches that protect their integrity.</p>
+        <h1 className="text-2xl font-bold text-content-primary">Audit Console</h1>
+        <p className="text-sm text-content-secondary">Inspect compliance records and the blockchain batches that protect their integrity.</p>
       </header>
 
       <AuditAnchorSummary />
 
-      <div className="flex w-fit gap-1 rounded-lg border border-theme-border bg-slate-900/60 p-1" role="tablist" aria-label="Audit console views">
-        <button type="button" role="tab" aria-selected={activeTab === "records"} onClick={() => selectTab("records")} className={cn("inline-flex h-9 items-center gap-2 rounded-md px-4 text-sm font-semibold", activeTab === "records" ? "bg-slate-700 text-white" : "text-slate-400 hover:text-white")}>
+      <div className="flex w-fit gap-1 rounded-lg border border-theme-border bg-surface/60 p-1" role="tablist" aria-label="Audit console views">
+        <button type="button" role="tab" aria-selected={activeTab === "records"} onClick={() => selectTab("records")} className={cn("inline-flex h-9 items-center gap-2 rounded-md px-4 text-sm font-semibold", activeTab === "records" ? "bg-surface-sunken text-content-primary" : "text-content-secondary hover:text-content-primary")}>
           <ListChecks className="h-4 w-4" /> Audit Records
         </button>
-        <button type="button" role="tab" aria-selected={activeTab === "batches"} onClick={() => selectTab("batches")} className={cn("inline-flex h-9 items-center gap-2 rounded-md px-4 text-sm font-semibold", activeTab === "batches" ? "bg-slate-700 text-white" : "text-slate-400 hover:text-white")}>
+        <button type="button" role="tab" aria-selected={activeTab === "batches"} onClick={() => selectTab("batches")} className={cn("inline-flex h-9 items-center gap-2 rounded-md px-4 text-sm font-semibold", activeTab === "batches" ? "bg-surface-sunken text-content-primary" : "text-content-secondary hover:text-content-primary")}>
           <Database className="h-4 w-4" /> Anchor Batches
         </button>
       </div>
@@ -59,25 +59,25 @@ export default function AdminAuditLogsPage() {
         <AuditAnchorBatches />
       ) : (
         <section className="grid grid-cols-1 gap-5 xl:grid-cols-[17rem_minmax(0,1fr)] xl:items-start">
-          <aside className="space-y-3 rounded-lg border border-theme-border bg-slate-900/60 p-4 xl:sticky xl:top-24">
+          <aside className="space-y-3 rounded-lg border border-theme-border bg-surface/60 p-4 xl:sticky xl:top-24">
             <div className="flex items-center justify-between">
-              <div><h2 className="text-sm font-semibold text-white">Filters</h2><p className="text-xs text-slate-500">Narrow audit evidence</p></div>
-              <button type="button" onClick={clearFilters} className="text-xs font-semibold text-slate-400 hover:text-white">Reset</button>
+              <div><h2 className="text-sm font-semibold text-content-primary">Filters</h2><p className="text-xs text-content-muted">Narrow audit evidence</p></div>
+              <button type="button" onClick={clearFilters} className="text-xs font-semibold text-content-secondary hover:text-content-primary">Reset</button>
             </div>
 
             <FilterSection title="Action" isOpen={openSections.action} onToggle={() => setOpenSections((state) => ({ ...state, action: !state.action }))}>
-              <SearchInput placeholder="E.g. INVOICE_PAID" value={action} onChange={(event) => setAction(event.target.value)} className="h-9 rounded-md border-slate-700 bg-slate-950/70" />
+              <SearchInput placeholder="E.g. INVOICE_PAID" value={action} onChange={(event) => setAction(event.target.value)} className="h-9 rounded-md border-theme-border bg-surface-base/70" />
             </FilterSection>
             <FilterSection title="Entity Type" isOpen={openSections.entityType} onToggle={() => setOpenSections((state) => ({ ...state, entityType: !state.entityType }))}>
-              <SearchInput placeholder="E.g. INVOICE" value={entityType} onChange={(event) => setEntityType(event.target.value)} className="h-9 rounded-md border-slate-700 bg-slate-950/70" />
+              <SearchInput placeholder="E.g. INVOICE" value={entityType} onChange={(event) => setEntityType(event.target.value)} className="h-9 rounded-md border-theme-border bg-surface-base/70" />
             </FilterSection>
             <FilterSection title="Tenant ID" isOpen={openSections.tenantId} onToggle={() => setOpenSections((state) => ({ ...state, tenantId: !state.tenantId }))}>
-              <SearchInput placeholder="E.g. default" value={tenantId} onChange={(event) => setTenantId(event.target.value)} className="h-9 rounded-md border-slate-700 bg-slate-950/70" />
+              <SearchInput placeholder="E.g. default" value={tenantId} onChange={(event) => setTenantId(event.target.value)} className="h-9 rounded-md border-theme-border bg-surface-base/70" />
             </FilterSection>
             <FilterSection title="Anchor Status" isOpen={openSections.anchorStatus} onToggle={() => setOpenSections((state) => ({ ...state, anchorStatus: !state.anchorStatus }))}>
               <div className="space-y-1">
                 {([undefined, "WAITING", "PENDING", "VERIFIED", "FAILED"] as const).map((value) => (
-                  <button key={value ?? "ALL"} type="button" onClick={() => setAnchorStatus(value)} className={cn("flex w-full items-center gap-2 rounded-md border px-3 py-2 text-left text-xs", anchorStatus === value ? "border-emerald-500/40 bg-emerald-500/10 text-emerald-200" : "border-slate-800 text-slate-400 hover:border-slate-700")}>
+                  <button key={value ?? "ALL"} type="button" onClick={() => setAnchorStatus(value)} className={cn("flex w-full items-center gap-2 rounded-md border px-3 py-2 text-left text-xs", anchorStatus === value ? "border-theme-accent bg-action-subtle text-theme-accent" : "border-theme-border text-content-secondary hover:border-theme-border")}>
                     <CircleDot className="h-3.5 w-3.5" /> {value ?? "ALL"}
                   </button>
                 ))}

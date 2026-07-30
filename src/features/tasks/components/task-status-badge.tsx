@@ -15,10 +15,10 @@ interface TaskStatusBadgeProps {
 
 export function TaskStatusBadge({ status, className }: TaskStatusBadgeProps) {
   const statusBadgeClass = {
-    [TaskStatus.TODO]: "bg-slate-800 text-slate-400 border-slate-700",
-    [TaskStatus.IN_PROGRESS]: "bg-emerald-500/10 text-emerald-400 border-emerald-500/30",
-    [TaskStatus.DONE]: "bg-blue-500/10 text-blue-400 border-blue-500/30",
-    [TaskStatus.CANCELED]: "bg-rose-500/10 text-rose-300 border-rose-500/30",
+    [TaskStatus.TODO]: "bg-surface-elevated text-content-secondary border-theme-border",
+    [TaskStatus.IN_PROGRESS]: "bg-action-subtle text-theme-accent border-theme-accent",
+    [TaskStatus.DONE]: "bg-status-info-surface text-status-info-text border-status-info-border",
+    [TaskStatus.CANCELED]: "bg-status-danger-surface text-status-danger-text border-status-danger-border",
   };
 
   return (
@@ -30,7 +30,7 @@ export function TaskStatusBadge({ status, className }: TaskStatusBadgeProps) {
       )}
     >
       {status === TaskStatus.IN_PROGRESS && (
-        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_10px_rgba(16,185,129,0.5)]" />
+        <span className="w-1.5 h-1.5 rounded-full bg-status-success-text animate-pulse shadow-[0_0_10px_rgba(16,185,129,0.5)]" />
       )}
       {status === TaskStatus.IN_PROGRESS ? "Active" : STATUS_LABELS[status]}
     </span>

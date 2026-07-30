@@ -47,17 +47,17 @@ export function FilterDropdown<T>({
       <button
         onClick={() => setOpen((current) => !current)}
         className={cn(
-          "flex items-center gap-1.5 px-3 py-1.5 bg-white/4 border border-white/8 rounded-full text-xs text-slate-400 hover:border-white/20 hover:text-slate-200 transition-colors",
+          "flex items-center gap-1.5 rounded-full border border-theme-border bg-surface px-3 py-1.5 text-xs text-content-secondary transition-colors hover:border-content-muted hover:text-content-primary",
           className
         )}
       >
-        <Icon size={12} className="text-slate-500" />
+        <Icon size={12} className="text-content-muted" />
         <span className="max-w-28 truncate">{selectedLabel}</span>
-        <ChevronDown size={11} className={cn("text-slate-500 transition-transform", open && "rotate-180")} />
+        <ChevronDown size={11} className={cn("text-content-muted transition-transform", open && "rotate-180")} />
       </button>
 
       {open && (
-        <div className={cn("absolute right-0 mt-2 w-48 bg-[#111111] border border-white/10 rounded-xl shadow-2xl z-50 overflow-hidden py-1 max-h-72 overflow-y-auto no-scrollbar", dropdownClassName)}>
+        <div className={cn("no-scrollbar absolute right-0 z-50 mt-2 max-h-72 w-48 overflow-y-auto rounded-xl border border-theme-border bg-popover py-1 text-popover-foreground shadow-2xl", dropdownClassName)}>
           {options.map((option, idx) => (
             <button
               key={idx}
@@ -66,8 +66,8 @@ export function FilterDropdown<T>({
                 setOpen(false);
               }}
               className={cn(
-                "w-full px-3 py-2 text-left text-xs hover:bg-white/5 transition-colors",
-                value === option.value ? "text-emerald-400 font-bold" : "text-slate-300",
+                "w-full px-3 py-2 text-left text-xs transition-colors hover:bg-surface-sunken",
+                value === option.value ? "text-theme-accent font-bold" : "text-content-secondary",
               )}
             >
               {option.label}

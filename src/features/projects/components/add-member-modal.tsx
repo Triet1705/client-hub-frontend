@@ -79,7 +79,7 @@ export function AddMemberModal({
         type="button"
         onClick={onClose}
         disabled={isPending}
-        className="px-6 py-2.5 rounded-xl text-sm font-bold text-slate-400 hover:text-white hover:bg-white/5 transition-all disabled:opacity-50"
+        className="px-6 py-2.5 rounded-xl text-sm font-bold text-content-secondary hover:text-content-primary hover:bg-surface-sunken transition-all disabled:opacity-50"
       >
         Cancel
       </button>
@@ -87,7 +87,7 @@ export function AddMemberModal({
         type="button"
         onClick={handleSubmit}
         disabled={isPending || !selectedUserId}
-        className="px-6 py-2.5 rounded-xl text-sm font-bold bg-emerald-600 hover:bg-emerald-500 text-white transition-all disabled:opacity-60 disabled:cursor-not-allowed"
+        className="px-6 py-2.5 rounded-xl text-sm font-bold bg-action-primary hover:bg-action-primary-hover text-action-primary-foreground transition-all disabled:opacity-60 disabled:cursor-not-allowed"
       >
         {isPending ? "Adding..." : "Add Member"}
       </button>
@@ -111,17 +111,17 @@ export function AddMemberModal({
             value={keyword}
             onChange={(event) => setKeyword(event.target.value)}
             placeholder="e.g. jane or freelancer@demo.com"
-            className="w-full bg-slate-900/50 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all"
+            className="w-full bg-surface/50 border border-theme-border rounded-xl px-4 py-3 text-sm text-content-primary placeholder:text-content-muted focus:outline-none focus:ring-2 focus:ring-theme-accent focus:border-theme-accent transition-all"
           />
         </FormField>
 
-        <div className="rounded-xl border border-slate-800 bg-slate-900/40 max-h-72 overflow-auto">
+        <div className="rounded-xl border border-theme-border bg-surface/40 max-h-72 overflow-auto">
           {!canSearch ? (
-            <p className="px-4 py-3 text-xs text-slate-500">Type at least {minChars} characters to search.</p>
+            <p className="px-4 py-3 text-xs text-content-muted">Type at least {minChars} characters to search.</p>
           ) : isSearching ? (
-            <p className="px-4 py-3 text-xs text-slate-500">Searching freelancers...</p>
+            <p className="px-4 py-3 text-xs text-content-muted">Searching freelancers...</p>
           ) : visibleCandidates.length === 0 ? (
-            <p className="px-4 py-3 text-xs text-slate-500">No available freelancer found.</p>
+            <p className="px-4 py-3 text-xs text-content-muted">No available freelancer found.</p>
           ) : (
             visibleCandidates.map((candidate) => {
               const isSelected = selectedUserId === candidate.userId;
@@ -136,15 +136,15 @@ export function AddMemberModal({
                     setError(null);
                   }}
                   className={cn(
-                    "w-full text-left px-4 py-3 border-b border-slate-800 last:border-b-0 transition-colors flex items-start justify-between gap-3",
-                    isSelected ? "bg-emerald-500/15" : "hover:bg-slate-800/60",
+                    "w-full text-left px-4 py-3 border-b border-theme-border last:border-b-0 transition-colors flex items-start justify-between gap-3",
+                    isSelected ? "bg-action-subtle" : "hover:bg-surface-elevated/60",
                   )}
                 >
                   <div className="min-w-0">
-                    <p className="text-sm text-slate-200 font-medium truncate">{candidate.fullName || candidate.email}</p>
-                    <p className="text-xs text-slate-500 truncate">{candidate.email}</p>
+                    <p className="text-sm text-content-secondary font-medium truncate">{candidate.fullName || candidate.email}</p>
+                    <p className="text-xs text-content-muted truncate">{candidate.email}</p>
                   </div>
-                  {isSelected ? <Check size={14} className="text-emerald-400 mt-0.5 shrink-0" /> : null}
+                  {isSelected ? <Check size={14} className="text-theme-accent mt-0.5 shrink-0" /> : null}
                 </button>
               );
             })

@@ -15,10 +15,11 @@ export const currentUserKeys = {
   me: () => [...currentUserKeys.all, "me"] as const,
 };
 
-export function useCurrentUserQuery() {
+export function useCurrentUserQuery(options?: { enabled?: boolean }) {
   return useQuery({
     queryKey: currentUserKeys.me(),
     queryFn: getCurrentUser,
+    enabled: options?.enabled,
   });
 }
 

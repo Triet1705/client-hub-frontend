@@ -41,28 +41,28 @@ export function ConfirmDialog({
 
   return createPortal(
     <>
-      <div 
-        className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] animate-in fade-in duration-200"
+      <div
+        className="fixed inset-0 z-[100] animate-in bg-[var(--overlay)] backdrop-blur-sm fade-in duration-200"
         onClick={!isLoading ? onCancel : undefined}
       />
-      <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-sm bg-[#1e293b] rounded-2xl shadow-2xl z-[101] border border-slate-800 animate-in zoom-in-95 duration-200 overflow-hidden flex flex-col">
+      <div className="fixed left-1/2 top-1/2 z-[101] flex w-full max-w-sm -translate-x-1/2 -translate-y-1/2 animate-in flex-col overflow-hidden rounded-2xl border border-theme-border bg-surface text-content-primary shadow-2xl zoom-in-95 duration-200">
         <div className="p-6">
-          <h2 className="text-lg font-bold text-white mb-2">{title}</h2>
-          <div className="text-sm text-slate-300">{message}</div>
+          <h2 className="mb-2 text-lg font-bold text-content-primary">{title}</h2>
+          <div className="text-sm text-content-secondary">{message}</div>
         </div>
-        <div className="bg-slate-900/50 border-t border-slate-800 p-4 flex justify-end gap-3">
+        <div className="flex justify-end gap-3 border-t border-theme-border bg-surface-sunken/45 p-4">
           <Button
             variant="ghost"
             onClick={onCancel}
             disabled={isLoading}
-            className="text-slate-400 hover:text-white"
+            className="text-content-secondary hover:text-content-primary"
           >
             {cancelText}
           </Button>
           <Button
             onClick={onConfirm}
             isLoading={isLoading}
-            className={isDestructive ? "bg-red-600 hover:bg-red-500 text-white" : "bg-emerald-600 hover:bg-emerald-500 text-white"}
+            className={isDestructive ? "bg-action-danger text-action-danger-foreground hover:bg-action-danger-hover" : "bg-action-primary text-action-primary-foreground hover:bg-action-primary-hover"}
           >
             {confirmText}
           </Button>

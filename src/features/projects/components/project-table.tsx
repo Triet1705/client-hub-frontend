@@ -165,7 +165,7 @@ export function ProjectTable({ projects, isLoading, page, totalPages, totalEleme
     const date = new Date(dateStr);
     const now = new Date();
     if (date < now) {
-      return <span className="text-rose-400 font-medium">Overdue</span>;
+      return <span className="text-status-danger-text font-medium">Overdue</span>;
     }
     return `In ${formatDistanceToNow(date)}`;
   };
@@ -173,16 +173,16 @@ export function ProjectTable({ projects, isLoading, page, totalPages, totalEleme
   return (
     <section className="grid grid-cols-1 xl:grid-cols-[18rem_minmax(0,1fr)] gap-6 items-start">
       <aside className="space-y-4 sticky top-24 z-10">
-        <div className="rounded-3xl bg-slate-900/60 backdrop-blur-xl ring-1 ring-white/5 shadow-2xl shadow-black/50 p-5 space-y-4">
+        <div className="rounded-3xl bg-surface/60 backdrop-blur-xl ring-1 ring-theme-border shadow-2xl shadow-theme p-5 space-y-4">
           <div className="flex items-center justify-between gap-3">
             <div>
-              <h2 className="text-sm font-bold uppercase tracking-widest text-slate-300">Filters</h2>
-              <p className="text-xs text-slate-500">Section-based project controls</p>
+              <h2 className="text-sm font-bold uppercase tracking-widest text-content-secondary">Filters</h2>
+              <p className="text-xs text-content-muted">Section-based project controls</p>
             </div>
             <button
               type="button"
               onClick={clearFilters}
-              className="text-[11px] font-bold text-slate-400 hover:text-white transition-colors"
+              className="text-[11px] font-bold text-content-secondary hover:text-content-primary transition-colors"
             >
               Reset
             </button>
@@ -190,13 +190,13 @@ export function ProjectTable({ projects, isLoading, page, totalPages, totalEleme
 
           <FilterSection title="Search" isOpen={openSections.search} onToggle={() => toggleSection("search")}>
             <label className="relative block">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-content-muted" />
               <input
                 type="text"
                 placeholder="Find project, owner, email..."
                 value={keyword}
                 onChange={(event) => setKeyword(event.target.value)}
-                className="h-9 w-full rounded-md border border-slate-700 bg-slate-950/70 pl-10 pr-3 text-sm text-white placeholder:text-slate-500 focus:border-emerald-500/50 focus:outline-none focus:ring-1 focus:ring-emerald-500/50"
+                className="h-9 w-full rounded-md border border-theme-border bg-surface-base/70 pl-10 pr-3 text-sm text-content-primary placeholder:text-content-muted focus:border-theme-accent focus:outline-none focus:ring-1 focus:ring-theme-accent"
               />
             </label>
           </FilterSection>
@@ -212,15 +212,15 @@ export function ProjectTable({ projects, isLoading, page, totalPages, totalEleme
                     onClick={() => setActiveFilter(option.value)}
                     className={`w-full flex items-center justify-between rounded-md border px-3 py-2 text-left text-xs transition-colors ${
                       isActive
-                        ? "border-emerald-500/40 bg-emerald-500/10 text-emerald-200"
-                        : "border-slate-800 bg-slate-900/60 text-slate-300 hover:border-slate-700"
+                        ? "border-theme-accent bg-action-subtle text-theme-accent"
+                        : "border-theme-border bg-surface/60 text-content-secondary hover:border-theme-border"
                     }`}
                   >
                     <span className="inline-flex items-center gap-2">
-                      <CircleDot className={`h-3.5 w-3.5 ${isActive ? "text-emerald-300" : "text-slate-600"}`} />
+                      <CircleDot className={`h-3.5 w-3.5 ${isActive ? "text-theme-accent" : "text-content-muted"}`} />
                       {option.label}
                     </span>
-                    <span className="text-[11px] text-slate-500">{option.count}</span>
+                    <span className="text-[11px] text-content-muted">{option.count}</span>
                   </button>
                 );
               })}
@@ -231,7 +231,7 @@ export function ProjectTable({ projects, isLoading, page, totalPages, totalEleme
         </div>
       </aside>
 
-      <div className="bg-slate-900/60 backdrop-blur-xl ring-1 ring-white/5 shadow-2xl shadow-black/50 rounded-3xl overflow-hidden">
+      <div className="bg-surface/60 backdrop-blur-xl ring-1 ring-theme-border shadow-2xl shadow-theme rounded-3xl overflow-hidden">
         <DataTableToolbar
           title="All Projects"
           resultCount={filteredProjects.length}
@@ -244,16 +244,16 @@ export function ProjectTable({ projects, isLoading, page, totalPages, totalEleme
         />
 
         {hasAppliedFilters && (
-          <div className="px-6 py-3 border-b border-slate-800 bg-slate-950/40 flex items-center justify-between gap-3 flex-wrap">
-            <div className="flex items-center gap-2 flex-wrap text-xs text-slate-300">
-              <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Applied</span>
+          <div className="px-6 py-3 border-b border-theme-border bg-surface-base/40 flex items-center justify-between gap-3 flex-wrap">
+            <div className="flex items-center gap-2 flex-wrap text-xs text-content-secondary">
+              <span className="text-[10px] font-bold uppercase tracking-widest text-content-muted">Applied</span>
               {activeFilter !== "ALL" && (
-                <span className="px-2 py-1 rounded-md border border-emerald-500/30 bg-emerald-500/10 text-emerald-300">
+                <span className="px-2 py-1 rounded-md border border-theme-accent bg-action-subtle text-theme-accent">
                   Status: {PROJECT_STATUS_LABEL_MAP[activeFilter]}
                 </span>
               )}
               {keyword.trim().length > 0 && (
-                <span className="px-2 py-1 rounded-md border border-slate-500/30 bg-slate-500/10 text-slate-300">
+                <span className="px-2 py-1 rounded-md border border-content-muted/30 bg-status-neutral-surface text-content-secondary">
                   Search: {keyword}
                 </span>
               )}
@@ -261,7 +261,7 @@ export function ProjectTable({ projects, isLoading, page, totalPages, totalEleme
             <button
               type="button"
               onClick={clearFilters}
-              className="text-[11px] font-bold text-slate-400 hover:text-white transition-colors"
+              className="text-[11px] font-bold text-content-secondary hover:text-content-primary transition-colors"
             >
               Clear all
             </button>
@@ -271,44 +271,44 @@ export function ProjectTable({ projects, isLoading, page, totalPages, totalEleme
         <div className="overflow-x-auto custom-scrollbar">
           <table className="w-full min-w-230 text-left">
           <thead>
-            <tr className="bg-slate-900/80 border-b border-white/5">
-              {visibleColumns.project && <th className="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest">Project & Owner</th>}
-              {visibleColumns.budget && <th className="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest">Budget</th>}
-              {visibleColumns.status && <th className="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest">Status</th>}
-              {visibleColumns.deadline && <th className="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest">Deadline</th>}
-              {visibleColumns.actions && <th className="px-6 py-4 text-[10px] font-bold text-slate-500 uppercase tracking-widest text-right">Actions</th>}
+            <tr className="bg-surface/80 border-b border-theme-border">
+              {visibleColumns.project && <th className="px-6 py-4 text-[10px] font-bold text-content-muted uppercase tracking-widest">Project & Owner</th>}
+              {visibleColumns.budget && <th className="px-6 py-4 text-[10px] font-bold text-content-muted uppercase tracking-widest">Budget</th>}
+              {visibleColumns.status && <th className="px-6 py-4 text-[10px] font-bold text-content-muted uppercase tracking-widest">Status</th>}
+              {visibleColumns.deadline && <th className="px-6 py-4 text-[10px] font-bold text-content-muted uppercase tracking-widest">Deadline</th>}
+              {visibleColumns.actions && <th className="px-6 py-4 text-[10px] font-bold text-content-muted uppercase tracking-widest text-right">Actions</th>}
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-800">
+          <tbody className="divide-y divide-theme-border">
             {isLoading ? (
               Array.from({ length: 6 }).map((_, index) => (
                 <tr key={index}>
                   <td colSpan={visibleColumnCount} className="px-6 py-5">
-                    <div className="h-6 w-full animate-pulse rounded bg-slate-800/50" />
+                    <div className="h-6 w-full animate-pulse rounded bg-surface-elevated/50" />
                   </td>
                 </tr>
               ))
             ) : filteredProjects.length === 0 ? (
-              <tr><td colSpan={visibleColumnCount} className="px-6 py-8 text-center text-slate-500">{activeFilter === "ALL" ? "No projects found. Create one to get started." : `No ${activeFilter.replace("_", " ").toLowerCase()} projects.`}</td></tr>
+              <tr><td colSpan={visibleColumnCount} className="px-6 py-8 text-center text-content-muted">{activeFilter === "ALL" ? "No projects found. Create one to get started." : `No ${activeFilter.replace("_", " ").toLowerCase()} projects.`}</td></tr>
             ) : (
               filteredProjects.map((project) => (
-                <tr key={project.id} className="group bg-slate-800/20 hover:bg-slate-800/60 ring-1 ring-transparent hover:ring-white/10 hover:-translate-y-px transition-all duration-300 hover:shadow-xl hover:z-10 relative">
+                <tr key={project.id} className="group bg-surface-elevated/20 hover:bg-surface-elevated/60 ring-1 ring-transparent hover:ring-theme-border hover:-translate-y-px transition-all duration-300 hover:shadow-xl hover:z-10 relative">
                   {visibleColumns.project && <td className="px-6 py-5">
                     <div className="flex items-center gap-4">
-                      <div className="size-10 rounded-xl bg-slate-800 flex items-center justify-center border border-slate-700">
-                        <NavProjectsIcon className="size-5 text-slate-400" />
+                      <div className="size-10 rounded-xl bg-surface-elevated flex items-center justify-center border border-theme-border">
+                        <NavProjectsIcon className="size-5 text-content-secondary" primaryColor="currentColor" accentColor="currentColor" />
                       </div>
                       <div>
                         <Link href={`/projects/${project.id}`}>
-                          <p className="text-sm font-bold text-white group-hover:text-emerald-400 transition-colors">{project.title}</p>
+                          <p className="text-sm font-bold text-content-primary group-hover:text-theme-accent transition-colors">{project.title}</p>
                         </Link>
-                        <p className="text-xs text-slate-500 font-medium">{project.ownerName}</p>
+                        <p className="text-xs text-content-muted font-medium">{project.ownerName}</p>
                       </div>
                     </div>
                   </td>}
-                  {visibleColumns.budget && <td className="px-6 py-5"><span className="text-sm font-mono font-bold text-white">{formatBudget(project.budget)}</span></td>}
+                  {visibleColumns.budget && <td className="px-6 py-5"><span className="text-sm font-mono font-bold text-content-primary">{formatBudget(project.budget)}</span></td>}
                   {visibleColumns.status && <td className="px-6 py-5"><ProjectStatusBadge status={project.status} /></td>}
-                  {visibleColumns.deadline && <td className="px-6 py-5"><span className="text-xs text-slate-500">{formatDeadline(project.deadline)}</span></td>}
+                  {visibleColumns.deadline && <td className="px-6 py-5"><span className="text-xs text-content-muted">{formatDeadline(project.deadline)}</span></td>}
                   {visibleColumns.actions && <td className="px-6 py-5 text-right whitespace-nowrap">
                     <div className="flex items-center justify-end gap-3">
                       <RowActionMenu

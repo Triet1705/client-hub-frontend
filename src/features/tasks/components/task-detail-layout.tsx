@@ -48,7 +48,7 @@ export function TaskDetailLayout({
     <>
       <div
         className={cn(
-          "fixed inset-0 bg-black/60 backdrop-blur-sm z-40 transition-opacity duration-300",
+          "fixed inset-0 z-40 bg-[var(--overlay)] backdrop-blur-sm transition-opacity duration-300",
           isOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none",
         )}
         onClick={onClose}
@@ -57,22 +57,22 @@ export function TaskDetailLayout({
       <aside
         aria-hidden={!isOpen}
         className={cn(
-          "fixed inset-y-0 right-0 z-50 w-full max-w-140 bg-[#111827] border-l border-[#1f2937]",
+          "fixed inset-y-0 right-0 z-50 w-full max-w-140 bg-surface border-l border-theme-border",
           "flex flex-col shadow-2xl transition-transform duration-300",
           isOpen ? "translate-x-0" : "translate-x-full",
         )}
       >
-        <header className="p-6 border-b border-[#1f2937] flex items-start justify-between shrink-0 bg-[#111827]">
+        <header className="p-6 border-b border-theme-border flex items-start justify-between shrink-0 bg-surface">
           <div className="flex-1 min-w-0 pr-4">
             {headerBadge ? <div className="mb-2">{headerBadge}</div> : null}
-            <h2 className="text-lg font-bold text-slate-100 leading-tight">{title}</h2>
+            <h2 className="text-lg font-bold text-content-primary leading-tight">{title}</h2>
           </div>
 
           <div className="flex items-center gap-2 shrink-0">
             {headerActions}
             <button
               onClick={onClose}
-              className="p-2 text-slate-500 hover:text-white transition-colors rounded-lg hover:bg-slate-800"
+              className="p-2 text-content-muted hover:text-content-primary transition-colors rounded-lg hover:bg-surface-elevated"
               aria-label="Close task detail"
             >
               <X size={20} />
@@ -81,7 +81,7 @@ export function TaskDetailLayout({
         </header>
 
         {tabs && tabs.length > 0 && (
-          <div className="flex px-6 border-b border-[#1f2937] bg-[#111827] shrink-0">
+          <div className="flex px-6 border-b border-theme-border bg-surface shrink-0">
             {tabs.map((tab) => (
               <button
                 key={tab.id}
@@ -89,8 +89,8 @@ export function TaskDetailLayout({
                 className={cn(
                   "py-3 px-4 text-sm font-medium border-b-2 transition-colors",
                   activeTab === tab.id
-                    ? "border-emerald-500 text-emerald-400"
-                    : "border-transparent text-slate-400 hover:text-slate-200"
+                    ? "border-theme-accent text-theme-accent"
+                    : "border-transparent text-content-secondary hover:text-content-secondary"
                 )}
               >
                 {tab.label}
@@ -104,7 +104,7 @@ export function TaskDetailLayout({
         </main>
 
         {footer ? (
-          <footer className="p-6 border-t border-[#1f2937] bg-[#0a0c10]/50 flex items-center gap-3 shrink-0">
+          <footer className="p-6 border-t border-theme-border bg-surface-sunken/50 flex items-center gap-3 shrink-0">
             {footer}
           </footer>
         ) : null}

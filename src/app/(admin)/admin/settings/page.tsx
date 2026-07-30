@@ -19,12 +19,12 @@ function HealthCard({ label, component }: { label: string; component: ComponentH
     : false;
   const tone =
     status === "UP"
-      ? "border-emerald-500/20 bg-emerald-500/10 text-emerald-300"
+      ? "border-theme-accent bg-action-subtle text-theme-accent"
       : status === "DEGRADED"
-        ? "border-amber-500/20 bg-amber-500/10 text-amber-300"
+        ? "border-status-warning-border bg-status-warning-surface text-status-warning-text"
         : status === "DISABLED"
-          ? "border-slate-500/20 bg-slate-500/10 text-slate-300"
-          : "border-rose-500/20 bg-rose-500/10 text-rose-300";
+          ? "border-content-muted/20 bg-status-neutral-surface text-content-secondary"
+          : "border-status-danger-border bg-status-danger-surface text-status-danger-text";
   const latency = component && enabled && component.latencyMs !== null
     ? `${component.latencyMs}ms latency`
     : component
@@ -46,12 +46,12 @@ function HealthCard({ label, component }: { label: string; component: ComponentH
         <div className={cn(
           "h-full",
           status === "UP"
-            ? "w-full bg-emerald-400"
+            ? "w-full bg-status-success-text"
             : status === "DEGRADED"
-              ? "w-1/2 bg-amber-400"
+              ? "w-1/2 bg-status-warning-text"
               : status === "DISABLED"
-                ? "w-0 bg-slate-500"
-                : "w-1/5 bg-rose-400",
+                ? "w-0 bg-status-neutral-text"
+                : "w-1/5 bg-status-danger-text",
         )} />
       </div>
       <p className="mt-3 font-mono text-xs text-content-muted">{latency}</p>
@@ -83,7 +83,7 @@ export default function AdminSettingsPage() {
     <div className="space-y-8">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
         <div>
-          <div className="inline-flex items-center gap-2 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-emerald-300">
+          <div className="inline-flex items-center gap-2 rounded-full border border-theme-accent bg-action-subtle px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-theme-accent">
             <Shield className="h-3.5 w-3.5" />
             Platform administrator
           </div>
@@ -105,9 +105,9 @@ export default function AdminSettingsPage() {
       </div>
 
       <div className="grid gap-6 xl:grid-cols-[1fr_0.85fr]">
-        <section className="rounded-3xl border border-theme-border bg-surface-elevated/70 p-6 shadow-2xl shadow-black/10">
+        <section className="rounded-3xl border border-theme-border bg-surface-elevated/70 p-4 shadow-2xl shadow-theme sm:p-6">
           <div className="mb-6 flex items-start gap-3">
-            <span className="rounded-2xl bg-emerald-500/10 p-2.5 text-emerald-400 ring-1 ring-emerald-500/20">
+            <span className="rounded-2xl bg-action-subtle p-2.5 text-theme-accent ring-1 ring-theme-accent">
               <Database className="h-5 w-5" />
             </span>
             <div>
@@ -122,9 +122,9 @@ export default function AdminSettingsPage() {
           </div>
         </section>
 
-        <section className="rounded-3xl border border-theme-border bg-surface-elevated/70 p-6 shadow-2xl shadow-black/10">
+        <section className="rounded-3xl border border-theme-border bg-surface-elevated/70 p-4 shadow-2xl shadow-theme sm:p-6">
           <div className="mb-6 flex items-start gap-3">
-            <span className="rounded-2xl bg-emerald-500/10 p-2.5 text-emerald-400 ring-1 ring-emerald-500/20">
+            <span className="rounded-2xl bg-action-subtle p-2.5 text-theme-accent ring-1 ring-theme-accent">
               <KeyRound className="h-5 w-5" />
             </span>
             <div>
@@ -139,16 +139,16 @@ export default function AdminSettingsPage() {
             </div>
             <div className="rounded-2xl border border-theme-border bg-surface-base/50 p-4">
               <p className="text-xs font-bold uppercase tracking-widest text-content-muted">Role</p>
-              <p className="mt-2 text-sm font-semibold text-emerald-300">PLATFORM ADMIN</p>
+              <p className="mt-2 text-sm font-semibold text-theme-accent">PLATFORM ADMIN</p>
             </div>
           </div>
         </section>
       </div>
 
       <div className="grid gap-6 xl:grid-cols-[0.85fr_1fr]">
-        <section className="rounded-3xl border border-theme-border bg-surface-elevated/70 p-6 shadow-2xl shadow-black/10">
+        <section className="rounded-3xl border border-theme-border bg-surface-elevated/70 p-4 shadow-2xl shadow-theme sm:p-6">
           <div className="mb-6 flex items-start gap-3">
-            <span className="rounded-2xl bg-emerald-500/10 p-2.5 text-emerald-400 ring-1 ring-emerald-500/20">
+            <span className="rounded-2xl bg-action-subtle p-2.5 text-theme-accent ring-1 ring-theme-accent">
               <Flag className="h-5 w-5" />
             </span>
             <div>
@@ -159,24 +159,24 @@ export default function AdminSettingsPage() {
           <div className="space-y-3">
             <div className="flex items-center justify-between rounded-2xl border border-theme-border bg-surface-base/50 p-4">
               <span className="text-sm font-medium text-content-primary">Blockchain workflows</span>
-              <span className={cn("rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest", config?.blockchainEnabled ? "bg-emerald-500/10 text-emerald-300" : "bg-slate-500/10 text-slate-300")}>
+              <span className={cn("rounded-full px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest", config?.blockchainEnabled ? "bg-action-subtle text-theme-accent" : "bg-status-neutral-surface text-content-secondary")}>
                 {config?.blockchainEnabled ? "Enabled" : "Disabled"}
               </span>
             </div>
             <div className="flex items-center justify-between rounded-2xl border border-theme-border bg-surface-base/50 p-4">
               <span className="text-sm font-medium text-content-primary">Admin console</span>
-              <span className="rounded-full bg-emerald-500/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest text-emerald-300">Active</span>
+              <span className="rounded-full bg-action-subtle px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest text-theme-accent">Active</span>
             </div>
-            <Link href="/admin/flags" className="flex items-center justify-between rounded-2xl border border-theme-border bg-surface-base/50 p-4 text-sm font-medium text-content-primary transition-colors hover:border-emerald-500/30 hover:bg-emerald-500/10">
+            <Link href="/admin/flags" className="flex items-center justify-between rounded-2xl border border-theme-border bg-surface-base/50 p-4 text-sm font-medium text-content-primary transition-colors hover:border-theme-accent hover:bg-action-subtle">
               <span>Open dedicated flags view</span>
-              <Flag className="h-4 w-4 text-emerald-400" />
+              <Flag className="h-4 w-4 text-theme-accent" />
             </Link>
           </div>
         </section>
 
-        <section className="rounded-3xl border border-theme-border bg-surface-elevated/70 p-6 shadow-2xl shadow-black/10">
+        <section className="rounded-3xl border border-theme-border bg-surface-elevated/70 p-4 shadow-2xl shadow-theme sm:p-6">
           <div className="mb-6 flex items-start gap-3">
-            <span className="rounded-2xl bg-emerald-500/10 p-2.5 text-emerald-400 ring-1 ring-emerald-500/20">
+            <span className="rounded-2xl bg-action-subtle p-2.5 text-theme-accent ring-1 ring-theme-accent">
               <Users className="h-5 w-5" />
             </span>
             <div>
@@ -187,8 +187,8 @@ export default function AdminSettingsPage() {
           <div className="grid gap-3 sm:grid-cols-3">
             {shortcuts.map(([label, href, ShortcutIcon]) => {
               return (
-                <Link key={href} href={href} className="rounded-2xl border border-theme-border bg-surface-base/50 p-4 text-content-primary transition-colors hover:border-emerald-500/30 hover:bg-emerald-500/10">
-                  <ShortcutIcon className="mb-4 h-5 w-5 text-emerald-400" />
+                <Link key={href} href={href} className="rounded-2xl border border-theme-border bg-surface-base/50 p-4 text-content-primary transition-colors hover:border-theme-accent hover:bg-action-subtle">
+                  <ShortcutIcon className="mb-4 h-5 w-5 text-theme-accent" />
                   <span className="text-sm font-semibold">{label}</span>
                 </Link>
               );

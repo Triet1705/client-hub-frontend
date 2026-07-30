@@ -10,9 +10,9 @@ import type { ComponentHealth } from "@/features/admin/types/admin.types";
 import { cn } from "@/lib/utils";
 
 const statusTone = {
-  UP: "border-emerald-500/30 bg-emerald-500/10 text-emerald-300",
-  DEGRADED: "border-amber-500/30 bg-amber-500/10 text-amber-300",
-  DOWN: "border-rose-500/30 bg-rose-500/10 text-rose-300",
+  UP: "border-theme-accent bg-action-subtle text-theme-accent",
+  DEGRADED: "border-status-warning-border bg-status-warning-surface text-status-warning-text",
+  DOWN: "border-status-danger-border bg-status-danger-surface text-status-danger-text",
 };
 
 function StatusBadge({ status }: { status: "UP" | "DEGRADED" | "DOWN" }) {
@@ -40,7 +40,7 @@ export default function AdminHealthPage() {
 
   if (isError || !health) {
     return (
-      <div className="rounded-lg border border-rose-500/20 bg-rose-500/10 p-5 text-sm text-rose-200">
+      <div className="rounded-lg border border-status-danger-border bg-status-danger-surface p-5 text-sm text-status-danger-text">
         System health is unavailable.
       </div>
     );
@@ -80,7 +80,7 @@ export default function AdminHealthPage() {
         <GaugeChart label="Blockchain" status={health.blockchain.status} subLabel={healthDetail(health.blockchain)} />
       </div>
 
-      <section className="rounded-lg border border-theme-border bg-surface-elevated/70 p-5 shadow-lg shadow-black/10">
+      <section className="rounded-lg border border-theme-border bg-surface-elevated/70 p-5 shadow-lg shadow-theme">
         <div className="mb-5 flex items-center gap-3">
           <span className="flex h-10 w-10 items-center justify-center rounded-lg border border-theme-border bg-surface-base text-theme-accent">
             <Cpu className="h-5 w-5" aria-hidden="true" />

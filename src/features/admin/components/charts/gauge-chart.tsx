@@ -14,10 +14,10 @@ interface GaugeChartProps {
 }
 
 const statusColors = {
-  UP: "text-emerald-400 drop-shadow-[0_0_8px_rgba(52,211,153,0.5)]",
-  DEGRADED: "text-amber-400 drop-shadow-[0_0_8px_rgba(251,191,36,0.5)]",
-  DOWN: "text-rose-400 drop-shadow-[0_0_8px_rgba(244,63,94,0.5)]",
-  DISABLED: "text-slate-500",
+  UP: "text-theme-accent drop-shadow-[0_0_8px_rgba(52,211,153,0.5)]",
+  DEGRADED: "text-status-warning-text drop-shadow-[0_0_8px_rgba(251,191,36,0.5)]",
+  DOWN: "text-status-danger-text drop-shadow-[0_0_8px_rgba(244,63,94,0.5)]",
+  DISABLED: "text-content-muted",
 };
 
 export function GaugeChart({
@@ -38,7 +38,7 @@ export function GaugeChart({
         : status === "DOWN"
           ? 15
           : 0;
-  
+
   let colorClass = statusColors[status];
   if (isFractional) {
     if (percent < 70) colorClass = statusColors.UP;
@@ -47,7 +47,7 @@ export function GaugeChart({
   }
 
   return (
-    <div className={cn("relative flex flex-col items-center justify-center p-5 rounded-3xl border border-theme-border bg-surface-elevated/70 shadow-2xl shadow-black/50 overflow-hidden", className)}>
+    <div className={cn("relative flex flex-col items-center justify-center p-5 rounded-3xl border border-theme-border bg-surface-elevated/70 shadow-2xl shadow-theme overflow-hidden", className)}>
       <div className="relative w-32 h-20">
         {/* Background Arc */}
         <svg viewBox="0 0 200 120" className="absolute top-0 left-0 w-full h-full">

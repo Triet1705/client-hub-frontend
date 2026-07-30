@@ -41,35 +41,35 @@ export function ModalShell({
       aria-modal="true"
     >
       <div
-        className="absolute inset-0 backdrop-blur-md bg-black/60"
+        className="absolute inset-0 bg-[var(--overlay)] backdrop-blur-md"
         onClick={isPending ? undefined : onClose}
       />
 
       <div
         className={cn(
-          "relative w-full bg-[#0f172a] border border-slate-800 rounded-2xl shadow-2xl overflow-hidden",
+          "relative flex max-h-[calc(100dvh-2rem)] w-full flex-col overflow-hidden rounded-2xl border border-theme-border bg-surface text-content-primary shadow-2xl",
           "animate-in fade-in zoom-in-95 duration-200",
           maxWidth,
         )}
       >
-        <div className="px-8 py-6 border-b border-slate-800 flex items-center justify-between shrink-0">
-          <h3 className="text-xl font-bold text-white tracking-tight">{title}</h3>
+        <div className="flex shrink-0 items-center justify-between gap-3 border-b border-theme-border px-4 py-4 sm:px-8 sm:py-6">
+          <h3 className="min-w-0 truncate text-lg font-bold tracking-tight text-content-primary sm:text-xl">{title}</h3>
           <button
             type="button"
             onClick={onClose}
             disabled={isPending}
-            className="text-slate-500 hover:text-white transition-colors disabled:opacity-50"
+            className="text-content-muted transition-colors hover:text-content-primary disabled:opacity-50"
             aria-label="Close"
           >
             <X size={20} />
           </button>
         </div>
 
-        <div className="px-8 py-7 overflow-y-auto custom-scrollbar max-h-[65vh]">
+        <div className="min-h-0 flex-1 overflow-y-auto px-4 py-5 custom-scrollbar sm:px-8 sm:py-7">
           {children}
         </div>
 
-        <div className="px-8 py-5 bg-slate-900/30 border-t border-slate-800 flex items-center justify-end gap-3 shrink-0">
+        <div className="flex shrink-0 flex-wrap items-center justify-end gap-2 border-t border-theme-border bg-surface-sunken/45 px-4 py-4 sm:gap-3 sm:px-8 sm:py-5">
           {footer}
         </div>
       </div>

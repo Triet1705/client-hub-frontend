@@ -26,16 +26,16 @@ import type {
 import { cn, formatFiat } from "@/lib/utils";
 
 const statusTone = {
-  UP: "border-emerald-500/30 bg-emerald-500/10 text-emerald-300",
-  DEGRADED: "border-amber-500/30 bg-amber-500/10 text-amber-300",
-  DOWN: "border-rose-500/30 bg-rose-500/10 text-rose-300",
+  UP: "border-theme-accent bg-action-subtle text-theme-accent",
+  DEGRADED: "border-status-warning-border bg-status-warning-surface text-status-warning-text",
+  DOWN: "border-status-danger-border bg-status-danger-surface text-status-danger-text",
 };
 
 const severityTone = {
-  INFO: "border-sky-500/25 bg-sky-500/10 text-sky-300",
-  SUCCESS: "border-emerald-500/25 bg-emerald-500/10 text-emerald-300",
-  WARNING: "border-amber-500/25 bg-amber-500/10 text-amber-300",
-  CRITICAL: "border-rose-500/25 bg-rose-500/10 text-rose-300",
+  INFO: "border-status-info-border bg-status-info-surface text-status-info-text",
+  SUCCESS: "border-theme-accent bg-action-subtle text-theme-accent",
+  WARNING: "border-status-warning-border bg-status-warning-surface text-status-warning-text",
+  CRITICAL: "border-status-danger-border bg-status-danger-surface text-status-danger-text",
 };
 
 function StatusBadge({ status }: { status: "UP" | "DEGRADED" | "DOWN" }) {
@@ -77,7 +77,7 @@ function MetricCard({
   status?: ControlCenterSummary["systemStatus"];
 }) {
   return (
-    <div className="rounded-lg border border-theme-border bg-surface-elevated/70 p-4 shadow-lg shadow-black/10">
+    <div className="rounded-lg border border-theme-border bg-surface-elevated/70 p-4 shadow-lg shadow-theme">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <p className="truncate text-[10px] font-bold uppercase tracking-widest text-content-muted">{label}</p>
@@ -107,7 +107,7 @@ function SystemVitalsPanel({ data }: { data: ControlCenterResponse }) {
   };
 
   return (
-    <section className="rounded-lg border border-theme-border bg-surface-elevated/70 p-5 shadow-lg shadow-black/10">
+    <section className="rounded-lg border border-theme-border bg-surface-elevated/70 p-5 shadow-lg shadow-theme">
       <SectionHeader title="System Vitals" action={<StatusBadge status={data.health.overallStatus} />} />
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <GaugeChart label="JVM Memory" isFractional value={data.health.jvm.usedMemoryMb} max={data.health.jvm.maxMemoryMb} subLabel="Megabytes" />
@@ -131,7 +131,7 @@ function SystemVitalsPanel({ data }: { data: ControlCenterResponse }) {
 
 function CompactSummaryCard({ title, description, href, actionLabel }: { title: string, description: string, href: string, actionLabel: string }) {
   return (
-    <section className="rounded-lg border border-theme-border bg-surface-elevated/70 p-5 shadow-lg shadow-black/10 flex items-center justify-between">
+    <section className="rounded-lg border border-theme-border bg-surface-elevated/70 p-5 shadow-lg shadow-theme flex items-center justify-between">
       <div>
         <h2 className="text-sm font-bold uppercase tracking-widest text-content-primary">{title}</h2>
         <p className="mt-1 text-xs text-content-muted">{description}</p>
@@ -143,11 +143,11 @@ function CompactSummaryCard({ title, description, href, actionLabel }: { title: 
 
 function AlertsPanel({ alerts }: { alerts: AdminAlert[] }) {
   return (
-    <section className="rounded-lg border border-theme-border bg-surface-elevated/70 p-5 shadow-lg shadow-black/10">
+    <section className="rounded-lg border border-theme-border bg-surface-elevated/70 p-5 shadow-lg shadow-theme">
       <SectionHeader title="Operational Alerts" />
       <div className="space-y-3">
         {alerts.length === 0 ? (
-          <div className="rounded-lg border border-emerald-500/20 bg-emerald-500/10 p-4 text-sm text-emerald-200">
+          <div className="rounded-lg border border-theme-accent bg-action-subtle p-4 text-sm text-theme-accent">
             No active operational alerts.
           </div>
         ) : (
@@ -161,7 +161,7 @@ function AlertsPanel({ alerts }: { alerts: AdminAlert[] }) {
                 <SeverityBadge severity={alert.severity} />
               </div>
               <div className="mt-3 flex gap-2 rounded-md bg-surface-elevated/70 p-3 text-xs text-content-secondary">
-                <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-amber-300" aria-hidden="true" />
+                <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-status-warning-text" aria-hidden="true" />
                 <span>{alert.recommendedAction}</span>
               </div>
             </div>
@@ -183,7 +183,7 @@ export default function AdminOverviewPage() {
 
   if (isError || !data) {
     return (
-      <div className="rounded-lg border border-rose-500/20 bg-rose-500/10 p-5 text-sm text-rose-200">
+      <div className="rounded-lg border border-status-danger-border bg-status-danger-surface p-5 text-sm text-status-danger-text">
         Admin control center is unavailable.
       </div>
     );

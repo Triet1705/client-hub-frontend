@@ -12,12 +12,12 @@ export function RoleBadge({ role }: RoleBadgeProps) {
 
   switch (role) {
     case "ADMIN":
-      return <span className="px-2.5 py-1 rounded-full text-[10px] font-bold tracking-wider bg-emerald-500/10 text-emerald-400 uppercase ring-1 ring-emerald-500/30">ADMIN</span>;
+      return <span className="px-2.5 py-1 rounded-full text-[10px] font-bold tracking-wider bg-action-subtle text-theme-accent uppercase ring-1 ring-theme-accent">ADMIN</span>;
     case "CLIENT":
-      return <span className="px-2.5 py-1 rounded-full text-[10px] font-bold tracking-wider bg-sky-500/10 text-sky-400 uppercase ring-1 ring-sky-500/30">CLIENT</span>;
+      return <span className="px-2.5 py-1 rounded-full text-[10px] font-bold tracking-wider bg-status-info-surface text-status-info-text uppercase ring-1 ring-status-info-border">CLIENT</span>;
     case "FREELANCER":
-      return <span className="px-2.5 py-1 rounded-full text-[10px] font-bold tracking-wider bg-amber-500/10 text-amber-400 uppercase ring-1 ring-amber-500/30">FREELANCER</span>;
+      return <span className="px-2.5 py-1 rounded-full text-[10px] font-bold tracking-wider bg-status-warning-surface text-status-warning-text uppercase ring-1 ring-status-warning-border">FREELANCER</span>;
     default:
-      return <span className="px-2.5 py-1 rounded-full text-[10px] font-bold tracking-wider bg-slate-500/10 text-slate-400 uppercase ring-1 ring-slate-500/30">{role}</span>;
+      return <span className="px-2.5 py-1 rounded-full text-[10px] font-bold tracking-wider bg-status-neutral-surface text-content-secondary uppercase ring-1 ring-status-neutral-border">{role}</span>;
   }
 }

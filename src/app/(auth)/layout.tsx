@@ -6,7 +6,7 @@ import { ArrowLeft } from "lucide-react";
 
 export default function AuthLayout({ children }: { children: ReactNode }) {
   return (
-    <div className="flex min-h-screen w-full bg-background font-space-grotesk text-slate-100 antialiased overflow-hidden">
+    <div className="auth-dark flex min-h-screen w-full bg-background font-space-grotesk text-slate-100 antialiased overflow-hidden">
 
       <NetworkStatusBadge className="fixed top-6 right-6 z-50" />
 

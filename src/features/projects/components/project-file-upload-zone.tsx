@@ -114,8 +114,8 @@ export function ProjectFileUploadZone({ projectId }: ProjectFileUploadZoneProps)
       className={cn(
         "rounded-2xl border border-dashed p-6 transition-colors",
         isDragActive
-          ? "border-emerald-400 bg-emerald-500/10"
-          : "border-white/15 bg-slate-900/40 hover:border-emerald-500/30",
+          ? "border-theme-accent bg-action-subtle"
+          : "border-theme-border bg-surface/40 hover:border-theme-accent",
       )}
     >
       <input
@@ -129,7 +129,7 @@ export function ProjectFileUploadZone({ projectId }: ProjectFileUploadZoneProps)
         }}
       />
       <div className="flex flex-col items-center gap-4 text-center sm:flex-row sm:text-left">
-        <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-300 ring-1 ring-emerald-500/20">
+        <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-action-subtle text-theme-accent ring-1 ring-theme-accent">
           {isUploading ? (
             <FileUp className="h-6 w-6 animate-pulse" />
           ) : (
@@ -137,10 +137,10 @@ export function ProjectFileUploadZone({ projectId }: ProjectFileUploadZoneProps)
           )}
         </span>
         <div className="min-w-0 flex-1">
-          <p className="font-semibold text-white">
+          <p className="font-semibold text-content-primary">
             {isUploading ? `Uploading ${uploadCount} file${uploadCount === 1 ? "" : "s"}...` : "Drop files here"}
           </p>
-          <p className="mt-1 text-sm text-slate-500">
+          <p className="mt-1 text-sm text-content-muted">
             PDF, Word, JPEG, PNG, or GIF. Up to 5MB per file. Uploads are recorded in project messages.
           </p>
         </div>
@@ -149,7 +149,7 @@ export function ProjectFileUploadZone({ projectId }: ProjectFileUploadZoneProps)
           variant="outline"
           isLoading={isUploading}
           onClick={() => fileInputRef.current?.click()}
-          className="shrink-0 border-emerald-500/30 text-emerald-200 hover:bg-emerald-500/10"
+          className="shrink-0 border-theme-accent text-theme-accent hover:bg-action-subtle"
         >
           Choose files
         </Button>
