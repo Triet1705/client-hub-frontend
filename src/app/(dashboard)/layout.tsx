@@ -16,7 +16,7 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="relative min-h-screen bg-[#020617] font-space-grotesk text-slate-100 selection:bg-emerald-500/30">
+    <div className="relative min-h-screen bg-surface-base font-space-grotesk text-content-primary selection:bg-theme-accent-surface">
       <Sidebar />
 
       <div

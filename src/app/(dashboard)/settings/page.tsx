@@ -22,6 +22,7 @@ import {
 } from "@/features/users/hooks/use-current-user";
 import { getApiErrorMessage } from "@/lib/api/error";
 import { cn, truncateAddress } from "@/lib/utils";
+import { useTheme } from "@/providers/theme-provider";
 
 const SECTIONS = [
   { id: "profile", label: "Account", icon: User, helper: "Identity and portfolio" },
@@ -49,7 +50,7 @@ function SettingsPanel({
   return (
     <section id={id} className="scroll-mt-24 rounded-3xl border border-theme-border bg-surface-elevated/70 p-6 shadow-2xl shadow-black/10">
       <div className="mb-6 flex items-start gap-3">
-        <span className="rounded-2xl bg-emerald-500/10 p-2.5 text-emerald-400 ring-1 ring-emerald-500/20">
+        <span className="rounded-2xl bg-action-subtle p-2.5 text-theme-accent ring-1 ring-theme-accent">
           <Icon className="h-5 w-5" />
         </span>
         <div>
@@ -79,14 +80,19 @@ function ToggleRow({
         <span className="block text-sm font-medium text-content-primary">{label}</span>
         <span className="mt-1 block text-xs leading-5 text-content-muted">{description}</span>
       </span>
-      <div className="relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors focus-within:ring-2 focus-within:ring-emerald-500 focus-within:ring-offset-2 focus-within:ring-offset-surface-base" style={{ backgroundColor: checked ? "#10b981" : "#334155" }}>
+      <div
+        className={cn(
+          "relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors focus-within:ring-2 focus-within:ring-focus-ring focus-within:ring-offset-2 focus-within:ring-offset-surface-base",
+          checked ? "bg-action-primary" : "bg-surface-sunken",
+        )}
+      >
         <input
           type="checkbox"
           className="sr-only"
           checked={checked}
           onChange={(event) => onChange(event.target.checked)}
         />
-        <span className={cn("inline-block h-4 w-4 transform rounded-full bg-white transition-transform", checked ? "translate-x-6" : "translate-x-1")} />
+        <span className={cn("inline-block h-4 w-4 transform rounded-full bg-toggle-thumb transition-transform", checked ? "translate-x-6" : "translate-x-1")} />
       </div>
     </label>
   );
@@ -99,6 +105,7 @@ export default function SettingsPage() {
   const changePassword = useChangePasswordMutation();
   const queryClient = useQueryClient();
   const { address, isConnected } = useAccount();
+  const { setTheme } = useTheme();
 
   const [activeSection, setActiveSection] = React.useState<SectionId>("profile");
   const [profile, setProfile] = React.useState({
@@ -186,7 +193,7 @@ export default function SettingsPage() {
     <div className="space-y-8">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
         <div>
-          <div className="inline-flex items-center gap-2 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-emerald-300">
+          <div className="inline-flex items-center gap-2 rounded-full border border-theme-accent bg-action-subtle px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-theme-accent">
             <MonitorCog className="h-3.5 w-3.5" />
             Workspace preferences
           </div>
@@ -215,7 +222,7 @@ export default function SettingsPage() {
                   onClick={() => scrollToSection(section.id)}
                   className={cn(
                     "flex min-w-44 items-center gap-3 rounded-2xl px-3 py-3 text-left transition-colors xl:w-full xl:min-w-0",
-                    isActive ? "bg-emerald-500/10 text-emerald-300 ring-1 ring-emerald-500/20" : "text-content-muted hover:bg-surface-base/60 hover:text-content-primary",
+                    isActive ? "bg-action-subtle text-theme-accent ring-1 ring-theme-accent" : "text-content-muted hover:bg-surface-base/60 hover:text-content-primary",
                   )}
                 >
                   <Icon className="h-5 w-5 shrink-0" />
@@ -280,7 +287,11 @@ export default function SettingsPage() {
               <FormField label="Theme">
                 <CustomSelect
                   value={preferences.theme}
-                  onChange={(val) => setPreferences((p) => ({ ...p, theme: val as "dark" | "light" }))}
+                  onChange={(val) => {
+                    const nextTheme = val as "dark" | "light";
+                    setPreferences((p) => ({ ...p, theme: nextTheme }));
+                    setTheme(nextTheme);
+                  }}
                   options={[{ value: "dark", label: "Dark" }, { value: "light", label: "Light" }]}
                 />
               </FormField>
@@ -308,8 +319,8 @@ export default function SettingsPage() {
                 <Input type="password" value={password.newPassword} onChange={(e) => setPassword((p) => ({ ...p, newPassword: e.target.value }))} />
                 {password.newPassword && (
                   <div className="mt-2 flex h-1 w-full overflow-hidden rounded-full bg-surface-base">
-                    <div 
-                      className={cn("h-full transition-all duration-300", password.newPassword.length > 8 ? (password.newPassword.match(/[!@#$%^&*(),.?":{}|<>]/) && password.newPassword.match(/[A-Z]/) ? "w-full bg-emerald-500" : "w-2/3 bg-amber-500") : "w-1/3 bg-red-500")}
+                    <div
+                      className={cn("h-full transition-all duration-300", password.newPassword.length > 8 ? (password.newPassword.match(/[!@#$%^&*(),.?":{}|<>]/) && password.newPassword.match(/[A-Z]/) ? "w-full bg-status-success-text" : "w-2/3 bg-status-warning-text") : "w-1/3 bg-status-danger-text")}
                     />
                   </div>
                 )}
@@ -319,7 +330,7 @@ export default function SettingsPage() {
               className="mt-5"
               variant="secondary"
               isLoading={changePassword.isPending}
-              onClick={() => changePassword.mutate(password, { 
+              onClick={() => changePassword.mutate(password, {
                 onSuccess: () => {
                   setPassword({ currentPassword: "", newPassword: "" });
                   toast.success("Password changed successfully");
@@ -348,7 +359,7 @@ export default function SettingsPage() {
               </div>
             </div>
             {isConnected && address && me?.walletAddress && !connectedWalletIsSaved ? (
-              <p className="mt-4 text-sm text-amber-300">
+              <p className="mt-4 text-sm text-status-warning-text">
                 The connected wallet differs from the wallet bound to this account.
               </p>
             ) : null}
