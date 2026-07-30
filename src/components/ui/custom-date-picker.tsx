@@ -108,7 +108,7 @@ export function CustomDatePicker({
       data-clienthub-date-picker
       role="dialog"
       aria-label="Choose a date"
-      className="fixed z-[9999] w-[min(20rem,calc(100vw-1.5rem))] rounded-2xl border border-theme-border bg-surface-base p-3 text-content-primary shadow-[0_18px_45px_var(--shadow-color)] ring-1 ring-theme-border"
+      className="fixed z-[9999] w-80 rounded-2xl border border-theme-border bg-surface-base p-3 text-content-primary shadow-2xl shadow-black/40 ring-1 ring-white/5"
       style={{ top: dropdownCoords.top, left: dropdownCoords.left }}
     >
       <div className="mb-2 flex items-center justify-between border-b border-theme-border-subtle px-1 pb-3">
@@ -152,9 +152,9 @@ export function CustomDatePicker({
           weekday: "py-2 text-center text-[10px] font-bold uppercase tracking-wider text-content-muted",
           weeks: "block",
           week: "mt-1 grid grid-cols-7",
-          day: "relative h-9 w-9 p-0 text-center sm:h-10 sm:w-10",
-          day_button: "flex h-9 w-9 items-center justify-center rounded-xl text-sm font-medium text-content-secondary transition-all hover:bg-theme-accent-surface hover:text-theme-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-theme-accent sm:h-10 sm:w-10",
-          selected: "[&>button]:bg-action-primary [&>button]:font-bold [&>button]:text-action-primary-foreground [&>button]:shadow-lg hover:[&>button]:bg-action-primary-hover",
+          day: "relative h-10 w-10 p-0 text-center",
+          day_button: "flex h-10 w-10 items-center justify-center rounded-xl text-sm font-medium text-content-secondary transition-all hover:bg-theme-accent-surface hover:text-theme-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-theme-accent",
+          selected: "[&>button]:bg-theme-accent [&>button]:font-bold [&>button]:text-white [&>button]:shadow-lg [&>button]:shadow-emerald-900/30 hover:[&>button]:bg-theme-accent-hover",
           today: "[&>button]:border [&>button]:border-theme-accent/50 [&>button]:text-theme-accent",
           outside: "[&>button]:text-content-muted [&>button]:opacity-35",
           disabled: "[&>button]:cursor-not-allowed [&>button]:opacity-25 [&>button]:hover:bg-transparent [&>button]:hover:text-content-muted",
@@ -186,7 +186,7 @@ export function CustomDatePicker({
           isOpen
             ? "border-theme-accent shadow-[0_0_0_1px_var(--theme-accent)]"
             : "border-theme-border hover:border-theme-accent/60",
-          isError && "border-status-danger-border focus-visible:ring-status-danger-text/40",
+          isError && "border-rose-500 focus-visible:ring-rose-500/40",
           disabled && "cursor-not-allowed opacity-50",
         )}
       >
