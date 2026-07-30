@@ -27,7 +27,7 @@ export function Header() {
         <Menu className="h-5 w-5" />
       </button>
 
-      <div className="flex min-w-0 items-center gap-2 sm:gap-3 lg:gap-5">
+      <div className="ml-auto flex min-w-0 items-center gap-2 sm:gap-3 lg:gap-5">
         <ThemeToggle />
 
         <div className="hidden md:block">

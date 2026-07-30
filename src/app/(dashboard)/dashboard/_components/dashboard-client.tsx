@@ -111,7 +111,7 @@ export function DashboardClient() {
       {/* ── #5: Asymmetric Stat Cards (1 large + 3 compact) ── */}
       <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
         {/* Primary / Large card */}
-        <div className="md:col-span-4 relative bg-surface/80 backdrop-blur-xl ring-1 ring-theme-border p-6 sm:p-8 rounded-3xl flex flex-col justify-between shadow-2xl shadow-theme overflow-hidden group">
+        <div className="web3-hero-card md:col-span-4 relative bg-surface/80 backdrop-blur-xl ring-1 ring-theme-border p-6 sm:p-8 rounded-3xl flex flex-col justify-between shadow-2xl shadow-theme overflow-hidden group">
           {/* Subtle gradient background for depth */}
           <div className="absolute inset-0 bg-gradient-to-br from-action-subtle via-transparent to-transparent opacity-50 pointer-events-none" />
           <div className="absolute -top-24 -right-24 w-48 h-48 bg-action-subtle blur-3xl rounded-full pointer-events-none group-hover:bg-action-subtle transition-all duration-700" />
