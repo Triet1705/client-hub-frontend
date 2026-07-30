@@ -490,7 +490,7 @@ export default function CommunicationClient() {
                   <p className="text-[10px] font-bold text-theme-accent uppercase tracking-widest mb-2 flex items-center gap-1.5 px-2.5 py-1 bg-action-subtle rounded-full w-fit ring-1 ring-theme-accent"><FolderOpen className="w-3 h-3" /> Project Evidence</p>
                   <h3 className="text-lg font-space-grotesk font-bold text-content-primary break-words max-w-full leading-tight">{project.title}</h3>
                   <p className="text-[11px] text-content-muted mt-2 font-mono">Project</p>
-                  <div className="bg-surface-elevated/40 rounded-2xl p-4 ring-1 ring-theme-border flex flex-col hover:bg-surface-elevated/60 transition-colors cursor-default">
+                  <div className="mt-5 bg-surface-elevated/40 rounded-2xl p-4 ring-1 ring-theme-border flex flex-col hover:bg-surface-elevated/60 transition-colors cursor-default">
                     <p className="text-[10px] text-content-muted uppercase tracking-widest font-bold mb-2">Stage</p>
                     <span className={cn(
                       "text-xs font-bold px-3 py-1.5 rounded-lg w-fit ring-1 ring-inset shadow-inner",
@@ -500,7 +500,7 @@ export default function CommunicationClient() {
                     </span>
                   </div>
 
-                  <div className="bg-surface-elevated/40 rounded-2xl p-4 ring-1 ring-theme-border flex items-start gap-3 hover:bg-surface-elevated/60 transition-colors cursor-default">
+                  <div className="mt-4 bg-surface-elevated/40 rounded-2xl p-4 ring-1 ring-theme-border flex items-start gap-3 hover:bg-surface-elevated/60 transition-colors cursor-default">
                     <div className="p-2.5 bg-status-web3-surface rounded-xl text-status-web3-text shrink-0 ring-1 ring-status-web3-border"><CreditCard className="w-5 h-5" /></div>
                     <div className="min-w-0">
                       <p className="text-[10px] text-content-muted uppercase tracking-widest font-bold mb-0.5">Total Budget</p>
@@ -508,7 +508,7 @@ export default function CommunicationClient() {
                     </div>
                   </div>
 
-                  <div className="bg-surface-elevated/40 rounded-2xl p-4 ring-1 ring-theme-border flex items-start gap-3 hover:bg-surface-elevated/60 transition-colors cursor-default">
+                  <div className="mt-4 bg-surface-elevated/40 rounded-2xl p-4 ring-1 ring-theme-border flex items-start gap-3 hover:bg-surface-elevated/60 transition-colors cursor-default">
                     <div className="p-2.5 bg-status-danger-surface rounded-xl text-status-danger-text shrink-0 ring-1 ring-status-danger-border"><Clock className="w-5 h-5" /></div>
                     <div className="min-w-0">
                       <p className="text-[10px] text-content-muted uppercase tracking-widest font-bold mb-0.5">Deadline</p>
@@ -516,7 +516,7 @@ export default function CommunicationClient() {
                     </div>
                   </div>
 
-                  <div className="bg-surface-elevated/40 rounded-2xl p-4 ring-1 ring-theme-border hover:bg-surface-elevated/60 transition-colors cursor-default">
+                  <div className="mt-4 bg-surface-elevated/40 rounded-2xl p-4 ring-1 ring-theme-border hover:bg-surface-elevated/60 transition-colors cursor-default">
                     <p className="text-[10px] text-content-muted uppercase tracking-widest font-bold mb-3 flex items-center gap-2">Assignee Core</p>
                     <div className="flex items-center gap-1 -space-x-2">
                       <div className="w-8 h-8 rounded-full bg-surface flex items-center justify-center font-bold text-[10px] ring-2 ring-theme-border text-status-web3-text shadow-md">FR</div>
@@ -537,7 +537,7 @@ export default function CommunicationClient() {
                   <p className="text-[10px] font-bold text-status-danger-text uppercase tracking-widest mb-2 flex items-center gap-1.5 px-2.5 py-1 bg-status-danger-surface rounded-full w-fit ring-1 ring-status-danger-border"><Pin className="w-3 h-3" /> Task Evidence</p>
                   <h3 className="text-lg font-space-grotesk font-bold text-content-primary break-words max-w-full leading-tight">{task.title}</h3>
                   <p className="text-[11px] text-content-muted mt-2 font-mono">Belongs to: {selectedConversation.parentName}</p>
-                  <div className="bg-surface-elevated/40 rounded-2xl p-4 ring-1 ring-theme-border flex flex-col hover:bg-surface-elevated/60 transition-colors cursor-default">
+                  <div className="mt-5 bg-surface-elevated/40 rounded-2xl p-4 ring-1 ring-theme-border flex flex-col hover:bg-surface-elevated/60 transition-colors cursor-default">
                     <p className="text-[10px] text-content-muted uppercase tracking-widest font-bold mb-2">Task Status</p>
                     <span className={cn(
                       "text-xs font-bold px-3 py-1.5 rounded-lg w-fit ring-1 ring-inset shadow-inner",
@@ -547,7 +547,7 @@ export default function CommunicationClient() {
                     </span>
                   </div>
 
-                  <div className="bg-surface-elevated/40 rounded-2xl ring-1 ring-theme-border divide-y divide-theme-border">
+                  <div className="mt-4 bg-surface-elevated/40 rounded-2xl ring-1 ring-theme-border divide-y divide-theme-border">
                     <div className="flex justify-between items-center p-4">
                       <span className="text-[10px] font-bold text-content-muted uppercase tracking-widest">Priority</span>
                       <span className="text-xs font-bold uppercase tracking-widest text-content-secondary">{task.priority}</span>
@@ -570,12 +570,12 @@ export default function CommunicationClient() {
                   <p className="text-[10px] font-bold text-status-warning-text uppercase tracking-widest mb-2 flex items-center gap-1.5 px-2.5 py-1 bg-status-warning-surface rounded-full w-fit ring-1 ring-status-warning-border"><Receipt className="w-3 h-3" /> Invoice Receipt</p>
                   <h3 className="text-lg font-space-grotesk font-bold text-content-primary max-w-full truncate leading-tight">{invoice.title}</h3>
                   <p className="text-[11px] text-content-muted mt-2 font-mono">Belongs to: {selectedConversation.parentName}</p>
-                  <div className="bg-surface-elevated/40 rounded-2xl p-4 ring-1 ring-theme-border text-center py-6 shadow-inner">
+                  <div className="mt-5 bg-surface-elevated/40 rounded-2xl p-4 ring-1 ring-theme-border text-center py-6 shadow-inner">
                     <p className="text-[10px] font-bold text-content-muted uppercase tracking-widest mb-2">Total Amount</p>
                     <span className="text-3xl font-space-grotesk tracking-tight text-content-primary font-bold">{formatCurrency(invoice.amount)}</span>
                   </div>
 
-                  <div className="bg-surface-elevated/40 rounded-2xl ring-1 ring-theme-border divide-y divide-theme-border">
+                  <div className="mt-4 bg-surface-elevated/40 rounded-2xl ring-1 ring-theme-border divide-y divide-theme-border">
                     <div className="flex justify-between items-center p-4">
                       <span className="text-[10px] font-bold text-content-muted uppercase tracking-widest">Status</span>
                       <InvoiceStatusPill status={invoice.status} />
