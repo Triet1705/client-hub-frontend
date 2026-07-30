@@ -24,12 +24,30 @@ export function SummaryCard({ label, value, icon: Icon, iconClassName, badge, cl
     blue:    "bg-status-info-surface text-status-info-text bg-status-info-surface ring-status-info-border",
     slate:   "bg-status-neutral-surface text-status-neutral-text bg-status-neutral-surface ring-status-neutral-border",
   };
+  const variantAccentClasses = {
+    amber: "bg-status-warning-text",
+    emerald: "bg-status-success-text",
+    cyan: "bg-status-info-text",
+    rose: "bg-status-danger-text",
+    indigo: "bg-status-web3-text",
+    blue: "bg-status-info-text",
+    slate: "bg-status-neutral-text",
+  };
 
   return (
     <div className={cn(
       "bg-surface-elevated/60 backdrop-blur-xl ring-1 ring-theme-border shadow-2xl shadow-theme p-6 rounded-3xl transition-all duration-300 group hover:bg-surface-elevated hover:ring-theme-accent/20 relative overflow-hidden",
       className
     )}>
+      {badge && (
+        <div
+          aria-hidden="true"
+          className={cn(
+            "summary-accent-rail absolute inset-x-0 top-0 h-1",
+            variantAccentClasses[badge.variant],
+          )}
+        />
+      )}
       {badge && (
         <div className={cn("absolute inset-0 blur-2xl pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300", variantClasses[badge.variant].split(" ")[2])} />
       )}

@@ -116,56 +116,56 @@
 @layer base {
   :root {
     color-scheme: light;
-    --background: #f6f8fa;
-    --foreground: #1f2328;
-    --background-hex: #f6f8fa;
-    --foreground-hex: #1f2328;
+    --background: #f2f7f5;
+    --foreground: #102a24;
+    --background-hex: #f2f7f5;
+    --foreground-hex: #102a24;
     --primary: #047857;
     --primary-foreground: #ffffff;
-    --secondary: #eaeef2;
-    --secondary-foreground: #1f2328;
+    --secondary: #e5efeb;
+    --secondary-foreground: #102a24;
     --destructive: #b42318;
     --destructive-foreground: #ffffff;
-    --muted: #eaeef2;
-    --muted-foreground: #636c76;
-    --accent: #ecfdf5;
+    --muted: #e5efeb;
+    --muted-foreground: #60746c;
+    --accent: #d9f5e9;
     --accent-foreground: #047857;
     --popover: #ffffff;
-    --popover-foreground: #1f2328;
+    --popover-foreground: #102a24;
     --card: #ffffff;
-    --card-foreground: #1f2328;
-    --border: #d0d7de;
+    --card-foreground: #102a24;
+    --border: #cddbd5;
     --input: #ffffff;
     --ring: #0f766e;
     --radius: 0.5rem;
     --surface-dark: #1e293b;
     --pitch-black: #020617;
 
-    /* Client Hub light palette: Primer neutrals + emerald actions */
-    --bg-base: #f6f8fa;
+    /* Client Hub light preview: mineral canvas + crisp surfaces + emerald actions */
+    --bg-base: #f2f7f5;
     --bg-surface: #ffffff;
-    --bg-elevated: #ffffff;
-    --bg-sunken: #eaeef2;
-    --border-default: #d0d7de;
-    --border-subtle: #eaeef2;
-    --text-primary: #1f2328;
-    --text-secondary: #475569;
-    --text-muted: #636c76;
+    --bg-elevated: #f7fbf9;
+    --bg-sunken: #e5efeb;
+    --border-default: #cddbd5;
+    --border-subtle: #e4ece8;
+    --text-primary: #102a24;
+    --text-secondary: #496158;
+    --text-muted: #60746c;
     --theme-accent: #047857;
     --theme-accent-hover: #065f46;
-    --theme-accent-surface: #ecfdf5;
+    --theme-accent-surface: #d9f5e9;
     --action-primary: #047857;
     --action-primary-hover: #065f46;
     --action-primary-foreground: #ffffff;
-    --action-subtle: #ecfdf5;
+    --action-subtle: #d9f5e9;
     --action-subtle-foreground: #047857;
     --action-danger: #b42318;
     --action-danger-hover: #912018;
     --action-danger-foreground: #ffffff;
     --focus-ring: #0f766e;
     --toggle-thumb: #ffffff;
-    --overlay: rgba(15, 23, 42, 0.48);
-    --shadow-color: rgba(31, 35, 40, 0.12);
+    --overlay: rgba(16, 42, 36, 0.48);
+    --shadow-color: rgba(16, 74, 58, 0.14);
 
     --status-success-surface: #ecfdf3;
     --status-success-text: #067647;
@@ -297,6 +297,22 @@
     --action-danger-foreground: #ffffff;
     --focus-ring: #34d399;
     --toggle-thumb: #ffffff;
+    --color-surface-base: #020617;
+    --color-surface: #0f172a;
+    --color-surface-elevated: #1e293b;
+    --color-surface-sunken: #0f172a;
+    --color-theme-border: #334155;
+    --color-theme-border-subtle: #1e293b;
+    --color-content-primary: #ffffff;
+    --color-content-secondary: #cbd5e1;
+    --color-content-muted: #94a3b8;
+    --color-theme-accent: #34d399;
+    --color-theme-accent-hover: #6ee7b7;
+    --color-theme-accent-surface: rgba(16, 185, 129, 0.1);
+    --color-action-primary: #047857;
+    --color-action-primary-hover: #059669;
+    --color-action-primary-foreground: #ffffff;
+    --color-action-subtle: rgba(16, 185, 129, 0.1);
     background-color: var(--bg-base);
     color: var(--text-primary);
   }
@@ -322,6 +338,41 @@
   }
   .shadow-theme {
     @apply shadow-theme-shadow;
+  }
+
+  [data-theme="light"] .dashboard-shell {
+    background:
+      radial-gradient(circle at 78% -8%, rgba(16, 185, 129, 0.13), transparent 30rem),
+      linear-gradient(180deg, #eef7f3 0%, #f2f7f5 34rem, #f5f8f7 100%);
+  }
+
+  [data-theme="dark"] .summary-accent-rail {
+    display: none;
+  }
+
+  [data-theme="light"] .web3-hero-card {
+    --bg-base: rgba(255, 255, 255, 0.08);
+    --bg-surface: #0b1f33;
+    --bg-elevated: rgba(255, 255, 255, 0.1);
+    --border-default: rgba(94, 234, 212, 0.28);
+    --text-primary: #f8fafc;
+    --text-secondary: #dce7ef;
+    --text-muted: #a8bac8;
+    --theme-accent: #5eead4;
+    --theme-accent-surface: rgba(45, 212, 191, 0.14);
+    --action-subtle: rgba(45, 212, 191, 0.14);
+    --color-surface-base: rgba(255, 255, 255, 0.08);
+    --color-surface-elevated: rgba(255, 255, 255, 0.1);
+    --color-theme-border: rgba(94, 234, 212, 0.28);
+    --color-content-primary: #f8fafc;
+    --color-content-secondary: #dce7ef;
+    --color-content-muted: #a8bac8;
+    --color-theme-accent: #5eead4;
+    --color-action-subtle: rgba(45, 212, 191, 0.14);
+    background:
+      radial-gradient(circle at 85% 0%, rgba(45, 212, 191, 0.2), transparent 42%),
+      linear-gradient(145deg, #0b1f33 0%, #123c4a 100%);
+    box-shadow: 0 20px 46px rgba(11, 31, 51, 0.2);
   }
 
   .no-scrollbar::-webkit-scrollbar {

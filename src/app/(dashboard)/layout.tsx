@@ -16,7 +16,7 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="relative min-h-screen bg-surface-base font-space-grotesk text-content-primary selection:bg-theme-accent-surface">
+    <div className="dashboard-shell relative min-h-screen bg-surface-base font-space-grotesk text-content-primary selection:bg-theme-accent-surface">
       <Sidebar />
 
       <div className="flex min-h-screen min-w-0 flex-col transition-[padding] duration-300 md:pl-[var(--dashboard-sidebar-width,16rem)]">
