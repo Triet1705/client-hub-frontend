@@ -76,7 +76,7 @@ function NavigationProgressInner({ children }: { children: React.ReactNode }) {
       {pendingHref ? (
         <div className="fixed left-0 right-0 top-0 z-[100] h-0.5 overflow-hidden bg-transparent">
           <div 
-            className="h-full w-2/3 rounded-r-full bg-emerald-400 shadow-[0_0_16px_rgba(16,185,129,0.8)]" 
+            className="h-full w-2/3 rounded-r-full bg-action-primary shadow-[0_0_16px_var(--shadow-color)]"
             style={{ 
               animation: "slide-indeterminate 1.5s infinite ease-in-out", 
               transformOrigin: "left"

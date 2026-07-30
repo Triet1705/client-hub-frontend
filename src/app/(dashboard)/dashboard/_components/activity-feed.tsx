@@ -88,7 +88,7 @@ export function ActivityFeed({
   const items = buildActivityFeed(projects, pendingTasks, awaitingPayment);
 
   return (
-    <div className="bg-surface/60 backdrop-blur-xl ring-1 ring-theme-border rounded-3xl p-7 shadow-2xl shadow-black/50 transition-all hover:bg-surface/80">
+    <div className="bg-surface/60 backdrop-blur-xl ring-1 ring-theme-border rounded-3xl p-5 sm:p-7 shadow-2xl shadow-theme transition-all hover:bg-surface/80">
       <div className="flex items-center justify-between mb-8">
         <h2 className="text-xl font-space-grotesk font-semibold text-content-primary">Recent Activity</h2>
       </div>

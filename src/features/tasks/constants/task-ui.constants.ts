@@ -16,9 +16,9 @@ export const TASK_STATUS_OPTIONS = [
 
 export const TASK_STATUS_BADGE: Record<TaskStatus, string> = {
   [TaskStatus.TODO]:        "bg-status-neutral-surface text-content-secondary ring-status-neutral-border shadow-transparent",
-  [TaskStatus.IN_PROGRESS]: "bg-status-warning-surface text-status-warning-text ring-status-warning-border shadow-amber-500/10",
-  [TaskStatus.DONE]:        "bg-action-subtle text-theme-accent ring-theme-accent shadow-emerald-500/10",
-  [TaskStatus.CANCELED]:    "bg-status-danger-surface text-status-danger-text ring-status-danger-border shadow-rose-500/10",
+  [TaskStatus.IN_PROGRESS]: "bg-status-warning-surface text-status-warning-text ring-status-warning-border shadow-theme",
+  [TaskStatus.DONE]:        "bg-action-subtle text-theme-accent ring-theme-accent shadow-theme",
+  [TaskStatus.CANCELED]:    "bg-status-danger-surface text-status-danger-text ring-status-danger-border shadow-theme",
 };
 
 export const TASK_STATUS_LABEL: Record<TaskStatus, string> = {

@@ -534,7 +534,7 @@ export default function ProjectDetailPage() {
         Back to Projects
       </Link>
 
-      <section className="rounded-2xl border border-theme-border bg-surface/60 p-6 shadow-xl shadow-black/20">
+      <section className="rounded-2xl border border-theme-border bg-surface/60 p-4 shadow-xl shadow-theme sm:p-6">
         <div className="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
           <div className="min-w-0 space-y-4">
             <div className="flex flex-wrap items-center gap-3">

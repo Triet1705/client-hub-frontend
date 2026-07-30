@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils";
 
 function FlagCard({ flag }: { flag: AdminFeatureFlag }) {
   return (
-    <article className="rounded-lg border border-theme-border bg-surface-elevated/70 p-5 shadow-lg shadow-black/10">
+    <article className="rounded-lg border border-theme-border bg-surface-elevated/70 p-5 shadow-lg shadow-theme">
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0">
           <h2 className="text-base font-semibold text-content-primary">{flag.label}</h2>

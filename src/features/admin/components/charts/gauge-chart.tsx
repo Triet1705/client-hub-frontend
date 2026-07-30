@@ -47,7 +47,7 @@ export function GaugeChart({
   }
 
   return (
-    <div className={cn("relative flex flex-col items-center justify-center p-5 rounded-3xl border border-theme-border bg-surface-elevated/70 shadow-2xl shadow-black/50 overflow-hidden", className)}>
+    <div className={cn("relative flex flex-col items-center justify-center p-5 rounded-3xl border border-theme-border bg-surface-elevated/70 shadow-2xl shadow-theme overflow-hidden", className)}>
       <div className="relative w-32 h-20">
         {/* Background Arc */}
         <svg viewBox="0 0 200 120" className="absolute top-0 left-0 w-full h-full">

@@ -48,7 +48,7 @@ function SettingsPanel({
   children: React.ReactNode;
 }) {
   return (
-    <section id={id} className="scroll-mt-24 rounded-3xl border border-theme-border bg-surface-elevated/70 p-6 shadow-2xl shadow-black/10">
+    <section id={id} className="scroll-mt-24 rounded-3xl border border-theme-border bg-surface-elevated/70 p-4 shadow-2xl shadow-theme sm:p-6">
       <div className="mb-6 flex items-start gap-3">
         <span className="rounded-2xl bg-action-subtle p-2.5 text-theme-accent ring-1 ring-theme-accent">
           <Icon className="h-5 w-5" />

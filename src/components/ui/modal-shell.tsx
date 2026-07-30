@@ -47,13 +47,13 @@ export function ModalShell({
 
       <div
         className={cn(
-          "relative w-full overflow-hidden rounded-2xl border border-theme-border bg-surface text-content-primary shadow-2xl",
+          "relative flex max-h-[calc(100dvh-2rem)] w-full flex-col overflow-hidden rounded-2xl border border-theme-border bg-surface text-content-primary shadow-2xl",
           "animate-in fade-in zoom-in-95 duration-200",
           maxWidth,
         )}
       >
-        <div className="flex shrink-0 items-center justify-between border-b border-theme-border px-8 py-6">
-          <h3 className="text-xl font-bold tracking-tight text-content-primary">{title}</h3>
+        <div className="flex shrink-0 items-center justify-between gap-3 border-b border-theme-border px-4 py-4 sm:px-8 sm:py-6">
+          <h3 className="min-w-0 truncate text-lg font-bold tracking-tight text-content-primary sm:text-xl">{title}</h3>
           <button
             type="button"
             onClick={onClose}
@@ -65,11 +65,11 @@ export function ModalShell({
           </button>
         </div>
 
-        <div className="px-8 py-7 overflow-y-auto custom-scrollbar max-h-[65vh]">
+        <div className="min-h-0 flex-1 overflow-y-auto px-4 py-5 custom-scrollbar sm:px-8 sm:py-7">
           {children}
         </div>
 
-        <div className="flex shrink-0 items-center justify-end gap-3 border-t border-theme-border bg-surface-sunken/45 px-8 py-5">
+        <div className="flex shrink-0 flex-wrap items-center justify-end gap-2 border-t border-theme-border bg-surface-sunken/45 px-4 py-4 sm:gap-3 sm:px-8 sm:py-5">
           {footer}
         </div>
       </div>

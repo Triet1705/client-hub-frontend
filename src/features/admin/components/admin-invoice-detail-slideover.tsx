@@ -81,7 +81,7 @@ export function AdminInvoiceDetailSlideover({
           <div className="space-y-6">
             <h4 className="text-xs font-bold text-content-muted uppercase tracking-widest border-b border-theme-border pb-2">Information</h4>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div className="col-span-2">
                 <p className="text-xs text-content-muted mb-1">Project</p>
                 <p className="text-sm font-medium text-content-primary">{invoice.projectTitle}</p>

@@ -68,6 +68,7 @@
   --color-action-danger-foreground: var(--action-danger-foreground);
   --color-focus-ring: var(--focus-ring);
   --color-toggle-thumb: var(--toggle-thumb);
+  --color-theme-shadow: var(--shadow-color);
 
   /* Semantic status colors */
   --color-status-success-surface: var(--status-success-surface);
@@ -318,6 +319,9 @@
   }
   .glass-panel-hover {
     @apply transition-all duration-300 hover:border-theme-border hover:bg-surface-elevated;
+  }
+  .shadow-theme {
+    @apply shadow-theme-shadow;
   }
 
   .no-scrollbar::-webkit-scrollbar {

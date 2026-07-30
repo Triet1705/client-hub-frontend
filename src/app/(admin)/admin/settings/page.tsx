@@ -105,7 +105,7 @@ export default function AdminSettingsPage() {
       </div>
 
       <div className="grid gap-6 xl:grid-cols-[1fr_0.85fr]">
-        <section className="rounded-3xl border border-theme-border bg-surface-elevated/70 p-6 shadow-2xl shadow-black/10">
+        <section className="rounded-3xl border border-theme-border bg-surface-elevated/70 p-4 shadow-2xl shadow-theme sm:p-6">
           <div className="mb-6 flex items-start gap-3">
             <span className="rounded-2xl bg-action-subtle p-2.5 text-theme-accent ring-1 ring-theme-accent">
               <Database className="h-5 w-5" />
@@ -122,7 +122,7 @@ export default function AdminSettingsPage() {
           </div>
         </section>
 
-        <section className="rounded-3xl border border-theme-border bg-surface-elevated/70 p-6 shadow-2xl shadow-black/10">
+        <section className="rounded-3xl border border-theme-border bg-surface-elevated/70 p-4 shadow-2xl shadow-theme sm:p-6">
           <div className="mb-6 flex items-start gap-3">
             <span className="rounded-2xl bg-action-subtle p-2.5 text-theme-accent ring-1 ring-theme-accent">
               <KeyRound className="h-5 w-5" />
@@ -146,7 +146,7 @@ export default function AdminSettingsPage() {
       </div>
 
       <div className="grid gap-6 xl:grid-cols-[0.85fr_1fr]">
-        <section className="rounded-3xl border border-theme-border bg-surface-elevated/70 p-6 shadow-2xl shadow-black/10">
+        <section className="rounded-3xl border border-theme-border bg-surface-elevated/70 p-4 shadow-2xl shadow-theme sm:p-6">
           <div className="mb-6 flex items-start gap-3">
             <span className="rounded-2xl bg-action-subtle p-2.5 text-theme-accent ring-1 ring-theme-accent">
               <Flag className="h-5 w-5" />
@@ -174,7 +174,7 @@ export default function AdminSettingsPage() {
           </div>
         </section>
 
-        <section className="rounded-3xl border border-theme-border bg-surface-elevated/70 p-6 shadow-2xl shadow-black/10">
+        <section className="rounded-3xl border border-theme-border bg-surface-elevated/70 p-4 shadow-2xl shadow-theme sm:p-6">
           <div className="mb-6 flex items-start gap-3">
             <span className="rounded-2xl bg-action-subtle p-2.5 text-theme-accent ring-1 ring-theme-accent">
               <Users className="h-5 w-5" />

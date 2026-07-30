@@ -14,12 +14,20 @@ const scanRoots = [
   "src/features/audit",
   "src/features/certificates",
   "src/features/communication",
+  "src/features/dashboard",
   "src/features/invoices",
   "src/features/notifications",
   "src/features/projects",
+  "src/features/realtime",
   "src/features/smart-tasks",
   "src/features/tasks",
+  "src/features/users",
+  "src/features/wallet",
+  "src/hooks",
+  "src/providers",
 ];
+
+const scanFiles = ["src/components/providers.tsx"];
 
 const excludedFiles = new Set([
   // Auth is intentionally dark-only and is outside the internal theme surface.
@@ -27,9 +35,11 @@ const excludedFiles = new Set([
 ]);
 
 const hardcodedUtility =
-  /(?:^|[^a-zA-Z])(?:bg|text|border|ring|divide|from|via|to|stroke|fill)-(?:slate|gray|zinc|neutral|stone|white|black|emerald|green|red|rose|amber|yellow|orange|blue|indigo|violet|purple|cyan|sky)(?:-\d{2,3}|\/\d+|\b)/;
+  /(?:^|[^a-zA-Z])(?:bg|text|border|ring|divide|from|via|to|stroke|fill|shadow)-(?:slate|gray|zinc|neutral|stone|white|black|emerald|green|red|rose|amber|yellow|orange|blue|indigo|violet|purple|cyan|sky)(?:-\d{2,3}|\/\d+|\b)/;
 const arbitraryHexUtility =
   /(?:bg|text|border|ring|divide|from|via|to|stroke|fill)-\[#(?:[0-9a-f]{3}){1,2}\]/i;
+const neutralArbitraryShadow =
+  /shadow-\[[^\]]*rgba?\((?:0\s*,\s*0\s*,\s*0|255\s*,\s*255\s*,\s*255)[^\]]*\)/i;
 const rawHex = /#[0-9a-f]{3,8}\b/i;
 
 async function collectFiles(directory) {
@@ -50,7 +60,7 @@ async function collectFiles(directory) {
 
 const files = (
   await Promise.all(scanRoots.map((root) => collectFiles(join(projectRoot, root))))
-).flat();
+).flat().concat(scanFiles.map((file) => join(projectRoot, file)));
 const violations = [];
 
 for (const file of files) {
@@ -62,6 +72,7 @@ for (const file of files) {
     if (
       hardcodedUtility.test(line) ||
       arbitraryHexUtility.test(line) ||
+      neutralArbitraryShadow.test(line) ||
       rawHex.test(line)
     ) {
       violations.push(`${relativePath}:${index + 1}: ${line.trim()}`);

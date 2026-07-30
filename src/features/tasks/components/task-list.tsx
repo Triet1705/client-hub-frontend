@@ -23,7 +23,7 @@ export function TaskList({ tasks, onTaskClick }: TaskListProps) {
   }
 
   return (
-    <div className="bg-surface/60 backdrop-blur-xl ring-1 ring-theme-border shadow-2xl shadow-black/50 rounded-3xl overflow-hidden mt-6">
+    <div className="bg-surface/60 backdrop-blur-xl ring-1 ring-theme-border shadow-2xl shadow-theme rounded-3xl overflow-hidden mt-6">
       <div className="overflow-x-auto custom-scrollbar">
         <table className="w-full min-w-230 text-left">
           <thead className="border-b border-theme-border bg-surface/80">

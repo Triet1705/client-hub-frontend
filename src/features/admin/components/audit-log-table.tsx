@@ -39,7 +39,7 @@ export function AuditLogTable({ action, entityType, tenantId, anchored, anchorSt
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="rounded-3xl border border-theme-border bg-surface/60 backdrop-blur-xl ring-1 ring-theme-border shadow-2xl shadow-black/50 overflow-hidden">
+      <div className="rounded-3xl border border-theme-border bg-surface/60 backdrop-blur-xl ring-1 ring-theme-border shadow-2xl shadow-theme overflow-hidden">
         <div className="overflow-x-auto custom-scrollbar">
           <table className="w-full text-left text-sm whitespace-nowrap">
             <thead className="border-b border-theme-border text-[10px] font-bold uppercase tracking-widest text-content-muted">

@@ -76,7 +76,7 @@ export function AuditLogDetailSlideover({ log, isOpen, onClose }: SlideoverProps
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
             {/* Actor Information */}
             <div className="space-y-4">
               <h4 className="text-xs font-bold text-content-muted uppercase tracking-wider border-b border-theme-border pb-2">Actor</h4>

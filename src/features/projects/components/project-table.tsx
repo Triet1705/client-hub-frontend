@@ -173,7 +173,7 @@ export function ProjectTable({ projects, isLoading, page, totalPages, totalEleme
   return (
     <section className="grid grid-cols-1 xl:grid-cols-[18rem_minmax(0,1fr)] gap-6 items-start">
       <aside className="space-y-4 sticky top-24 z-10">
-        <div className="rounded-3xl bg-surface/60 backdrop-blur-xl ring-1 ring-theme-border shadow-2xl shadow-black/50 p-5 space-y-4">
+        <div className="rounded-3xl bg-surface/60 backdrop-blur-xl ring-1 ring-theme-border shadow-2xl shadow-theme p-5 space-y-4">
           <div className="flex items-center justify-between gap-3">
             <div>
               <h2 className="text-sm font-bold uppercase tracking-widest text-content-secondary">Filters</h2>
@@ -231,7 +231,7 @@ export function ProjectTable({ projects, isLoading, page, totalPages, totalEleme
         </div>
       </aside>
 
-      <div className="bg-surface/60 backdrop-blur-xl ring-1 ring-theme-border shadow-2xl shadow-black/50 rounded-3xl overflow-hidden">
+      <div className="bg-surface/60 backdrop-blur-xl ring-1 ring-theme-border shadow-2xl shadow-theme rounded-3xl overflow-hidden">
         <DataTableToolbar
           title="All Projects"
           resultCount={filteredProjects.length}
@@ -296,7 +296,7 @@ export function ProjectTable({ projects, isLoading, page, totalPages, totalEleme
                   {visibleColumns.project && <td className="px-6 py-5">
                     <div className="flex items-center gap-4">
                       <div className="size-10 rounded-xl bg-surface-elevated flex items-center justify-center border border-theme-border">
-                        <NavProjectsIcon className="size-5 text-content-secondary" />
+                        <NavProjectsIcon className="size-5 text-content-secondary" primaryColor="currentColor" accentColor="currentColor" />
                       </div>
                       <div>
                         <Link href={`/projects/${project.id}`}>

@@ -77,7 +77,7 @@ function MetricCard({
   status?: ControlCenterSummary["systemStatus"];
 }) {
   return (
-    <div className="rounded-lg border border-theme-border bg-surface-elevated/70 p-4 shadow-lg shadow-black/10">
+    <div className="rounded-lg border border-theme-border bg-surface-elevated/70 p-4 shadow-lg shadow-theme">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <p className="truncate text-[10px] font-bold uppercase tracking-widest text-content-muted">{label}</p>
@@ -107,7 +107,7 @@ function SystemVitalsPanel({ data }: { data: ControlCenterResponse }) {
   };
 
   return (
-    <section className="rounded-lg border border-theme-border bg-surface-elevated/70 p-5 shadow-lg shadow-black/10">
+    <section className="rounded-lg border border-theme-border bg-surface-elevated/70 p-5 shadow-lg shadow-theme">
       <SectionHeader title="System Vitals" action={<StatusBadge status={data.health.overallStatus} />} />
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <GaugeChart label="JVM Memory" isFractional value={data.health.jvm.usedMemoryMb} max={data.health.jvm.maxMemoryMb} subLabel="Megabytes" />
@@ -131,7 +131,7 @@ function SystemVitalsPanel({ data }: { data: ControlCenterResponse }) {
 
 function CompactSummaryCard({ title, description, href, actionLabel }: { title: string, description: string, href: string, actionLabel: string }) {
   return (
-    <section className="rounded-lg border border-theme-border bg-surface-elevated/70 p-5 shadow-lg shadow-black/10 flex items-center justify-between">
+    <section className="rounded-lg border border-theme-border bg-surface-elevated/70 p-5 shadow-lg shadow-theme flex items-center justify-between">
       <div>
         <h2 className="text-sm font-bold uppercase tracking-widest text-content-primary">{title}</h2>
         <p className="mt-1 text-xs text-content-muted">{description}</p>
@@ -143,7 +143,7 @@ function CompactSummaryCard({ title, description, href, actionLabel }: { title: 
 
 function AlertsPanel({ alerts }: { alerts: AdminAlert[] }) {
   return (
-    <section className="rounded-lg border border-theme-border bg-surface-elevated/70 p-5 shadow-lg shadow-black/10">
+    <section className="rounded-lg border border-theme-border bg-surface-elevated/70 p-5 shadow-lg shadow-theme">
       <SectionHeader title="Operational Alerts" />
       <div className="space-y-3">
         {alerts.length === 0 ? (

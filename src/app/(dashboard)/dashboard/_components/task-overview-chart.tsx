@@ -23,7 +23,7 @@ export function TaskOverviewChart({
   ];
   const maxCount = Math.max(todo, inProgress, done, 1);
   return (
-    <div className="bg-surface/60 backdrop-blur-xl ring-1 ring-theme-border rounded-3xl p-7 shadow-2xl shadow-black/50 transition-all hover:bg-surface/80 group/chart">
+    <div className="bg-surface/60 backdrop-blur-xl ring-1 ring-theme-border rounded-3xl p-5 sm:p-7 shadow-2xl shadow-theme transition-all hover:bg-surface/80 group/chart">
       <div className="flex items-center justify-between mb-8">
         <h2 className="text-xl font-space-grotesk font-semibold text-content-primary">Task Overview</h2>
         <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-surface-base/50 ring-1 ring-theme-border shadow-inner">
@@ -76,7 +76,7 @@ export function TaskOverviewChart({
         {bars.map((item) => (
           <div key={item.label} className="flex items-center justify-between p-2.5 rounded-xl hover:bg-surface-elevated/40 transition-colors flex-1 min-w-[33%]">
             <div className="flex items-center gap-3">
-              <div className={cn("w-3 h-3 rounded-full shadow-[0_0_10px_rgba(0,0,0,0.5)]", item.color)} />
+              <div className={cn("w-3 h-3 rounded-full shadow-[0_0_10px_var(--shadow-color)]", item.color)} />
               <span className="text-sm font-medium text-content-secondary">{item.label}</span>
             </div>
             {isLoading ? (

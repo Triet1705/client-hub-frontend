@@ -199,7 +199,7 @@ export function CreateTaskModal({
         </FormField>
 
         {/* Priority + Status */}
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <FormField label="Priority">
             <SelectDropdown
               options={TASK_PRIORITY_OPTIONS}
@@ -235,7 +235,7 @@ export function CreateTaskModal({
           </FormField>
         ) : null}
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <FormField label="Est. Hours">
             <Input
               {...register("estimatedHours", { valueAsNumber: true })}

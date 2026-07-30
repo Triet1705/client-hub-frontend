@@ -261,7 +261,7 @@ function TasksPageContent() {
   };
 
   return (
-    <div className="flex flex-col h-[calc(100vh-64px)] -m-8">
+    <div className="-m-4 flex h-[calc(100vh-64px)] flex-col sm:-m-6 lg:-m-8">
       <div className="px-6 pt-5 pb-3 border-b border-theme-border flex flex-col gap-3 shrink-0">
 
         <div className="flex items-center gap-4 flex-wrap">
@@ -415,7 +415,7 @@ function TasksPageContent() {
             <div className="relative ml-1">
               <button
                 onClick={() => setIsNewTaskDropdownOpen(!isNewTaskDropdownOpen)}
-                className="flex items-center gap-1.5 px-4 py-2 text-xs font-bold bg-action-primary text-action-primary-foreground rounded-lg hover:bg-action-primary-hover transition-colors shadow-lg shadow-emerald-900/20"
+                    className="flex items-center gap-1.5 px-4 py-2 text-xs font-bold bg-action-primary text-action-primary-foreground rounded-lg hover:bg-action-primary-hover transition-colors shadow-lg shadow-theme"
               >
                 <Plus size={15} />
                 New <ChevronDown size={14} className="ml-0.5 opacity-70" />

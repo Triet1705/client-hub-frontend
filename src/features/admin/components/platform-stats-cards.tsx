@@ -38,7 +38,7 @@ export function PlatformStatsCards({ stats, isLoading }: PlatformStatsCardsProps
   return (
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
       {/* Hero Card - Total Revenue (col-span-4) */}
-      <div className="lg:col-span-4 relative overflow-hidden rounded-3xl bg-surface/60 backdrop-blur-xl ring-1 ring-theme-border shadow-2xl shadow-black/50 p-8 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.5)] group hover:border-theme-accent flex flex-col justify-between min-h-[160px]">
+      <div className="lg:col-span-4 relative overflow-hidden rounded-3xl bg-surface/60 backdrop-blur-xl ring-1 ring-theme-border shadow-2xl shadow-theme p-6 sm:p-8 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_20px_40px_-15px_var(--shadow-color)] group hover:border-theme-accent flex flex-col justify-between min-h-[160px]">
         {/* Glow effect */}
         <div className="absolute -top-24 -right-24 w-48 h-48 bg-action-subtle rounded-full blur-[3rem] opacity-50 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
 
@@ -74,7 +74,7 @@ export function PlatformStatsCards({ stats, isLoading }: PlatformStatsCardsProps
           <div
             key={index}
             className={cn(
-              "relative overflow-hidden rounded-3xl bg-surface/60 backdrop-blur-xl ring-1 ring-theme-border shadow-xl shadow-black/50 p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.5)] group flex flex-col justify-between min-h-[160px]",
+              "relative overflow-hidden rounded-3xl bg-surface/60 backdrop-blur-xl ring-1 ring-theme-border shadow-xl shadow-theme p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_20px_40px_-15px_var(--shadow-color)] group flex flex-col justify-between min-h-[160px]",
               card.borderClass,
             )}
           >

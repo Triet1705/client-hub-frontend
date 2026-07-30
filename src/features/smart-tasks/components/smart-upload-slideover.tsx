@@ -464,7 +464,7 @@ export function SmartUploadSlideover({
             <button
               onClick={handleApproveAll}
               disabled={isApprovingAll}
-              className="flex items-center gap-2 px-5 py-2.5 bg-action-primary hover:bg-action-primary-hover text-action-primary-foreground text-sm font-bold rounded-xl transition-all disabled:opacity-50 shadow-lg shadow-emerald-900/30"
+                  className="flex items-center gap-2 px-5 py-2.5 bg-action-primary hover:bg-action-primary-hover text-action-primary-foreground text-sm font-bold rounded-xl transition-all disabled:opacity-50 shadow-lg shadow-theme"
             >
               {isApprovingAll ? (
                 <><Loader2 className="w-4 h-4 animate-spin" /> Creating {approvingCount}...</>

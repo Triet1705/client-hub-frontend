@@ -80,7 +80,7 @@ export function TaskBoardColumn({ title, status, tasks, onTaskClick, onAddTask }
             ref={provided.innerRef}
             {...provided.droppableProps}
             className={cn(
-              "flex-1 flex flex-col gap-4 overflow-y-auto rounded-3xl transition-all duration-300 custom-scrollbar p-2.5 bg-surface/50 ring-1 ring-theme-border shadow-[inset_0_2px_18px_rgba(0,0,0,0.2)] relative",
+              "flex-1 flex flex-col gap-4 overflow-y-auto rounded-3xl transition-all duration-300 custom-scrollbar p-2.5 bg-surface/50 ring-1 ring-theme-border shadow-[inset_0_2px_18px_var(--shadow-color)] relative",
               snapshot.isDraggingOver && "bg-action-subtle ring-theme-accent shadow-[inset_0_0_30px_rgba(16,185,129,0.07)]"
             )}
           >

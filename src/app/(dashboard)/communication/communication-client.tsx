@@ -230,9 +230,9 @@ export default function CommunicationClient() {
   }
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 h-[calc(100vh-64px)] -m-8 p-6 bg-surface-base font-body text-content-secondary overflow-hidden">
+    <div className="-m-4 grid h-[calc(100vh-64px)] grid-cols-1 gap-3 overflow-hidden bg-surface-base p-3 font-body text-content-secondary sm:-m-6 sm:gap-4 sm:p-4 lg:-m-8 lg:grid-cols-12 lg:gap-6 lg:p-6">
       <div className="hidden lg:flex lg:col-span-3 flex-col gap-6 overflow-hidden">
-        <div className="shrink-0 bg-surface/60 backdrop-blur-xl ring-1 ring-theme-border p-5 rounded-3xl shadow-2xl shadow-black/50 overflow-hidden relative">
+        <div className="shrink-0 bg-surface/60 backdrop-blur-xl ring-1 ring-theme-border p-5 rounded-3xl shadow-2xl shadow-theme overflow-hidden relative">
           <div className="absolute top-0 right-0 w-32 h-32 bg-status-web3-surface blur-2xl pointer-events-none rounded-full" />
           <h2 className="text-sm font-space-grotesk font-bold text-content-primary uppercase tracking-widest flex items-center gap-2 mb-4 relative z-10">
             <LayoutList className="w-4 h-4 text-theme-accent" />
@@ -294,7 +294,7 @@ export default function CommunicationClient() {
                     <div className="shrink-0 relative">
                       <div className={cn(
                         "w-9 h-9 rounded-xl flex items-center justify-center transition-transform",
-                        isActive ? "bg-status-web3-surface shadow-inner" : "bg-surface-elevated/80 shadow-[0_2px_8px_rgba(0,0,0,0.5)]",
+                        isActive ? "bg-status-web3-surface shadow-inner" : "bg-surface-elevated/80 shadow-[0_2px_8px_var(--shadow-color)]",
                         "group-hover:scale-110"
                       )}>
                         {isProject ? <FolderOpen className={cn("w-4 h-4", isActive ? "text-status-web3-text" : "text-theme-accent")} />
@@ -394,7 +394,7 @@ export default function CommunicationClient() {
                     "p-4 rounded-2xl shadow-xl backdrop-blur-sm",
                     isOwn
                       ? "bg-status-web3-surface border-t border-status-web3-border border-x border-status-web3-border border-b border-status-web3-border text-status-web3-text rounded-tr-sm shadow-[0_4px_20px_rgba(99,102,241,0.08)]"
-                      : "bg-surface-elevated/80 border-t border-theme-border border-x border-theme-border border-b border-theme-border text-content-secondary rounded-tl-sm shadow-[0_4px_20px_rgba(0,0,0,0.25)]"
+                      : "bg-surface-elevated/80 border-t border-theme-border border-x border-theme-border border-b border-theme-border text-content-secondary rounded-tl-sm shadow-[0_4px_20px_var(--shadow-color)]"
                   )}>
                     <p className="text-sm leading-relaxed whitespace-pre-wrap">{comment.content}</p>
                     {comment.attachmentUrls && comment.attachmentUrls.length > 0 && (
@@ -449,7 +449,7 @@ export default function CommunicationClient() {
                 )}
               </button>
             </div>
-            <div className="flex-1 bg-surface-base/80 backdrop-blur-md ring-1 ring-theme-border rounded-2xl overflow-hidden focus-within:ring-status-web3-border transition-all shadow-[inset_0_2px_10px_rgba(0,0,0,0.5)] flex items-center pr-2">
+            <div className="flex-1 bg-surface-base/80 backdrop-blur-md ring-1 ring-theme-border rounded-2xl overflow-hidden focus-within:ring-status-web3-border transition-all shadow-[inset_0_2px_10px_var(--shadow-color)] flex items-center pr-2">
               <textarea
                 placeholder={selectedConversation ? "Transmit message or link evidence..." : "Awaiting context..."}
                 className="w-full bg-transparent px-4 py-4 text-sm font-body text-content-secondary placeholder:text-content-muted outline-none resize-none custom-scrollbar min-h-[56px] max-h-32"

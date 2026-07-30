@@ -203,6 +203,8 @@ export function AdminSidebar() {
                       : "text-content-muted group-hover:text-content-secondary",
                   )}
                   isActive={isActive}
+                  primaryColor="currentColor"
+                  accentColor="currentColor"
                 />
                 {!isCollapsed ? <span className="truncate">{isPending ? "Loading..." : item.name}</span> : null}
               </Link>

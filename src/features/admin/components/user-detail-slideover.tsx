@@ -166,7 +166,7 @@ export function UserDetailSlideover({ userId, isOpen, onClose }: SlideoverProps)
               <div className="space-y-4">
                 <h4 className="text-xs font-bold text-content-muted uppercase tracking-wider border-b border-theme-border pb-2">Information</h4>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   <div>
                     <p className="text-xs text-content-muted mb-1">ID</p>
                     <p className="text-sm text-content-primary font-mono break-all">{user.id}</p>
@@ -192,7 +192,7 @@ export function UserDetailSlideover({ userId, isOpen, onClose }: SlideoverProps)
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div className="bg-surface-elevated border border-theme-border rounded-xl p-4 flex flex-col items-center justify-center">
                   <p className="text-2xl font-bold text-content-primary mb-1">{user.projectCount}</p>
                   <p className="text-xs text-content-secondary uppercase tracking-wider">Projects</p>

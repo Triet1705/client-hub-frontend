@@ -58,7 +58,7 @@ export function TodayFocusBlock({
       label: `${stalledProjects.length} stalled project${stalledProjects.length > 1 ? "s" : ""}`,
       sub: "Pending decisions or hold",
       href: "/projects",
-      cls: "ring-theme-border/60 hover:ring-theme-border bg-surface-elevated/30 hover:bg-surface-elevated/50 shadow-[inset_0_0_20px_rgba(255,255,255,0.02)]",
+      cls: "ring-theme-border/60 hover:ring-theme-border bg-surface-elevated/30 hover:bg-surface-elevated/50 shadow-[inset_0_0_20px_var(--shadow-color)]",
       urgent: false,
     });
   }
@@ -66,7 +66,7 @@ export function TodayFocusBlock({
   if (ctas.length === 0 || isLoading) return null;
 
   return (
-    <div className="bg-surface/60 backdrop-blur-xl ring-1 ring-theme-border rounded-3xl p-6 shadow-2xl shadow-black/50">
+    <div className="bg-surface/60 backdrop-blur-xl ring-1 ring-theme-border rounded-3xl p-6 shadow-2xl shadow-theme">
       <p className="text-[11px] font-bold uppercase tracking-widest text-content-muted mb-4 flex items-center gap-2">
         <span className="w-2 h-2 rounded-full bg-status-success-text shadow-[0_0_8px_rgba(16,185,129,0.8)] animate-pulse" />
         Today&apos;s Focus

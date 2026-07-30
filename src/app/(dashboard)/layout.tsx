@@ -19,14 +19,11 @@ export default function DashboardLayout({
     <div className="relative min-h-screen bg-surface-base font-space-grotesk text-content-primary selection:bg-theme-accent-surface">
       <Sidebar />
 
-      <div
-        className="flex flex-col min-h-screen transition-[padding] duration-300"
-        style={{ paddingLeft: "var(--dashboard-sidebar-width,16rem)" }}
-      >
+      <div className="flex min-h-screen min-w-0 flex-col transition-[padding] duration-300 md:pl-[var(--dashboard-sidebar-width,16rem)]">
         <ImpersonationBanner />
         <Header />
 
-        <main className="flex-1 p-8 overflow-y-auto">
+        <main className="min-w-0 flex-1 overflow-x-hidden overflow-y-auto p-4 sm:p-6 lg:p-8">
           <div className="mx-auto max-w-7xl animate-in fade-in slide-in-from-bottom-4 duration-500">
             <OptimisticRouteShell scope="dashboard">
               {children}

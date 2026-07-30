@@ -313,7 +313,7 @@ export default function InvoiceDetailPage() {
                                             toast.error("Approval failed", { description: getWeb3ErrorMessage(err) });
                                           }
                                         }}
-                                        className="flex-1 rounded-xl bg-action-primary hover:bg-action-primary-hover text-action-primary-foreground px-5 py-3 text-sm font-bold transition-all shadow-lg shadow-cyan-900/20 hover:shadow-cyan-500/25 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex-1 rounded-xl bg-action-primary hover:bg-action-primary-hover text-action-primary-foreground px-5 py-3 text-sm font-bold transition-all shadow-lg shadow-theme disabled:opacity-50 disabled:cursor-not-allowed"
                                       >
                                         {isApproving ? "Approving..." : "Approve Escrow Token"}
                                       </button>
@@ -331,7 +331,7 @@ export default function InvoiceDetailPage() {
                                             toast.error("Deposit failed", { description: getWeb3ErrorMessage(err) });
                                           }
                                         }}
-                                        className="flex-1 rounded-xl bg-action-primary hover:bg-action-primary-hover text-action-primary-foreground px-5 py-3 text-sm font-bold transition-all shadow-lg shadow-emerald-900/20 hover:shadow-emerald-500/25 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex-1 rounded-xl bg-action-primary hover:bg-action-primary-hover text-action-primary-foreground px-5 py-3 text-sm font-bold transition-all shadow-lg shadow-theme disabled:opacity-50 disabled:cursor-not-allowed"
                                       >
                                         {isDepositing ? "Processing..." : "Secure with Escrow"}
                                       </button>
@@ -358,7 +358,7 @@ export default function InvoiceDetailPage() {
                                       toast.error("Release failed", { description: getWeb3ErrorMessage(err) });
                                     }
                                   }}
-                                  className="flex-1 rounded-xl bg-action-primary hover:bg-action-primary-hover text-action-primary-foreground px-5 py-3 text-sm font-bold transition-all shadow-lg shadow-emerald-900/20 hover:shadow-emerald-500/25 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex-1 rounded-xl bg-action-primary hover:bg-action-primary-hover text-action-primary-foreground px-5 py-3 text-sm font-bold transition-all shadow-lg shadow-theme disabled:opacity-50 disabled:cursor-not-allowed"
                                 >
                                   {isReleasing ? "Processing..." : "Release Payment"}
                                 </button>
@@ -382,7 +382,7 @@ export default function InvoiceDetailPage() {
                                 type="button"
                                 disabled={updateStatusMutation.isPending}
                                 onClick={() => setConfirmStatus(actualPrimary)}
-                                className="flex-1 rounded-xl bg-action-primary hover:bg-action-primary-hover text-action-primary-foreground px-5 py-3 text-sm font-bold transition-all shadow-lg shadow-emerald-900/20 hover:shadow-emerald-500/25 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex-1 rounded-xl bg-action-primary hover:bg-action-primary-hover text-action-primary-foreground px-5 py-3 text-sm font-bold transition-all shadow-lg shadow-theme disabled:opacity-50 disabled:cursor-not-allowed"
                               >
                                 Mark as {INVOICE_STATUS_LABELS[actualPrimary]}
                               </button>

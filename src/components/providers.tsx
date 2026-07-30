@@ -21,14 +21,14 @@ function ThemeAwareProviders({ children }: { children: React.ReactNode }) {
   const rainbowTheme =
     theme === "dark"
       ? darkTheme({
-          accentColor: "#047857",
-          accentColorForeground: "white",
+          accentColor: "var(--action-primary)",
+          accentColorForeground: "var(--action-primary-foreground)",
           borderRadius: "medium",
           overlayBlur: "small",
         })
       : lightTheme({
-          accentColor: "#047857",
-          accentColorForeground: "white",
+          accentColor: "var(--action-primary)",
+          accentColorForeground: "var(--action-primary-foreground)",
           borderRadius: "medium",
           overlayBlur: "small",
         });

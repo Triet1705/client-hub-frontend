@@ -183,7 +183,7 @@ function ClientProfile({
 function AdminProfile({ me }: { me: CurrentUser }) {
   return (
     <div className="mx-auto max-w-4xl space-y-6">
-      <section className="relative overflow-hidden rounded-3xl bg-surface-elevated/80 p-8 shadow-2xl shadow-black/20 ring-1 ring-theme-border">
+      <section className="relative overflow-hidden rounded-3xl bg-surface-elevated/80 p-5 shadow-2xl shadow-theme ring-1 ring-theme-border sm:p-8">
         <div className="absolute right-0 top-0 h-48 w-48 rounded-full bg-action-subtle blur-3xl" />
         <div className="relative flex items-start gap-5">
           <UserAvatar name={me.fullName || me.email} sizeClass="h-20 w-20 text-xl" />
@@ -254,14 +254,14 @@ export default function ProfilePage() {
   return (
     <div className="mx-auto max-w-6xl space-y-6">
       <div className="grid gap-6 lg:grid-cols-12">
-        <section className="relative overflow-hidden rounded-3xl bg-surface-elevated/80 p-8 shadow-2xl shadow-black/20 ring-1 ring-theme-border lg:col-span-8">
+        <section className="relative overflow-hidden rounded-3xl bg-surface-elevated/80 p-5 shadow-2xl shadow-theme ring-1 ring-theme-border sm:p-8 lg:col-span-8">
           <div className="absolute right-0 top-0 h-48 w-48 rounded-full bg-action-subtle blur-3xl" />
           <div className="relative flex flex-col gap-8 md:flex-row">
             <div className="relative shrink-0">
-              <div className="flex h-36 w-36 items-center justify-center rounded-3xl border border-theme-border bg-surface-base/70 shadow-xl shadow-black/20 md:h-40 md:w-40">
+              <div className="flex h-28 w-28 items-center justify-center rounded-3xl border border-theme-border bg-surface-base/70 shadow-xl shadow-theme sm:h-36 sm:w-36 md:h-40 md:w-40">
                 <UserAvatar name={displayName} sizeClass="h-28 w-28 text-3xl" />
               </div>
-              <span className="absolute -bottom-2 -right-2 rounded-full bg-action-primary p-2 text-action-primary-foreground shadow-lg shadow-emerald-500/30">
+              <span className="absolute -bottom-2 -right-2 rounded-full bg-action-primary p-2 text-action-primary-foreground shadow-lg shadow-theme">
                 <BadgeCheck className="h-5 w-5" />
               </span>
             </div>
@@ -300,7 +300,7 @@ export default function ProfilePage() {
           </div>
         </section>
 
-        <section className="flex flex-col items-center justify-center rounded-3xl bg-surface-elevated/80 p-6 text-center shadow-2xl shadow-black/20 ring-1 ring-theme-border lg:col-span-4">
+        <section className="flex flex-col items-center justify-center rounded-3xl bg-surface-elevated/80 p-5 text-center shadow-2xl shadow-theme ring-1 ring-theme-border sm:p-6 lg:col-span-4">
           <p className="mb-6 inline-flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-content-muted">
             <ShieldCheck className="h-4 w-4 text-theme-accent" />
             Integrity Score

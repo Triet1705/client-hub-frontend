@@ -88,7 +88,11 @@ export function DashboardClient() {
               href="/projects"
               className="flex items-center gap-2 rounded-xl bg-action-primary px-5 py-2.5 text-sm font-bold text-action-primary-foreground shadow-[0_8px_20px_var(--shadow-color)] transition-all hover:-translate-y-0.5 hover:bg-action-primary-hover hover:shadow-[0_10px_24px_var(--shadow-color)] active:translate-y-0"
             >
-              <ActionPlusIcon className="w-4 h-4" />
+              <ActionPlusIcon
+                className="w-4 h-4"
+                primaryColor="currentColor"
+                accentColor="currentColor"
+              />
               New Project
             </Link>
           )}
@@ -107,7 +111,7 @@ export function DashboardClient() {
       {/* ── #5: Asymmetric Stat Cards (1 large + 3 compact) ── */}
       <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
         {/* Primary / Large card */}
-        <div className="md:col-span-4 relative bg-surface/80 backdrop-blur-xl ring-1 ring-theme-border p-8 rounded-3xl flex flex-col justify-between shadow-2xl shadow-black overflow-hidden group">
+        <div className="md:col-span-4 relative bg-surface/80 backdrop-blur-xl ring-1 ring-theme-border p-6 sm:p-8 rounded-3xl flex flex-col justify-between shadow-2xl shadow-theme overflow-hidden group">
           {/* Subtle gradient background for depth */}
           <div className="absolute inset-0 bg-gradient-to-br from-action-subtle via-transparent to-transparent opacity-50 pointer-events-none" />
           <div className="absolute -top-24 -right-24 w-48 h-48 bg-action-subtle blur-3xl rounded-full pointer-events-none group-hover:bg-action-subtle transition-all duration-700" />
@@ -182,7 +186,7 @@ export function DashboardClient() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Recent Projects (spans 2/3) */}
         <div className="lg:col-span-2 space-y-6">
-          <div className="bg-surface/60 backdrop-blur-xl ring-1 ring-theme-border rounded-3xl p-7 shadow-2xl shadow-black/50 transition-all hover:bg-surface/80">
+          <div className="bg-surface/60 backdrop-blur-xl ring-1 ring-theme-border rounded-3xl p-5 sm:p-7 shadow-2xl shadow-theme transition-all hover:bg-surface/80">
             <div className="flex items-center justify-between mb-8">
               <h2 className="text-xl font-space-grotesk font-semibold text-content-primary">Recent Projects</h2>
               <Link
@@ -205,7 +209,11 @@ export function DashboardClient() {
             ) : recentProjects.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-16 border-2 border-dashed border-theme-border bg-surface-elevated/50 rounded-3xl">
                 <div className="p-4 bg-surface-elevated/50 rounded-full mb-4 ring-1 ring-theme-border">
-                  <NavProjectsIcon className="w-8 h-8 text-content-secondary" />
+                  <NavProjectsIcon
+                    className="w-8 h-8 text-content-secondary"
+                    primaryColor="currentColor"
+                    accentColor="currentColor"
+                  />
                 </div>
                 <p className="text-content-secondary font-medium text-lg">No projects found</p>
                 <p className="text-content-muted text-sm mt-2 max-w-sm text-center">
@@ -216,7 +224,11 @@ export function DashboardClient() {
                     href="/projects"
                     className="mt-6 flex items-center gap-2 bg-surface-elevated hover:bg-surface-sunken text-content-primary px-5 py-2.5 rounded-xl text-sm font-bold transition-colors ring-1 ring-theme-border"
                   >
-                    <ActionPlusIcon className="w-4 h-4" />
+                    <ActionPlusIcon
+                      className="w-4 h-4"
+                      primaryColor="currentColor"
+                      accentColor="currentColor"
+                    />
                     Create First Project
                   </Link>
                 )}

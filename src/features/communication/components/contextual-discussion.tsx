@@ -246,7 +246,7 @@ export function ContextualDiscussion({
             type="submit"
             aria-label="Send comment"
             disabled={(!content.trim() && uploadedUrls.length === 0) || postComment.isPending}
-            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-action-primary text-action-primary-foreground shadow-lg shadow-emerald-900/20 transition-colors hover:bg-action-primary-hover disabled:opacity-50 disabled:hover:bg-action-primary-hover"
+                className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-action-primary text-action-primary-foreground shadow-lg shadow-theme transition-colors hover:bg-action-primary-hover disabled:opacity-50 disabled:hover:bg-action-primary-hover"
           >
             {postComment.isPending ? (
               <div className="h-5 w-5 animate-spin rounded-full border-2 border-theme-border border-t-white" />

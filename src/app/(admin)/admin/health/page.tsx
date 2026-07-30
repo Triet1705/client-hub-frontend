@@ -80,7 +80,7 @@ export default function AdminHealthPage() {
         <GaugeChart label="Blockchain" status={health.blockchain.status} subLabel={healthDetail(health.blockchain)} />
       </div>
 
-      <section className="rounded-lg border border-theme-border bg-surface-elevated/70 p-5 shadow-lg shadow-black/10">
+      <section className="rounded-lg border border-theme-border bg-surface-elevated/70 p-5 shadow-lg shadow-theme">
         <div className="mb-5 flex items-center gap-3">
           <span className="flex h-10 w-10 items-center justify-center rounded-lg border border-theme-border bg-surface-base text-theme-accent">
             <Cpu className="h-5 w-5" aria-hidden="true" />

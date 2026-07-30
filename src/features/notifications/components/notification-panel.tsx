@@ -42,16 +42,16 @@ function formatRelativeTime(dateString: string) {
 function getIconForType(type: string) {
   switch (type) {
     case "NEW_COMMENT":
-      return <NavCommunicationIcon className="w-5 h-5 text-theme-accent" />;
+      return <NavCommunicationIcon className="w-5 h-5 text-theme-accent" primaryColor="currentColor" accentColor="currentColor" />;
     case "TASK_ASSIGNED":
     case "TASK_COMPLETED":
-      return <NavTasksIcon className="w-5 h-5 text-status-info-text" />;
+      return <NavTasksIcon className="w-5 h-5 text-status-info-text" primaryColor="currentColor" accentColor="currentColor" />;
     case "PROJECT_COMPLETED":
     case "PROJECT_INVITE":
-      return <NavProjectsIcon className="w-5 h-5 text-status-web3-text" />;
+      return <NavProjectsIcon className="w-5 h-5 text-status-web3-text" primaryColor="currentColor" accentColor="currentColor" />;
     case "INVOICE_PAID":
     case "INVOICE_STATUS_CHANGE":
-      return <NavInvoicesIcon className="w-5 h-5 text-status-warning-text" />;
+      return <NavInvoicesIcon className="w-5 h-5 text-status-warning-text" primaryColor="currentColor" accentColor="currentColor" />;
     default:
       return <Bell className="w-5 h-5 text-content-secondary" />;
   }
@@ -193,7 +193,7 @@ export function NotificationPanel({ isOpen, onClose }: NotificationPanelProps) {
 
                   {notification.referenceId && (
                     <div className="opacity-0 group-hover:opacity-100 transition-opacity absolute right-4 top-1/2 -translate-y-1/2 text-content-muted">
-                      <ActionViewIcon className="w-4 h-4" />
+                      <ActionViewIcon className="w-4 h-4" primaryColor="currentColor" accentColor="currentColor" />
                     </div>
                   )}
                 </button>

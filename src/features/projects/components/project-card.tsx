@@ -20,7 +20,7 @@ export function ProjectCard({ project, onEdit, onDelete }: ProjectCardProps) {
       <div className="flex justify-between items-start mb-4">
         <div className="flex items-center gap-3">
           <div className="p-2 bg-surface-elevated/50 rounded-lg text-content-secondary group-hover:text-theme-accent group-hover:bg-action-subtle transition-colors">
-            <NavProjectsIcon className="w-5 h-5" />
+            <NavProjectsIcon className="w-5 h-5" primaryColor="currentColor" accentColor="currentColor" />
           </div>
           <div>
             <Link href={`/projects/${project.id}`} className="block">
@@ -37,13 +37,13 @@ export function ProjectCard({ project, onEdit, onDelete }: ProjectCardProps) {
             onClick={(e) => { e.preventDefault(); onEdit?.(project); }}
             className="p-1.5 text-content-secondary hover:text-status-info-text hover:bg-status-info-surface rounded-md transition-colors"
           >
-            <ActionEditIcon className="w-4 h-4" />
+            <ActionEditIcon className="w-4 h-4" primaryColor="currentColor" accentColor="currentColor" />
           </button>
           <button
             onClick={(e) => { e.preventDefault(); onDelete?.(project); }}
             className="p-1.5 text-content-secondary hover:text-status-danger-text hover:bg-status-danger-surface rounded-md transition-colors"
           >
-            <ActionDeleteIcon className="w-4 h-4" />
+            <ActionDeleteIcon className="w-4 h-4" primaryColor="currentColor" accentColor="currentColor" />
           </button>
         </div>
       </div>

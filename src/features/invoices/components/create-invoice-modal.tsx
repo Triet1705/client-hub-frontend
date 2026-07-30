@@ -237,7 +237,7 @@ export function CreateInvoiceModal({ isOpen, onClose, defaultProjectId }: Create
         </FormField>
 
         {/* Amount + Due Date */}
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <FormField label="Amount (USD)" required>
             <Input
               type="number"
@@ -280,7 +280,7 @@ export function CreateInvoiceModal({ isOpen, onClose, defaultProjectId }: Create
 
         {/* Payment Method */}
         <FormField label="Payment Method">
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             {/* FIAT card */}
             <button
               type="button"

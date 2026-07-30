@@ -39,7 +39,7 @@ export function TaskCard({ task, onClick }: TaskCardProps) {
         "group bg-surface/60 backdrop-blur-xl rounded-2xl p-4 cursor-pointer flex flex-col gap-4 relative transition-all duration-300 ring-1",
         isDone || isCancelled
           ? "opacity-60 ring-transparent bg-surface/40"
-          : "ring-theme-border hover:ring-theme-border hover:-translate-y-1 hover:shadow-xl hover:shadow-black/50 hover:bg-surface-elevated/80 z-0",
+          : "ring-theme-border hover:ring-theme-border hover:-translate-y-1 hover:shadow-xl hover:shadow-theme hover:bg-surface-elevated/80 z-0",
         isInProgress && "ring-theme-accent hover:ring-theme-accent shadow-[0_0_15px_rgba(16,185,129,0.05)]",
         isCancelled && "cursor-default drop-shadow-none"
       )}

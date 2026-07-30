@@ -27,7 +27,7 @@ export function SummaryCard({ label, value, icon: Icon, iconClassName, badge, cl
 
   return (
     <div className={cn(
-      "bg-surface-elevated/60 backdrop-blur-xl ring-1 ring-theme-border shadow-2xl shadow-black/10 p-6 rounded-3xl transition-all duration-300 group hover:bg-surface-elevated hover:ring-theme-accent/20 relative overflow-hidden",
+      "bg-surface-elevated/60 backdrop-blur-xl ring-1 ring-theme-border shadow-2xl shadow-theme p-6 rounded-3xl transition-all duration-300 group hover:bg-surface-elevated hover:ring-theme-accent/20 relative overflow-hidden",
       className
     )}>
       {badge && (
