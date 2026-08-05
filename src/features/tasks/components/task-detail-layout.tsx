@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 interface TaskDetailLayoutProps {
   isOpen: boolean;
   title: string;
+  titleContent?: React.ReactNode;
   onClose: () => void;
   headerBadge?: React.ReactNode;
   headerActions?: React.ReactNode;
@@ -20,6 +21,7 @@ interface TaskDetailLayoutProps {
 export function TaskDetailLayout({
   isOpen,
   title,
+  titleContent,
   onClose,
   headerBadge,
   headerActions,
@@ -65,7 +67,9 @@ export function TaskDetailLayout({
         <header className="p-6 border-b border-theme-border flex items-start justify-between shrink-0 bg-surface">
           <div className="flex-1 min-w-0 pr-4">
             {headerBadge ? <div className="mb-2">{headerBadge}</div> : null}
-            <h2 className="text-lg font-bold text-content-primary leading-tight">{title}</h2>
+            {titleContent ?? (
+              <h2 className="text-lg font-bold text-content-primary leading-tight">{title}</h2>
+            )}
           </div>
 
           <div className="flex items-center gap-2 shrink-0">

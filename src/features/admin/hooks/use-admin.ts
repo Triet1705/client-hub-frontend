@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   fetchPlatformStats,
   fetchAdminUsers,
+  createAdminUser,
   fetchAdminUserDetail,
   updateUserStatus,
   updateUserRole,
@@ -22,6 +23,8 @@ import {
 } from "../api/admin.api";
 import type { Role } from "@/features/auth/types/auth.types";
 import type { AdminAuditLogFilters, AdminEventFilters, ForceStatusRequest, AuditAnchorBatch } from "../types/admin.types";
+import { toast } from "sonner";
+import { getApiErrorMessage } from "@/lib/api/error";
 
 export const adminKeys = {
   all: ["admin"] as const,
@@ -161,10 +164,11 @@ export function useAdminUsersQuery(params: {
   role?: Role;
   active?: boolean;
   keyword?: string;
-}) {
+}, enabled = true) {
   return useQuery({
     queryKey: adminKeys.users(params),
     queryFn: () => fetchAdminUsers(params),
+    enabled,
     placeholderData: (previousData) => previousData,
   });
 }
@@ -174,6 +178,25 @@ export function useAdminUserDetailQuery(id: string) {
     queryKey: adminKeys.userDetail(id),
     queryFn: () => fetchAdminUserDetail(id),
     enabled: !!id,
+  });
+}
+
+export function useCreateAdminUserMutation() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: createAdminUser,
+    onSuccess: (user) => {
+      toast.success("User Created", {
+        description: `${user.email} can now sign in to this workspace.`,
+      });
+      queryClient.invalidateQueries({ queryKey: ["admin", "users"] });
+      queryClient.invalidateQueries({ queryKey: adminKeys.stats() });
+    },
+    onError: (error: unknown) => {
+      toast.error("User Creation Failed", {
+        description: getApiErrorMessage(error, "Unable to create this user."),
+      });
+    },
   });
 }
 
@@ -232,8 +255,19 @@ export function useForceInvoiceStatusMutation() {
   return useMutation({
     mutationFn: ({ id, req }: { id: number | string; req: ForceStatusRequest }) =>
       forceInvoiceStatus(id, req),
-    onSuccess: () => {
+    onSuccess: (_, variables) => {
+      toast.success("Invoice Status Updated", {
+        description: "The administrative override was applied and audited.",
+      });
       queryClient.invalidateQueries({ queryKey: ["admin", "invoices"] });
+      queryClient.invalidateQueries({ queryKey: ["invoices"] });
+      queryClient.invalidateQueries({ queryKey: ["invoices", "detail", String(variables.id)] });
+      queryClient.invalidateQueries({ queryKey: ["dashboard"] });
+    },
+    onError: (error: unknown) => {
+      toast.error("Status Override Failed", {
+        description: getApiErrorMessage(error, "Failed to force the invoice status."),
+      });
     },
   });
 }

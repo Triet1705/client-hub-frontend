@@ -22,6 +22,7 @@ import {
   ListTodo,
   MessageSquare,
   Paperclip,
+  Pencil,
   Plus,
   Receipt,
   SlidersHorizontal,
@@ -60,6 +61,7 @@ import {
   useProjectMembersQuery,
   useProjectProgressQuery,
   useRemoveMemberMutation,
+  useDeleteProjectMutation,
 } from "@/features/projects/hooks/use-projects";
 import type { ProjectActivityItem, ProjectFileItem, ProjectInvoice } from "@/features/projects/types/project.types";
 import { ProjectStatusBadge } from "@/features/projects/components/project-status-badge";
@@ -81,6 +83,8 @@ import { InvoiceStatus, PaymentMethod } from "@/lib/type";
 import { UserAvatar } from "@/components/ui/user-avatar";
 import { ProjectDetailSkeleton } from "@/components/skeletons/page-skeletons";
 import { IntegrityProofPanel } from "@/features/audit/components/integrity-proof-panel";
+import { CreateProjectModal } from "@/features/projects/components/create-project-modal";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 
 type ProjectPortalTab = "overview" | "tasks" | "messages" | "files" | "invoices" | "activity";
 
@@ -339,10 +343,12 @@ function InvoiceRows({
   invoices,
   onCreateInvoice,
   canManageProject,
+  invoicesHref,
 }: {
   invoices: ProjectInvoice[];
   onCreateInvoice: () => void;
   canManageProject: boolean;
+  invoicesHref: string;
 }) {
   if (invoices.length === 0) {
     return (
@@ -387,7 +393,7 @@ function InvoiceRows({
               return (
                 <tr key={invoice.id} className="transition hover:bg-surface-elevated/40">
                   <td className="px-5 py-4">
-                    <Link href={`/invoices/${invoice.id}`} className="font-mono text-sm font-bold text-content-secondary hover:text-theme-accent">
+                    <Link href={`${invoicesHref}/${invoice.id}`} className="font-mono text-sm font-bold text-content-secondary hover:text-theme-accent">
                       {formatInvoiceId(invoice.id)}
                     </Link>
                     {invoice.title ? <p className="mt-1 max-w-xs truncate text-xs text-content-muted">{invoice.title}</p> : null}
@@ -412,7 +418,7 @@ function InvoiceRows({
   );
 }
 
-export default function ProjectDetailPage() {
+export function ProjectDetailPage() {
   const params = useParams<{ id: string }>();
   const projectId = Array.isArray(params?.id) ? params.id[0] : params?.id ?? "";
   const searchParams = useSearchParams();
@@ -453,11 +459,17 @@ export default function ProjectDetailPage() {
   const [isAddMemberOpen, setIsAddMemberOpen] = React.useState(false);
   const [isSmartUploadOpen, setIsSmartUploadOpen] = React.useState(false);
   const [isCreateInvoiceOpen, setIsCreateInvoiceOpen] = React.useState(false);
+  const [isEditProjectOpen, setIsEditProjectOpen] = React.useState(false);
+  const [isDeleteProjectOpen, setIsDeleteProjectOpen] = React.useState(false);
 
   const { mutate: addMember, isPending: isAddingMember } = useAddMemberMutation(projectId);
   const { mutate: removeMember, isPending: isRemovingMember } = useRemoveMemberMutation(projectId);
+  const { mutate: deleteProject, isPending: isDeletingProject } = useDeleteProjectMutation();
 
   const canManageMembers = role === "ADMIN" || (!!user?.id && project?.ownerId === user.id);
+  const isAdminRoute = pathname.startsWith("/admin/");
+  const projectsHref = isAdminRoute ? "/admin/projects" : "/projects";
+  const invoicesHref = isAdminRoute ? "/admin/invoices" : "/invoices";
   const openTasks = tasks.filter(isOpenTask);
   const doneTasks = tasks.filter((task) => task.status === TaskStatus.DONE);
   const overdueTasks = tasks.filter(isOverdueTask);
@@ -511,6 +523,12 @@ export default function ProjectDetailPage() {
     });
   };
 
+  const handleDeleteProject = () => {
+    deleteProject(projectId, {
+      onSuccess: () => router.replace(projectsHref),
+    });
+  };
+
   if (isProjectLoading) {
     return <ProjectDetailSkeleton />;
   }
@@ -520,7 +538,7 @@ export default function ProjectDetailPage() {
       <div className="mx-auto mt-20 max-w-2xl rounded-2xl border border-status-danger-border bg-status-danger-surface p-8 text-center text-status-danger-text ring-1 ring-status-danger-border">
         <h2 className="mb-2 text-xl font-bold tracking-tight text-status-danger-text">Access Denied or Project Missing</h2>
         <p className="text-sm">The requested project could not be loaded for your workspace.</p>
-        <Link href="/projects" className="mt-6 inline-block rounded-xl bg-status-danger-surface px-5 py-2.5 text-sm font-bold text-status-danger-text transition-colors hover:bg-status-danger-surface">
+        <Link href={projectsHref} className="mt-6 inline-block rounded-xl bg-status-danger-surface px-5 py-2.5 text-sm font-bold text-status-danger-text transition-colors hover:bg-status-danger-surface">
           Return to Projects
         </Link>
       </div>
@@ -529,7 +547,7 @@ export default function ProjectDetailPage() {
 
   return (
     <div className="w-full max-w-[1600px] space-y-6 font-body">
-      <Link href="/projects" className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-content-muted transition-colors hover:text-theme-accent">
+      <Link href={projectsHref} className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-content-muted transition-colors hover:text-theme-accent">
         <ArrowLeft className="h-3.5 w-3.5" />
         Back to Projects
       </Link>
@@ -573,6 +591,26 @@ export default function ProjectDetailPage() {
           </div>
 
           <div className="flex shrink-0 flex-wrap items-center gap-3">
+            {canManageMembers ? (
+              <>
+                <button
+                  type="button"
+                  onClick={() => setIsEditProjectOpen(true)}
+                  className="inline-flex items-center gap-2 rounded-xl border border-theme-border bg-surface px-4 py-2.5 text-sm font-bold text-content-secondary transition hover:border-theme-accent hover:text-theme-accent"
+                >
+                  <Pencil className="h-4 w-4" />
+                  Edit Project
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setIsDeleteProjectOpen(true)}
+                  className="inline-flex items-center gap-2 rounded-xl border border-status-danger-border bg-status-danger-surface px-4 py-2.5 text-sm font-bold text-status-danger-text transition hover:bg-action-danger hover:text-action-danger-foreground"
+                >
+                  <Trash2 className="h-4 w-4" />
+                  Delete Project
+                </button>
+              </>
+            ) : null}
             <button
               type="button"
               onClick={() => setIsSmartUploadOpen(true)}
@@ -965,7 +1003,7 @@ export default function ProjectDetailPage() {
                   Create Invoice
                 </button>
               ) : null}
-              <Link href={`/invoices?projectId=${projectId}`} className="inline-flex items-center gap-2 rounded-xl border border-theme-border px-4 py-2.5 text-sm font-bold text-content-secondary transition hover:bg-surface-sunken hover:text-content-primary">
+              <Link href={`${invoicesHref}?projectId=${projectId}`} className="inline-flex items-center gap-2 rounded-xl border border-theme-border px-4 py-2.5 text-sm font-bold text-content-secondary transition hover:bg-surface-sunken hover:text-content-primary">
                 View All
                 <ExternalLink className="h-4 w-4" />
               </Link>
@@ -974,7 +1012,12 @@ export default function ProjectDetailPage() {
           {isInvoicesLoading ? (
             <div className="h-72 animate-pulse rounded-2xl bg-surface/60" />
           ) : (
-            <InvoiceRows invoices={invoices} onCreateInvoice={() => setIsCreateInvoiceOpen(true)} canManageProject={canManageProject} />
+            <InvoiceRows
+              invoices={invoices}
+              onCreateInvoice={() => setIsCreateInvoiceOpen(true)}
+              canManageProject={canManageProject}
+              invoicesHref={invoicesHref}
+            />
           )}
         </section>
       ) : null}
@@ -1054,6 +1097,27 @@ export default function ProjectDetailPage() {
         defaultProjectId={projectId}
       />
 
+      <CreateProjectModal
+        isOpen={isEditProjectOpen}
+        onClose={() => setIsEditProjectOpen(false)}
+        project={project}
+      />
+
+      <ConfirmDialog
+        isOpen={isDeleteProjectOpen}
+        title="Delete project?"
+        message={
+          <span>
+            Delete <strong>{project.title}</strong>? You will no longer see this project in your workspace.
+          </span>
+        }
+        confirmText="Delete Project"
+        onConfirm={handleDeleteProject}
+        onCancel={() => setIsDeleteProjectOpen(false)}
+        isDestructive
+        isLoading={isDeletingProject}
+      />
+
       <TaskAdvancedFilters
         isOpen={isAdvancedFiltersOpen}
         onClose={() => setIsAdvancedFiltersOpen(false)}
@@ -1064,3 +1128,5 @@ export default function ProjectDetailPage() {
     </div>
   );
 }
+
+export default ProjectDetailPage;

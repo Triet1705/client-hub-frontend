@@ -3,7 +3,8 @@
 import * as React from "react";
 import { ProjectsTable } from "@/features/admin/components/projects-table";
 import { FilterSection } from "@/components/ui/filter-section";
-import { CircleDot } from "lucide-react";
+import { CircleDot, Plus } from "lucide-react";
+import { CreateProjectModal } from "@/features/projects/components/create-project-modal";
 import {
   ADMIN_PROJECT_STATUS_OPTIONS,
   type AdminProjectStatusFilterValue,
@@ -11,6 +12,7 @@ import {
 
 export default function AdminProjectsPage() {
   const [status, setStatus] = React.useState<AdminProjectStatusFilterValue>("ALL");
+  const [isCreateProjectOpen, setIsCreateProjectOpen] = React.useState(false);
   const [openSections, setOpenSections] = React.useState({
     status: true,
   });
@@ -27,11 +29,21 @@ export default function AdminProjectsPage() {
 
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <div className="flex flex-col gap-2">
-        <h2 className="text-3xl font-bold tracking-tight text-content-primary">Project Management</h2>
-        <p className="text-content-secondary">
-          View all projects across all tenants.
-        </p>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div className="flex flex-col gap-2">
+          <h2 className="text-3xl font-bold tracking-tight text-content-primary">Project Management</h2>
+          <p className="text-content-secondary">
+            View and manage all projects in the current tenant.
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={() => setIsCreateProjectOpen(true)}
+          className="inline-flex items-center justify-center gap-2 rounded-xl bg-action-primary px-4 py-2.5 text-sm font-bold text-action-primary-foreground transition hover:bg-action-primary-hover"
+        >
+          <Plus className="h-4 w-4" />
+          Create Project
+        </button>
       </div>
 
       <section className="grid grid-cols-1 xl:grid-cols-[18rem_minmax(0,1fr)] gap-6 items-start">
@@ -102,6 +114,10 @@ export default function AdminProjectsPage() {
           <ProjectsTable status={status} />
         </div>
       </section>
+      <CreateProjectModal
+        isOpen={isCreateProjectOpen}
+        onClose={() => setIsCreateProjectOpen(false)}
+      />
     </div>
   );
 }

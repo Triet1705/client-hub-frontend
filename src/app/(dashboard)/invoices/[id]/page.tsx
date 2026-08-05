@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useParams, usePathname } from "next/navigation";
 import { format } from "date-fns";
 import { ArrowLeft, Copy, Receipt, ShieldCheck, Wallet } from "lucide-react";
 import { toast } from "sonner";
@@ -66,9 +66,13 @@ function getPrimaryTransition(status: InvoiceStatus): InvoiceStatus | null {
   }
 }
 
-export default function InvoiceDetailPage() {
+export function InvoiceDetailPage() {
   const params = useParams<{ id: string }>();
+  const pathname = usePathname();
   const invoiceId = Array.isArray(params?.id) ? params.id[0] : params?.id ?? "";
+  const isAdminRoute = pathname.startsWith("/admin/");
+  const invoicesHref = isAdminRoute ? "/admin/invoices" : "/invoices";
+  const projectsHref = isAdminRoute ? "/admin/projects" : "/projects";
   useInvoiceRealtime(invoiceId);
 
   const { user } = useAuthStore();
@@ -202,7 +206,7 @@ export default function InvoiceDetailPage() {
       <div className="flex items-center justify-between gap-4 flex-wrap">
         <div className="space-y-2">
           <Link
-            href="/invoices"
+            href={invoicesHref}
             className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-content-muted hover:text-content-secondary transition-colors"
           >
             <ArrowLeft size={14} />
@@ -423,11 +427,11 @@ export default function InvoiceDetailPage() {
               </div>
               <div className="p-4 space-y-3 text-sm">
                 <p className="text-content-secondary">Project ID</p>
-                <Link href={`/projects/${invoice.projectId}`} className="font-mono text-theme-accent hover:text-theme-accent">
+                <Link href={`${projectsHref}/${invoice.projectId}`} className="font-mono text-theme-accent hover:text-theme-accent">
                   {invoice.projectId}
                 </Link>
                 <Link
-                  href={`/invoices?projectId=${invoice.projectId}`}
+                  href={`${invoicesHref}?projectId=${invoice.projectId}`}
                   className="inline-flex text-xs font-bold text-content-secondary hover:text-content-primary"
                 >
                   Open Project Invoices
@@ -536,3 +540,5 @@ export default function InvoiceDetailPage() {
     </div>
   );
 }
+
+export default InvoiceDetailPage;

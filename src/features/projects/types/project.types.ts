@@ -39,6 +39,8 @@ export interface ProjectRequestPayload {
     budget?: string;
     deadline?: string;          // ISO date yyyy-MM-dd
     status?: ProjectStatus;
+    ownerId?: string;
+    memberIds?: string[];
 }
 
 export interface ProjectMember {

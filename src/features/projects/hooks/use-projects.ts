@@ -4,6 +4,7 @@ import { getApiErrorMessage, getApiErrorStatus } from "@/lib/api/error";
 import {
   fetchProjects,
   createProject,
+  updateProject,
   deleteProject,
   fetchProjectById,
   fetchProjectMembers,
@@ -14,11 +15,13 @@ import {
   fetchProjectFiles,
   fetchProjectActivity,
   searchProjectFreelancers,
+  searchTenantFreelancers,
   fetchProjectActivityProof,
   verifyProjectActivityProof,
 } from "../api/project.api";
 import type { ProjectRequestPayload } from "../types/project.types";
 import { toast } from "sonner";
+import { dashboardKeys } from "@/features/dashboard/hooks/use-dashboard";
 
 export const projectKeys = {
   all: ["projects"] as const,
@@ -31,6 +34,7 @@ export const projectKeys = {
   activity: (id: string) => [...projectKeys.all, "detail", id, "activity"] as const,
   activityProof: (id: string, auditLogId: number) => [...projectKeys.activity(id), "proof", auditLogId] as const,
   freelancerSearch: (id: string, keyword: string) => [...projectKeys.all, "detail", id, "freelancer-search", keyword] as const,
+  tenantFreelancerSearch: (keyword: string) => [...projectKeys.all, "tenant-freelancer-search", keyword] as const,
 };
 
 export function useProjectsQuery(page = 0, size = 20) {
@@ -133,12 +137,14 @@ export function useCreateProjectMutation() {
         description: `${newProject.title} has been successfully provisioned.`,
       });
       queryClient.invalidateQueries({ queryKey: projectKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: dashboardKeys.all });
+      queryClient.invalidateQueries({ queryKey: ["admin", "projects"] });
     },
     onError: (error: AxiosError<{ message?: string }>) => {
       const status = getApiErrorStatus(error);
       if (status === 403) {
         toast.error("Access Denied", {
-          description: "Only clients can create projects.",
+          description: "Your account is not allowed to create projects.",
         });
         return;
       }
@@ -148,14 +154,52 @@ export function useCreateProjectMutation() {
   });
 }
 
+export function useTenantFreelancerSearchQuery(keyword: string, enabled = true) {
+  const normalizedKeyword = keyword.trim();
+  return useQuery({
+    queryKey: projectKeys.tenantFreelancerSearch(normalizedKeyword),
+    queryFn: () => searchTenantFreelancers(normalizedKeyword),
+    enabled,
+    placeholderData: (prev) => prev,
+  });
+}
+
+export function useUpdateProjectMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, payload }: { id: string; payload: ProjectRequestPayload }) =>
+      updateProject(id, payload),
+    onSuccess: (updatedProject, variables) => {
+      toast.success("Project Updated", {
+        description: `${updatedProject.title} has been saved.`,
+      });
+      queryClient.setQueryData(projectKeys.detail(variables.id), updatedProject);
+      queryClient.invalidateQueries({ queryKey: projectKeys.detail(variables.id) });
+      queryClient.invalidateQueries({ queryKey: projectKeys.members(variables.id) });
+      queryClient.invalidateQueries({ queryKey: projectKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: dashboardKeys.all });
+      queryClient.invalidateQueries({ queryKey: ["admin", "projects"] });
+      queryClient.invalidateQueries({ queryKey: projectKeys.activity(variables.id) });
+    },
+    onError: (error: unknown) => {
+      const errorMsg = getApiErrorMessage(error, "Failed to update project.");
+      toast.error("Update Failed", { description: errorMsg });
+    },
+  });
+}
+
 export function useDeleteProjectMutation() {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: (id: string) => deleteProject(id),
-    onSuccess: () => {
+    onSuccess: (_, projectId) => {
       toast.success("Project Deleted");
+      queryClient.removeQueries({ queryKey: projectKeys.detail(projectId) });
       queryClient.invalidateQueries({ queryKey: projectKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: dashboardKeys.all });
+      queryClient.invalidateQueries({ queryKey: ["admin", "projects"] });
     },
     onError: (error: unknown) => {
       const errorMsg = getApiErrorMessage(error, "Failed to delete project.");

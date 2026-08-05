@@ -108,7 +108,7 @@ export function CustomDatePicker({
       data-clienthub-date-picker
       role="dialog"
       aria-label="Choose a date"
-      className="fixed z-[9999] w-[min(20rem,calc(100vw-1.5rem))] rounded-2xl border border-theme-border bg-surface-base p-3 text-content-primary shadow-[0_18px_45px_var(--shadow-color)] ring-1 ring-theme-border"
+      className="fixed z-[9999] w-[min(20rem,calc(100vw-1.5rem))] rounded-2xl border border-theme-border bg-surface p-3 text-content-primary shadow-[0_18px_45px_var(--shadow-color)] ring-1 ring-theme-border"
       style={{ top: dropdownCoords.top, left: dropdownCoords.left }}
     >
       <div className="mb-2 flex items-center justify-between border-b border-theme-border-subtle px-1 pb-3">
@@ -181,8 +181,8 @@ export function CustomDatePicker({
           if (!disabled) setIsOpen((current) => !current);
         }}
         className={cn(
-          "flex h-11 w-full items-center justify-between rounded-xl border bg-surface-base/70 px-4 text-left text-sm transition-all",
-          "hover:bg-surface-elevated/70 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-theme-accent/50",
+          "flex h-11 w-full items-center justify-between rounded-xl border bg-surface px-4 text-left text-sm transition-all",
+          "hover:bg-surface-elevated focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-theme-accent/50",
           isOpen
             ? "border-theme-accent shadow-[0_0_0_1px_var(--theme-accent)]"
             : "border-theme-border hover:border-theme-accent/60",

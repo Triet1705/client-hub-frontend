@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { useAccount } from "wagmi";
+import { useAccount, useChainId } from "wagmi";
 import { toast } from "sonner";
 import { useQueryClient } from "@tanstack/react-query";
 import { Bell, KeyRound, MonitorCog, Palette, Shield, User, WalletCards } from "lucide-react";
@@ -23,6 +23,11 @@ import {
 import { getApiErrorMessage } from "@/lib/api/error";
 import { cn, truncateAddress } from "@/lib/utils";
 import { useTheme } from "@/providers/theme-provider";
+import {
+  addEscrowTokenToWallet,
+  ESCROW_TOKEN_SYMBOL,
+  useEscrowTokenBalance,
+} from "@/features/wallet/hooks/useEscrowContract";
 
 const SECTIONS = [
   { id: "profile", label: "Account", icon: User, helper: "Identity and portfolio" },
@@ -104,7 +109,10 @@ export default function SettingsPage() {
   const updatePreferences = useUpdatePreferencesMutation();
   const changePassword = useChangePasswordMutation();
   const queryClient = useQueryClient();
-  const { address, isConnected } = useAccount();
+  const { address, connector, isConnected } = useAccount();
+  const chainId = useChainId();
+  const isSupportedEscrowChain = chainId === 31337 || chainId === 80002;
+  const tokenBalance = useEscrowTokenBalance(address, isSupportedEscrowChain);
   const { setTheme } = useTheme();
 
   const [activeSection, setActiveSection] = React.useState<SectionId>("profile");
@@ -133,6 +141,7 @@ export default function SettingsPage() {
   });
   const [password, setPassword] = React.useState({ currentPassword: "", newPassword: "" });
   const [walletSaving, setWalletSaving] = React.useState(false);
+  const [tokenImporting, setTokenImporting] = React.useState(false);
 
   React.useEffect(() => {
     if (!me) return;
@@ -183,6 +192,22 @@ export default function SettingsPage() {
     !!address &&
     !!me?.walletAddress &&
     address.toLowerCase() === me.walletAddress.toLowerCase();
+
+  const importEscrowToken = async () => {
+    setTokenImporting(true);
+    try {
+      await addEscrowTokenToWallet(connector);
+      toast.success(`${ESCROW_TOKEN_SYMBOL} added to wallet`, {
+        description: "The displayed token balance now uses the active deployment address.",
+      });
+    } catch (error) {
+      toast.error("Unable to add mUSDT", {
+        description: getApiErrorMessage(error, "The connected wallet rejected token import"),
+      });
+    } finally {
+      setTokenImporting(false);
+    }
+  };
 
   const scrollToSection = (section: SectionId) => {
     setActiveSection(section);
@@ -238,7 +263,7 @@ export default function SettingsPage() {
 
         <div className="space-y-6">
           <SettingsPanel id="profile" title="Account Profile" description="Public identity, portfolio content, and privacy flags." icon={User}>
-            <div className="grid gap-4 lg:grid-cols-2">
+            <div className="grid gap-4 lg:grid-cols-3">
               <FormField label="Full name"><Input value={profile.fullName} onChange={(e) => setProfile((p) => ({ ...p, fullName: e.target.value }))} /></FormField>
               <FormField label="Headline"><Input value={profile.headline} onChange={(e) => setProfile((p) => ({ ...p, headline: e.target.value }))} /></FormField>
               <FormField label="Bio" className="lg:col-span-2"><Textarea rows={5} value={profile.bio} onChange={(e) => setProfile((p) => ({ ...p, bio: e.target.value }))} /></FormField>
@@ -357,20 +382,43 @@ export default function SettingsPage() {
                   {truncateAddress(address) || "Not connected"}
                 </p>
               </div>
+              <div className="rounded-2xl border border-theme-border bg-surface-base/50 p-4">
+                <p className="text-xs font-bold uppercase tracking-widest text-content-muted">On-chain mUSDT</p>
+                <p className="mt-3 font-mono text-sm text-content-primary">
+                  {!isConnected
+                    ? "Connect wallet"
+                    : !isSupportedEscrowChain
+                      ? "Unsupported network"
+                      : tokenBalance.isLoading
+                        ? "Loading..."
+                        : tokenBalance.formattedBalance === null
+                          ? "Unavailable"
+                          : `${Number(tokenBalance.formattedBalance).toLocaleString("en-US", { maximumFractionDigits: 6 })} mUSDT`}
+                </p>
+              </div>
             </div>
             {isConnected && address && me?.walletAddress && !connectedWalletIsSaved ? (
               <p className="mt-4 text-sm text-status-warning-text">
                 The connected wallet differs from the wallet bound to this account.
               </p>
             ) : null}
-            <Button
-              className="mt-5"
-              disabled={!isConnected || !address || connectedWalletIsSaved}
-              isLoading={walletSaving}
-              onClick={saveWallet}
-            >
-              {connectedWalletIsSaved ? "Wallet Already Bound" : "Bind Connected Wallet"}
-            </Button>
+            <div className="mt-5 flex flex-wrap gap-3">
+              <Button
+                disabled={!isConnected || !address || connectedWalletIsSaved}
+                isLoading={walletSaving}
+                onClick={saveWallet}
+              >
+                {connectedWalletIsSaved ? "Wallet Already Bound" : "Bind Connected Wallet"}
+              </Button>
+              <Button
+                variant="secondary"
+                disabled={!isConnected || !connector || !isSupportedEscrowChain}
+                isLoading={tokenImporting}
+                onClick={importEscrowToken}
+              >
+                Add mUSDT to Wallet
+              </Button>
+            </div>
           </SettingsPanel>
         </div>
       </div>

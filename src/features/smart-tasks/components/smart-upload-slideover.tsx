@@ -307,15 +307,18 @@ export function SmartUploadSlideover({
                         <Clock className="w-3 h-3" />
                         {(documentMeta.processingTimeMs / 1000).toFixed(1)}s
                       </span>
-                      <span className={cn(
+                      <span
+                        title="Model-reported confidence estimate; this is not measured extraction accuracy."
+                        className={cn(
                         "text-[10px] font-bold px-2 py-0.5 rounded-full",
                         documentMeta.overallConfidence >= 0.7
                           ? "bg-action-subtle text-theme-accent ring-1 ring-theme-accent"
                           : documentMeta.overallConfidence >= 0.4
                           ? "bg-status-warning-surface text-status-warning-text ring-1 ring-status-warning-border"
                           : "bg-status-danger-surface text-status-danger-text ring-1 ring-status-danger-border"
-                      )}>
-                        {Math.round(documentMeta.overallConfidence * 100)}% Match
+                        )}
+                      >
+                        {Math.round(documentMeta.overallConfidence * 100)}% AI Confidence
                       </span>
                     </div>
                   </div>

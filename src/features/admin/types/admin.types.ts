@@ -40,6 +40,7 @@ export interface AdminHealthResponse {
 
 export interface ControlCenterSummary {
   totalRevenue: string | number;
+  activeAccounts: number;
   activeUsers24h: number;
   openProjects: number;
   unpaidInvoices: number;
@@ -208,6 +209,13 @@ export interface AdminUser {
   walletAddress: string | null;
   createdAt: string;
   lastLoginAt: string | null;
+}
+
+export interface AdminCreateUserPayload {
+  fullName: string;
+  email: string;
+  password: string;
+  role: Role;
 }
 
 export interface AdminUserDetail extends AdminUser {

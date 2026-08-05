@@ -67,6 +67,17 @@ export async function searchProjectFreelancers(
   return data;
 }
 
+export async function searchTenantFreelancers(
+  keyword: string,
+): Promise<ProjectFreelancerCandidate[]> {
+  const trimmedKeyword = keyword.trim();
+  const { data } = await apiClient.get<ProjectFreelancerCandidate[]>(
+    `${PROJECTS_BASE}/freelancers/search`,
+    { params: { keyword: trimmedKeyword || undefined } },
+  );
+  return data;
+}
+
 // Project invoices — reuses existing GET /invoices?projectId= endpoint (§7.2)
 export async function fetchProjectInvoices(projectId: string): Promise<ProjectInvoice[]> {
   const { data } = await apiClient.get<PageResponse<ProjectInvoice> | ProjectInvoice[] | null>("/invoices", {

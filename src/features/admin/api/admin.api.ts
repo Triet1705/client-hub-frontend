@@ -3,6 +3,7 @@ import type { Role } from "@/features/auth/types/auth.types";
 import type {
   PlatformStats,
   AdminUser,
+  AdminCreateUserPayload,
   AdminUserDetail,
   AdminProject,
   AdminInvoice,
@@ -97,6 +98,11 @@ export async function fetchAdminUsers(params: {
 
 export async function fetchAdminUserDetail(id: string): Promise<AdminUserDetail> {
   const { data } = await apiClient.get<AdminUserDetail>(`/admin/users/${id}`);
+  return data;
+}
+
+export async function createAdminUser(payload: AdminCreateUserPayload): Promise<AdminUser> {
+  const { data } = await apiClient.post<AdminUser>("/admin/users", payload);
   return data;
 }
 
