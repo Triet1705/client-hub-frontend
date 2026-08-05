@@ -25,6 +25,15 @@ interface CreateInvoiceModalProps {
   defaultProjectId?: string;
 }
 
+function readBudgetDetail(details: unknown, key: string): string | undefined {
+  if (!Array.isArray(details)) return undefined;
+  const prefix = `${key}=`;
+  const value = details.find(
+    (detail): detail is string => typeof detail === "string" && detail.startsWith(prefix),
+  );
+  return value?.slice(prefix.length);
+}
+
 
 export function CreateInvoiceModal({ isOpen, onClose, defaultProjectId }: CreateInvoiceModalProps) {
   const [title, setTitle] = React.useState("");
@@ -115,11 +124,13 @@ export function CreateInvoiceModal({ isOpen, onClose, defaultProjectId }: Create
               }
             });
             setFieldErrors(newErrors);
-          } else if (
-            apiError.status === 409 &&
-            apiError.message.toLowerCase().includes("project budget")
-          ) {
-            setFieldErrors({ amount: apiError.message });
+          } else if (apiError.status === 409 && apiError.code === "PROJECT_BUDGET_EXCEEDED") {
+            const remaining = readBudgetDetail(apiError.details, "remaining");
+            setFieldErrors({
+              amount: remaining
+                ? `This project has ${formatFiat(remaining)} available. Reduce the invoice amount or review the existing invoices first.`
+                : "This invoice is above the project's available budget. Reduce the amount or review the existing invoices first.",
+            });
           }
         }
       },

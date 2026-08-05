@@ -5,7 +5,7 @@ import {
   useWaitForTransactionReceipt,
   useWriteContract,
 } from "wagmi";
-import { isAddress, parseUnits } from "viem";
+import { formatUnits, isAddress, parseUnits } from "viem";
 
 import contractAbis from "@/lib/contracts/abi.json";
 
@@ -53,9 +53,53 @@ export const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
 export const ESCROW_ADDRESS = (process.env.NEXT_PUBLIC_ESCROW_CONTRACT_ADDRESS || ZERO_ADDRESS) as `0x${string}`;
 export const ESCROW_TOKEN_ADDRESS = (process.env.NEXT_PUBLIC_ESCROW_TOKEN_ADDRESS || ZERO_ADDRESS) as `0x${string}`;
 export const ESCROW_TOKEN_DECIMALS = Number(process.env.NEXT_PUBLIC_ESCROW_TOKEN_DECIMALS || "6");
+export const ESCROW_TOKEN_SYMBOL = "mUSDT";
 
 export function isConfiguredAddress(value: string | undefined | null): value is `0x${string}` {
   return !!value && value !== ZERO_ADDRESS && isAddress(value);
+}
+
+type WalletAssetConnector = {
+  getProvider: () => Promise<unknown>;
+};
+
+type Eip1193Provider = {
+  request: (args: {
+    method: string;
+    params?: unknown;
+  }) => Promise<unknown>;
+};
+
+export async function addEscrowTokenToWallet(connector?: WalletAssetConnector) {
+  if (!connector || !isConfiguredAddress(ESCROW_TOKEN_ADDRESS)) {
+    throw new Error("Connect a wallet and configure the escrow token before importing mUSDT.");
+  }
+
+  const provider = await connector.getProvider();
+  if (
+    typeof provider !== "object" ||
+    provider === null ||
+    !("request" in provider) ||
+    typeof (provider as Eip1193Provider).request !== "function"
+  ) {
+    throw new Error("The connected wallet does not support token import.");
+  }
+
+  const accepted = await (provider as Eip1193Provider).request({
+    method: "wallet_watchAsset",
+    params: {
+      type: "ERC20",
+      options: {
+        address: ESCROW_TOKEN_ADDRESS,
+        symbol: ESCROW_TOKEN_SYMBOL,
+        decimals: ESCROW_TOKEN_DECIMALS,
+      },
+    },
+  });
+
+  if (accepted === false) {
+    throw new Error("The mUSDT import request was declined in the wallet.");
+  }
 }
 
 function requireExpectedSigner(
@@ -265,5 +309,32 @@ export function useTokenAllowance(owner: `0x${string}` | undefined, amount: stri
     refetchAllowance: refetch,
     isLoadingAllowance: isLoading,
     allowanceError: error,
+  };
+}
+
+export function useEscrowTokenBalance(
+  owner: `0x${string}` | undefined,
+  isSupportedChain: boolean,
+) {
+  const query = useReadContract({
+    address: ESCROW_TOKEN_ADDRESS,
+    abi: ERC20_ABI,
+    functionName: "balanceOf",
+    args: owner ? [owner] : undefined,
+    query: {
+      enabled:
+        !!owner &&
+        isSupportedChain &&
+        isConfiguredAddress(ESCROW_TOKEN_ADDRESS),
+      retry: false,
+    },
+  });
+
+  return {
+    ...query,
+    formattedBalance:
+      query.data === undefined
+        ? null
+        : formatUnits(query.data as bigint, ESCROW_TOKEN_DECIMALS),
   };
 }

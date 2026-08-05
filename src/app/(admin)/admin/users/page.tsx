@@ -4,7 +4,9 @@ import * as React from "react";
 import { UserTable } from "@/features/admin/components/user-table";
 import { FilterSection } from "@/components/ui/filter-section";
 import { SearchInput } from "@/components/ui/search-input";
-import { CircleDot } from "lucide-react";
+import { CircleDot, Plus } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { CreateUserModal } from "@/features/admin/components/create-user-modal";
 import {
   ADMIN_USER_ROLE_OPTIONS,
   ADMIN_USER_STATUS_OPTIONS,
@@ -17,6 +19,7 @@ export default function AdminUsersPage() {
   const [searchInput, setSearchInput] = React.useState("");
   const [role, setRole] = React.useState<AdminUserRoleFilterValue>("ALL");
   const [status, setStatus] = React.useState<AdminUserStatusFilterValue>("ALL");
+  const [isCreateOpen, setIsCreateOpen] = React.useState(false);
 
   const [openSections, setOpenSections] = React.useState({
     search: true,
@@ -47,11 +50,17 @@ export default function AdminUsersPage() {
 
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <div className="flex flex-col gap-2">
-        <h2 className="text-3xl font-bold tracking-tight text-content-primary">User Management</h2>
-        <p className="text-content-secondary">
-          Manage platform users across all tenants.
-        </p>
+      <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-start">
+        <div className="flex flex-col gap-2">
+          <h2 className="text-3xl font-bold tracking-tight text-content-primary">User Management</h2>
+          <p className="text-content-secondary">
+            Manage users in the current workspace.
+          </p>
+        </div>
+        <Button type="button" onClick={() => setIsCreateOpen(true)} className="gap-2 self-start">
+          <Plus size={16} />
+          Create User
+        </Button>
       </div>
 
       <section className="grid grid-cols-1 xl:grid-cols-[18rem_minmax(0,1fr)] gap-6 items-start">
@@ -166,6 +175,7 @@ export default function AdminUsersPage() {
           <UserTable keyword={keyword} role={role} status={status} />
         </div>
       </section>
+      <CreateUserModal isOpen={isCreateOpen} onClose={() => setIsCreateOpen(false)} />
     </div>
   );
 }

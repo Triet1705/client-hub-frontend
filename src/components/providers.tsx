@@ -14,6 +14,7 @@ import { web3Config } from "@/lib/web3-config";
 import { ThemeProvider, useTheme } from "@/providers/theme-provider";
 import { NavigationProgressProvider } from "@/providers/navigation-progress-provider";
 import { RealtimeProvider } from "@/features/realtime/context/realtime-provider";
+import { RealtimeCacheSync } from "@/features/realtime/components/realtime-cache-sync";
 import "@rainbow-me/rainbowkit/styles.css";
 
 function ThemeAwareProviders({ children }: { children: React.ReactNode }) {
@@ -35,6 +36,7 @@ function ThemeAwareProviders({ children }: { children: React.ReactNode }) {
 
   return (
     <RealtimeProvider>
+      <RealtimeCacheSync />
       <RainbowKitProvider theme={rainbowTheme} initialChain={80002}>
         <NavigationProgressProvider>{children}</NavigationProgressProvider>
         <Toaster

@@ -80,8 +80,12 @@ export function LoginForm() {
       });
 
       const defaultPath = response.role === "ADMIN" ? "/admin" : "/dashboard";
-      const callbackUrl = searchParams.get("callbackUrl") ?? defaultPath;
-      router.push(callbackUrl);
+      const requestedCallback = searchParams.get("callbackUrl");
+      const callbackUrl = requestedCallback?.startsWith("/") && !requestedCallback.startsWith("//")
+        ? requestedCallback
+        : defaultPath;
+      router.replace(callbackUrl);
+      router.refresh();
     } catch (error: unknown) {
       const apiError = normalizeApiError(error);
       const errorMsg = apiError.message || "Unable to sign in. Please try again.";
@@ -92,14 +96,14 @@ export function LoginForm() {
           message: errorMsg,
         });
       } else if (apiError.status === 401) {
-        setError("email", {
+        const credentialMessage =
+          "These credentials do not match the selected workspace. Confirm the workspace ID, email, and password.";
+        setError("root.server", {
           type: "server",
-          message: "Check that this email belongs to the selected workspace.",
+          message: credentialMessage,
         });
-        setError("password", {
-          type: "server",
-          message: "Email or password is incorrect for this workspace.",
-        });
+        toast.error("Authentication Failed", { description: credentialMessage });
+        return;
       } else if (apiError.status === 403) {
         setError("email", { type: "server", message: errorMsg });
       } else if (apiError.status === 423) {

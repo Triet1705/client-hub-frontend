@@ -6,7 +6,7 @@ import { fetchInvoiceById, fetchInvoices, updateInvoiceStatus, createInvoice, fe
 import type { InvoiceQueryParams } from "../types/invoice.types";
 import { projectKeys } from "@/features/projects/hooks/use-projects";
 import { useRealtimeConnection } from "@/features/realtime/context/realtime-provider";
-import * as React from "react";
+import { dashboardKeys } from "@/features/dashboard/hooks/use-dashboard";
 
 export const invoiceKeys = {
   all: ["invoices"] as const,
@@ -18,36 +18,13 @@ export const invoiceKeys = {
 };
 
 export function useInvoicesQuery(params: InvoiceQueryParams) {
-  const queryClient = useQueryClient();
-  const { isConnected, subscribe } = useRealtimeConnection();
+  const { isConnected } = useRealtimeConnection();
   const query = useQuery({
     queryKey: invoiceKeys.list(params),
     queryFn: () => fetchInvoices(params),
     placeholderData: keepPreviousData,
     refetchInterval: isConnected ? false : 10_000,
   });
-
-  const visibleInvoiceIds = React.useMemo<string[]>(
-    () => query.data?.map((invoice) => String(invoice.id)) ?? [],
-    [query.data],
-  );
-
-  React.useEffect(() => {
-    if (!isConnected || visibleInvoiceIds.length === 0) {
-      return;
-    }
-
-    const unsubscribe = visibleInvoiceIds.map((invoiceId) =>
-      subscribe(`/topic/invoices/${invoiceId}/status`, () => {
-        void queryClient.invalidateQueries({ queryKey: invoiceKeys.lists() });
-        void queryClient.invalidateQueries({
-          queryKey: invoiceKeys.detail(invoiceId),
-        });
-      }),
-    );
-
-    return () => unsubscribe.forEach((stop) => stop());
-  }, [isConnected, queryClient, subscribe, visibleInvoiceIds]);
 
   return query;
 }
@@ -90,6 +67,8 @@ export function useUpdateInvoiceStatusMutation(currentParams: InvoiceQueryParams
       });
       queryClient.invalidateQueries({ queryKey: invoiceKeys.list(currentParams) });
       queryClient.invalidateQueries({ queryKey: invoiceKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: ["admin", "invoices"] });
+      queryClient.invalidateQueries({ queryKey: dashboardKeys.all });
       queryClient.invalidateQueries({ queryKey: invoiceKeys.auditProof(variables.id) });
       if (currentParams.projectId) {
         queryClient.invalidateQueries({
@@ -115,6 +94,8 @@ export function useCreateInvoiceMutation() {
         description: "New invoice has been created.",
       });
       queryClient.invalidateQueries({ queryKey: invoiceKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: ["admin", "invoices"] });
+      queryClient.invalidateQueries({ queryKey: dashboardKeys.all });
       queryClient.invalidateQueries({
         queryKey: projectKeys.activity(variables.projectId),
         exact: true,
@@ -123,7 +104,7 @@ export function useCreateInvoiceMutation() {
     },
     onError: (error: unknown) => {
       const message = getApiErrorMessage(error, "Failed to create invoice.");
-      toast.error("Creation Failed", { description: message });
+      toast.error("Invoice not created", { description: message });
     },
   });
 }

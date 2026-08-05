@@ -3,7 +3,8 @@
 import * as React from "react";
 import { AdminInvoicesTable } from "@/features/admin/components/admin-invoices-table";
 import { FilterSection } from "@/components/ui/filter-section";
-import { CircleDot } from "lucide-react";
+import { CircleDot, Plus } from "lucide-react";
+import { CreateInvoiceModal } from "@/features/invoices/components/create-invoice-modal";
 import {
   ADMIN_INVOICE_STATUS_OPTIONS,
   type AdminInvoiceStatusFilterValue,
@@ -11,6 +12,7 @@ import {
 
 export default function AdminInvoicesPage() {
   const [status, setStatus] = React.useState<AdminInvoiceStatusFilterValue>("ALL");
+  const [isCreateInvoiceOpen, setIsCreateInvoiceOpen] = React.useState(false);
   const [openSections, setOpenSections] = React.useState({
     status: true,
   });
@@ -27,11 +29,21 @@ export default function AdminInvoicesPage() {
 
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <div className="flex flex-col gap-2">
-        <h2 className="text-3xl font-bold tracking-tight text-content-primary">Invoice & Billing</h2>
-        <p className="text-content-secondary">
-          View all invoices across tenants and perform emergency state-machine overrides.
-        </p>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div className="flex flex-col gap-2">
+          <h2 className="text-3xl font-bold tracking-tight text-content-primary">Invoice & Billing</h2>
+          <p className="text-content-secondary">
+            Create invoices, inspect billing, and perform emergency state-machine overrides.
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={() => setIsCreateInvoiceOpen(true)}
+          className="inline-flex items-center justify-center gap-2 rounded-xl bg-action-primary px-4 py-2.5 text-sm font-bold text-action-primary-foreground transition hover:bg-action-primary-hover"
+        >
+          <Plus className="h-4 w-4" />
+          Create Invoice
+        </button>
       </div>
 
       <section className="grid grid-cols-1 xl:grid-cols-[18rem_minmax(0,1fr)] gap-6 items-start">
@@ -102,6 +114,10 @@ export default function AdminInvoicesPage() {
           <AdminInvoicesTable status={status} />
         </div>
       </section>
+      <CreateInvoiceModal
+        isOpen={isCreateInvoiceOpen}
+        onClose={() => setIsCreateInvoiceOpen(false)}
+      />
     </div>
   );
 }

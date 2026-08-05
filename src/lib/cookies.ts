@@ -4,6 +4,8 @@ export const COOKIE_KEYS = {
   ACCESS_TOKEN: "access_token",
   REFRESH_TOKEN: "refresh_token",
   TENANT_ID: "tenant_id",
+  SESSION_HINT: "session_hint",
+  PERSIST_SESSION: "persist_session",
 } as const;
 
 function buildCookieOptions(persistSession = false): Cookies.CookieAttributes {
@@ -26,18 +28,27 @@ export function setAuthCookies(
   accessToken: string,
   _refreshToken: string | null | undefined,
   tenantId: string,
-  persistSession = false,
+  persistSession?: boolean,
 ) {
-  const options = buildCookieOptions(persistSession);
+  const shouldPersist = persistSession ?? isSessionPersistent();
+  const options = buildCookieOptions(shouldPersist);
 
   Cookies.set(COOKIE_KEYS.ACCESS_TOKEN, accessToken, options);
-  setTenantIdCookie(tenantId, persistSession);
+  setTenantIdCookie(tenantId, shouldPersist);
+  Cookies.set(COOKIE_KEYS.SESSION_HINT, "1", buildCookieOptions(shouldPersist));
+  if (shouldPersist) {
+    Cookies.set(COOKIE_KEYS.PERSIST_SESSION, "1", buildCookieOptions(true));
+  } else {
+    Cookies.remove(COOKIE_KEYS.PERSIST_SESSION, { path: "/" });
+  }
 }
 
 export function clearAuthCookies() {
-  Cookies.remove(COOKIE_KEYS.ACCESS_TOKEN);
-  Cookies.remove(COOKIE_KEYS.REFRESH_TOKEN);
-  Cookies.remove(COOKIE_KEYS.TENANT_ID);
+  Cookies.remove(COOKIE_KEYS.ACCESS_TOKEN, { path: "/" });
+  Cookies.remove(COOKIE_KEYS.REFRESH_TOKEN, { path: "/" });
+  Cookies.remove(COOKIE_KEYS.TENANT_ID, { path: "/" });
+  Cookies.remove(COOKIE_KEYS.SESSION_HINT, { path: "/" });
+  Cookies.remove(COOKIE_KEYS.PERSIST_SESSION, { path: "/" });
 }
 
 export function getAuthToken() {
@@ -51,4 +62,8 @@ export function getRefreshToken() {
 
 export function getTenantId() {
   return Cookies.get(COOKIE_KEYS.TENANT_ID);
+}
+
+export function isSessionPersistent() {
+  return Cookies.get(COOKIE_KEYS.PERSIST_SESSION) === "1";
 }

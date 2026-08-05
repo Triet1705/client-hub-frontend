@@ -3,6 +3,7 @@
 import * as React from "react";
 import { createPortal } from "react-dom";
 import { format } from "date-fns";
+import Link from "next/link";
 import type { AdminProject } from "../types/admin.types";
 
 interface AdminProjectDetailSlideoverProps {
@@ -110,6 +111,16 @@ export function AdminProjectDetailSlideover({
                 </div>
               )}
             </div>
+          </div>
+
+          <div className="pt-4 border-t border-theme-border">
+            <Link
+              href={`/admin/projects/${project.id}`}
+              onClick={onClose}
+              className="flex w-full items-center justify-center rounded-xl bg-action-primary px-4 py-3 text-sm font-bold text-action-primary-foreground transition hover:bg-action-primary-hover"
+            >
+              Open Project Workspace
+            </Link>
           </div>
         </div>
       </div>

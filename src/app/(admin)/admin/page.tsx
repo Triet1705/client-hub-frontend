@@ -217,7 +217,12 @@ export default function AdminOverviewPage() {
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
         <MetricCard label="Revenue" value={formatFiat(summary.totalRevenue)} helper="Paid invoices" icon={WalletCards} />
-        <MetricCard label="Active Users" value={summary.activeUsers24h} helper="Last 24 hours" icon={Users} />
+        <MetricCard
+          label="Active Accounts"
+          value={summary.activeAccounts}
+          helper={`${summary.activeUsers24h} logged in during the last 24 hours`}
+          icon={Users}
+        />
         <MetricCard label="Open Projects" value={summary.openProjects} helper="Not closed" icon={FolderOpen} />
         <MetricCard label="Unpaid Invoices" value={summary.unpaidInvoices} helper="Needs attention" icon={Receipt} />
         <MetricCard label="System Status" value={summary.systemStatus} helper="Overall platform state" icon={Cpu} status={summary.systemStatus} />

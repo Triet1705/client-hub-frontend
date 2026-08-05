@@ -31,9 +31,6 @@ export function ForceStatusModal({ invoiceId, currentStatus, isOpen, onClose }: 
       {
         onSuccess: () => {
           onClose();
-        },
-        onError: (err) => {
-          alert("Failed to force status: " + err.message);
         }
       }
     );

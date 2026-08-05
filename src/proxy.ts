@@ -14,16 +14,22 @@ const protectedRoutePrefixes = [
   "/invoices",
 ];
 
+function matchesRoutePrefix(pathname: string, prefix: string) {
+  return pathname === prefix || pathname.startsWith(`${prefix}/`);
+}
+
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   const accessToken = request.cookies.get("access_token")?.value;
+  const refreshToken = request.cookies.get("refresh_token")?.value;
+  const sessionHint = request.cookies.get("session_hint")?.value;
+  const hasRecoverableSession = Boolean(accessToken || refreshToken || sessionHint);
 
   const isPublicRoute = publicRoutes.includes(pathname);
   const isProtectedRoute = protectedRoutePrefixes.some((prefix) =>
-    pathname.startsWith(prefix),
+    matchesRoutePrefix(pathname, prefix),
   );
-
   let userRole = null;
   if (accessToken) {
     try {
@@ -34,25 +40,25 @@ export function proxy(request: NextRequest) {
     }
   }
 
-  if (accessToken && isPublicRoute && pathname !== "/") {
+  if (accessToken && userRole && isPublicRoute && pathname !== "/") {
     const defaultRoute = userRole === "ADMIN" ? "/admin" : "/dashboard";
     return NextResponse.redirect(new URL(defaultRoute, request.url));
   }
 
-  if (!accessToken && isProtectedRoute) {
+  if (!hasRecoverableSession && isProtectedRoute) {
     const loginUrl = new URL("/login", request.url);
 
-    loginUrl.searchParams.set("callbackUrl", pathname);
+    loginUrl.searchParams.set("callbackUrl", `${pathname}${request.nextUrl.search}`);
 
     return NextResponse.redirect(loginUrl);
   }
 
   if (accessToken && isProtectedRoute && userRole === "ADMIN" && !pathname.startsWith("/admin")) {
-    // If admin tries to access user dashboard, redirect to admin portal
+    // Keep platform admins inside the admin route namespace and layout.
     return NextResponse.redirect(new URL("/admin", request.url));
   }
 
-  if (accessToken && pathname.startsWith("/admin") && userRole !== "ADMIN") {
+  if (accessToken && userRole && pathname.startsWith("/admin") && userRole !== "ADMIN") {
     return NextResponse.redirect(new URL("/dashboard", request.url));
   }
 

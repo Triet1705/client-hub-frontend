@@ -42,6 +42,7 @@ export function TaskDetailSlideover({
   const { mutate: deleteTask }   = useDeleteTaskMutation(projectParams.projectId);
 
   const [assignedToId,    setAssignedToId]    = React.useState("");
+  const [title,           setTitle]           = React.useState("");
   const [priority,        setPriority]        = React.useState<TaskPriority>(TaskPriority.MEDIUM);
   const [estimatedHours,  setEstimatedHours]  = React.useState("");
   const [actualHours,     setActualHours]     = React.useState("");
@@ -52,6 +53,7 @@ export function TaskDetailSlideover({
 
   React.useEffect(() => {
     if (!task) return;
+    setTitle(task.title);
     setAssignedToId(task.assignedTo?.id ?? "");
     setPriority(task.priority);
     setEstimatedHours(task.estimatedHours != null ? String(task.estimatedHours) : "");
@@ -71,7 +73,7 @@ export function TaskDetailSlideover({
     if (!task) return;
     const payload: TaskRequestPayload = {
       projectId:       task.projectId,
-      title:           task.title,
+      title:           title.trim(),
       description:     description || undefined,
       assignedToId:    assignedToId || undefined,
       priority,
@@ -108,7 +110,7 @@ export function TaskDetailSlideover({
     <>
       <button
         onClick={handleSave}
-        disabled={isSaving}
+        disabled={isSaving || title.trim().length < 3}
         className="flex-1 rounded-xl bg-action-primary py-3 text-xs font-bold uppercase tracking-widest text-action-primary-foreground transition-colors hover:bg-action-primary-hover disabled:opacity-50"
       >
         {isSaving ? "Saving..." : "Save Changes"}
@@ -128,7 +130,31 @@ export function TaskDetailSlideover({
   return (
     <TaskDetailLayout
       isOpen={isOpen}
-      title={task?.title ?? "Task Details"}
+      title={title || task?.title || "Task Details"}
+      titleContent={
+        isClient ? (
+          <div>
+            <input
+              aria-label="Task title"
+              value={title}
+              onChange={(event) => setTitle(event.target.value)}
+              disabled={isSaving}
+              maxLength={200}
+              className={`w-full border-0 border-b bg-transparent px-0 py-1 text-lg font-bold leading-tight text-content-primary outline-none transition-colors placeholder:text-content-muted disabled:opacity-60 ${
+                title.trim().length > 0 && title.trim().length < 3
+                  ? "border-status-danger-border"
+                  : "border-transparent hover:border-theme-border focus:border-theme-accent"
+              }`}
+              placeholder="Enter a task title"
+            />
+            {title.trim().length > 0 && title.trim().length < 3 ? (
+              <p className="mt-1 text-xs text-status-danger-text">
+                Task title must contain at least 3 characters.
+              </p>
+            ) : null}
+          </div>
+        ) : undefined
+      }
       onClose={onClose}
       headerBadge={headerBadge}
       footer={footer}

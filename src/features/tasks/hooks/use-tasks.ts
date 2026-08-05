@@ -29,14 +29,11 @@ export function useTasksQuery(params: FetchTasksParams) {
   const user = useAuthStore((state) => state.user);
 
   React.useEffect(() => {
-    if (!isConnected || !user?.id) {
+    if (!isConnected || user?.role !== "ADMIN" || !params.projectId) {
       return;
     }
 
-    const destination =
-      user.role === "ADMIN" && params.projectId
-        ? `/topic/projects/${params.projectId}/tasks`
-        : `/topic/users/${user.id}/tasks`;
+    const destination = `/topic/projects/${params.projectId}/tasks`;
 
     return subscribe(destination, (message) => {
       let taskId: string | undefined;
@@ -202,9 +199,14 @@ export function useUpdateTaskMutation(currentParams: FetchTasksParams) {
   return useMutation({
     mutationFn: ({ id, payload }: { id: string; payload: TaskRequestPayload }) =>
       updateTask(id, payload),
-    onSuccess: () => {
+    onSuccess: (updatedTask, variables) => {
       toast.success("Task Updated");
-      queryClient.invalidateQueries({ queryKey: taskKeys.list(currentParams) });
+      queryClient.setQueryData(taskKeys.detail(variables.id), updatedTask);
+      queryClient.invalidateQueries({ queryKey: taskKeys.lists() });
+      queryClient.invalidateQueries({
+        queryKey: taskKeys.detail(variables.id),
+        exact: true,
+      });
       if (currentParams.projectId) {
         queryClient.invalidateQueries({
           queryKey: projectKeys.activity(currentParams.projectId),

@@ -3,6 +3,7 @@
 import * as React from "react";
 import { createPortal } from "react-dom";
 import { format } from "date-fns";
+import Link from "next/link";
 import type { AdminInvoice } from "../types/admin.types";
 
 interface AdminInvoiceDetailSlideoverProps {
@@ -101,6 +102,13 @@ export function AdminInvoiceDetailSlideover({
 
           {/* Actions */}
           <div className="pt-4 border-t border-theme-border">
+            <Link
+              href={`/admin/invoices/${invoice.id}`}
+              onClick={onClose}
+              className="mb-3 flex w-full items-center justify-center rounded-xl bg-action-primary px-4 py-3 text-sm font-bold text-action-primary-foreground transition hover:bg-action-primary-hover"
+            >
+              Open Invoice Workspace
+            </Link>
             <button
               type="button"
               onClick={onForceStatus}
